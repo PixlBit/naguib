@@ -268,14 +268,8 @@ function initSmoothScroll(){
    party, gets its own shorter patience — a hero frame that will not decode
    holds the site for that long and no longer.                        */
 (() => {
-  const wv = document.getElementById('l-wave');
-  if(wv) for(let i=0;i<34;i++){
-    const s = document.createElement('span');
-    s.style.cssText = 'height:'+(Math.random()*17+3)+'px;animation-delay:'+(Math.random()*.9)+'s;animation-duration:'+(Math.random()*.5+.55)+'s';
-    wv.appendChild(s);
-  }
   const fill = document.getElementById('l-fill'), pct = document.getElementById('l-pct'),
-        ltc  = document.getElementById('l-tc'),  say = document.getElementById('l-say');
+        say = document.getElementById('l-say');
 
   /* what each step is worth, and what to call it while it is happening */
   const STEP = {
@@ -318,10 +312,6 @@ function initSmoothScroll(){
     const v = Math.min(100, shown);
     if(fill) fill.style.width = v + '%';
     if(pct) pct.textContent = Math.floor(v) + '%';
-    if(ltc){
-      const f2 = Math.floor(v * 0.24);
-      ltc.textContent = '00:'+pad(Math.floor(f2/1440)%60)+':'+pad(Math.floor(f2/24)%60)+':'+pad(f2%24);
-    }
     SFX.loading(v / 100);
     /* the lift happens HERE, when the bar has actually arrived at a hundred —
        not on a timer running alongside it. A frame already scheduled would
@@ -388,13 +378,6 @@ function buildTicker(){
     d.innerHTML = x+'<div class="t-gem"></div>'; t.appendChild(d);
   });
 }
-function buildFilmstrips(){
-  ['fs1','fs2','fs3','fs4'].forEach(id => {
-    const t = document.getElementById(id); if(!t) return;
-    for(let i=0;i<120;i++){ const h=document.createElement('div'); h.className='fs-hole'; t.appendChild(h); }
-  });
-}
-
 /* ════ GRID CONFIGS — the live reel and the vault share one card engine ════ */
 const GRIDS = {
   work:   {list:PROJECTS, cats:CAT,  filters:'wf',  grid:'wg',  label:'ASSET',  feat:true,  arch:false, dir:'work'},
@@ -540,7 +523,6 @@ function buildCards(cat, cfg, limit){
       '<div class="wc-frame"></div>'+
       '<div class="wc-ov"></div>'+
       '<div class="wc-play"><div class="wc-pb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9,3 3,3 3,9"></polyline><polyline points="15,21 21,21 21,15"></polyline><line x1="3" y1="3" x2="10" y2="10"></line><line x1="21" y1="21" x2="14" y2="14"></line></svg></div></div>'+
-      '<div class="wc-tc">'+pad(i+1)+':00:'+pad(i*4)+':00</div>'+
       '<div class="wc-info"><div class="wc-num">'+cfg.label+' / '+pad(i+1,3)+'</div><div class="wc-title'+(isAR(p.title)?' ar':'')+'">'+titleHTML+'</div>'+tags+'</div>';
     /* the frame itself — deferred until the card is near the viewport */
     posterOf.set(card, () => {
@@ -982,14 +964,18 @@ function initScramble(){
   });
 }
 
-/* ════ NOW PLAYING + NAV/DOCK TRACK ════ */
+/* ════ NAV/DOCK TRACK ════ */
 /* Scroll position decides the active section, not intersection ratio: WORK and
-   THE VAULT are several screens tall, so a percentage-of-self threshold can
+   DETAIL PASSES are several screens tall, so a percentage-of-self threshold can
    never fire for them and the nav would stick on whichever section reported
    last. Here the active section is simply the last one whose top has crossed
-   just under the nav — correct at any section height.                        */
+   just under the nav — correct at any section height.
+
+   This used to also drive a "NOW PLAYING" readout in the corner. A studio
+   announcing its own sections to the person scrolling them is a caption for
+   something nobody needed captioned, so the nav is the only thing that
+   tracks now.                                                              */
 function initTracking(){
-  const label = document.getElementById('np-label');
   const navLinks = [...document.querySelectorAll('.n-links a')];
   const dockLinks = [...document.querySelectorAll('#dock a')];
   const sections = [...document.querySelectorAll('section[id]')];
@@ -1041,7 +1027,6 @@ function initTracking(){
        anyone has scrolled, and would sound like the site talking to itself. */
     if(current) SFX.play('nav');
     current = s;
-    if(label && s.dataset.np) label.textContent = s.dataset.np;
     const href = '#'+s.id;
     /* hero clears the bar; a section with no nav entry (clients) keeps the
        previous highlight rather than flickering everything off */
@@ -1232,7 +1217,6 @@ function BUILD(){
   };
 
   step('ticker', buildTicker);
-  step('filmstrips', buildFilmstrips);
   step('work grid', () => { buildFilters(GRIDS.work); buildCards('all', GRIDS.work); });
   /* The vault is forty-nine projects from 2016 to 2023. It is worth keeping,
      and it is not worth a phone building it before anyone has asked. The

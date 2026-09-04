@@ -170,24 +170,18 @@ function siteNav(up, active) {
   return `<nav>
   <a href="${up}" class="n-logo"><div class="n-pip"></div><span class="n-type">AHMED <b>NAGUIB</b></span></a>
   <ul class="n-links">
-${['#philosophy ABOUT', '#work WORK', '#ai CONCEPT', '#archive DETAIL', '#services SKILLS',
-   '#pipeline PIPELINE', '#contact CONTACT'].map(x => '    ' + link(...x.split(' '))).join('\n')}
+${['#work WORK', '#philosophy ABOUT', '#ai CONCEPT', '#archive DETAIL', '#services SKILLS',
+   '#pipeline PROCESS', '#contact CONTACT'].map(x => '    ' + link(...x.split(' '))).join('\n')}
   </ul>
   <div class="n-right">
-    <div class="n-clock" id="n-clock" aria-label="Marseille local time">
-      <span class="nc-orb" id="nc-orb"><svg viewBox="0 0 24 24"><g class="nc-sun"><circle cx="12" cy="12" r="4"></circle><g class="nc-rays"><line x1="12" y1="1.5" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="22.5"></line><line x1="1.5" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="22.5" y2="12"></line><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"></line><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"></line><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"></line><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"></line></g></g><g class="nc-moon"><path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"></path></g></svg></span>
-      <span class="nc-stack"><b class="nc-day" id="nc-day">&#8212;</b><span class="nc-date" id="nc-date">&#8212;</span></span>
-      <span class="nc-sep"></span>
-      <span class="nc-time" id="nc-time">00<i>:</i>00<i>:</i>00</span>
-      <span class="nc-zone">MRS</span>
-    </div>
+    <span class="n-avail"><i></i>AVAILABLE FOR WORK</span>
     <a href="${up}#contact" class="n-cta">GET IN TOUCH</a>
   </div>
 </nav>
 
 <div id="dock">
   <a href="${up}"><svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"></path><path d="M5 10v10h5v-6h4v6h5V10"></path></svg>HOME</a>
-  <a href="${up}#work"${active === 'WORK' ? ' class="on"' : ''}><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"></rect><polygon points="10,9 15,12 10,15"></polygon></svg>WORK</a>
+  <a href="${up}#work"${active === 'WORK' ? ' class="on"' : ''}><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>WORK</a>
   <a href="${up}#services"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"></polygon></svg>SKILLS</a>
   <a href="${up}#contact"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><polyline points="4,7 12,13 20,7"></polyline></svg>CONTACT</a>
 </div>`;
@@ -202,7 +196,6 @@ function siteFooter(up) {
     <div class="ft-meta">
       <span>&#169; 2026 AHMED NAGUIB</span>
       <span class="ft-dot">&#9679;</span><span>MARSEILLE, FRANCE</span>
-      <span class="ft-dot">&#9679;</span><span class="ft-tc" id="ft-tc">TC 00:00:00:00</span>
     </div>
   </div>
 </footer>`;
@@ -286,7 +279,6 @@ function page(p, i) {
 <script defer src="../../sound.js?v=${V}"></script>
 <script defer src="../../chrome.js?v=${V}"></script>
 <script defer src="../../project.js?v=${V}"></script>
-<script defer src="../../mascot.js?v=${V}"></script>
 </head>
 <body class="pj-body">
 <div id="prog"></div>

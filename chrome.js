@@ -44,29 +44,9 @@ const pad = (n, l = 2) => String(n).padStart(l, '0');
     tick(); setInterval(tick, 1000);
   }
 
-  /* ── running timecode, 24fps ──────────────────────────────────────── */
-  function initTimecode(){
-    /* The lightbox used to carry a running timecode too. It shows a still,
-       and a timecode counting up over a photograph is a clock pretending to
-       be a playhead — so that panel says what the piece actually is now,
-       written by studio.js, and this ticker leaves it alone. */
-    const nav = document.getElementById('n-tc'), hero = document.getElementById('hero-tc'),
-          foot = document.getElementById('ft-tc');
-    if(!nav && !hero && !foot) return;
-    let fr = 0;
-    setInterval(() => {
-      /* the frame count still advances — a timecode that stalls while you
-         read another tab is a broken timecode — but nothing is written to
-         the DOM for a page nobody is looking at */
-      if(document.hidden){ fr++; return; }
-      fr++;
-      const f = fr%24, s = Math.floor(fr/24)%60, m = Math.floor(fr/1440)%60;
-      const tc = pad(m)+':'+pad(s)+':'+pad(f);
-      if(nav) nav.textContent = tc;
-      if(hero) hero.textContent = '00:'+tc;
-      if(foot) foot.textContent = 'TC 00:'+tc;
-    }, 1000/24);
-  }
+  /* The running 24fps timecode that used to live here is gone with the
+     places it was written: the nav, the hero HUD, the lightbox and the
+     footer. A clock that counts frames belongs to a site that plays them. */
 
   /* ── scroll progress bar ──────────────────────────────────────────── */
   function initProgress(){
@@ -130,8 +110,9 @@ const pad = (n, l = 2) => String(n).padStart(l, '0');
          strip — it just adds or removes bars at the end */
       const a = (k * 2654435761) >>> 0;
       bar.style.background = BAR_HUES[(a >>> 3) % BAR_HUES.length];
-      bar.style.animationDuration = (0.7 + ((a >>> 7) % 190) / 100) + 's';
-      bar.style.animationDelay = '-' + ((a >>> 11) % 300) / 100 + 's';
+      /* the height is set here rather than animated: the strip is a ruled
+         edge, not a meter, and there is nothing for a meter to report */
+      bar.style.height = (26 + ((a >>> 7) % 46)) + '%';
       if(((a >>> 17) % 9) === 0) bar.className = 'hot';
       frag.appendChild(bar);
     }
@@ -303,7 +284,7 @@ const pad = (n, l = 2) => String(n).padStart(l, '0');
   }
 
   const go = () => {
-    initClock(); initTimecode(); initProgress();
+    initClock(); initProgress();
     buildBars(); initAnimGuards();
     initVoidClick(); initScrollSound(); initSelectSound(); initByeSound();
     let t = null;

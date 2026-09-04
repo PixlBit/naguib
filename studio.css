@@ -74,19 +74,12 @@ img,iframe{max-width:100%}
   box-shadow:0 0 6px var(--yw);transform:scaleX(0);transform-origin:left;will-change:transform}
 
 /* ═══ NOW PLAYING ═══ */
-#np{position:fixed;bottom:18px;left:18px;z-index:500;font-size:10.5px;letter-spacing:.16em;color:var(--mt);text-transform:uppercase;display:flex;align-items:center;gap:7px;background:rgba(4,7,10,.82);padding:6px 11px;border:1px solid var(--bd);backdrop-filter:blur(8px)}
-#np .np-dot{width:5px;height:5px;border-radius:50%;background:var(--yw);animation:pip 1.6s ease-in-out infinite;flex-shrink:0}
-#np b{color:var(--lm);font-weight:400}
-.exp-mobile #np{display:none}
 
 /* ═══ LOADER ═══ */
 #ldr{position:fixed;inset:0;background:var(--bk);z-index:8000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .7s,visibility .7s}
 #ldr.out{opacity:0;visibility:hidden}
 .l-logo{font-family:var(--fd);font-size:clamp(48px,9vw,100px);line-height:.88;text-align:center;letter-spacing:.04em}
 .l-logo b{color:var(--yw);font-weight:400;display:block;text-shadow:0 0 40px rgba(224,128,60,.4)}
-.l-tc{font-size:11px;color:var(--cy);letter-spacing:.2em}
-.l-wave{display:flex;align-items:center;gap:2px;height:20px}
-.l-wave span{display:block;width:2px;background:var(--lm);border-radius:1px;animation:lw .68s ease-in-out infinite}
 @keyframes lw{0%,100%{height:3px;opacity:.2}50%{height:17px;opacity:.75}}
 .l-bar{width:min(280px,70vw)}
 .l-rail{height:1px;background:var(--gr)}
@@ -114,6 +107,23 @@ nav{position:fixed;top:0;left:0;right:0;z-index:400;height:56px;display:grid;gri
 .n-tc{font-size:11.5px;color:var(--mt);letter-spacing:.1em}
 .n-tc b{color:var(--lm);font-weight:400}
 /* live clock cluster */
+/* WHAT THE NAV SAYS NOW. It used to carry a live clock — the time in a
+   city the visitor is not in, ticking in the corner of every page. It was
+   the most animated thing in the header and it answered a question nobody
+   had asked. What belongs in a portfolio's header is whether the person
+   is taking work; the clock moved down to the contact block, where it
+   answers "is it a reasonable hour to call him". */
+.n-avail{display:inline-flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--sv);white-space:nowrap;padding:5px 11px;
+  border:1px solid var(--bd);background:rgba(255,255,255,.02)}
+.n-avail i{width:5px;height:5px;border-radius:50%;background:var(--lm);flex-shrink:0;
+  box-shadow:0 0 8px var(--lm);animation:pip 2.4s ease-in-out infinite}
+@media(max-width:1100px){.n-avail{display:none}}
+
+/* the clock, in its new home under REACH ME */
+.c-clock{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.c-clock .nc-time{font-size:12px}
+.c-clock .nc-day{font-size:9px;letter-spacing:.16em;font-weight:400}
 .n-clock{display:flex;align-items:center;gap:8px;padding:5px 11px 5px 9px;border:1px solid var(--bd);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.3));position:relative;overflow:hidden;flex-shrink:0;white-space:nowrap}
 .n-clock>*{flex-shrink:0}
 .n-clock::after{content:'';position:absolute;top:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--cy),transparent);opacity:.5;animation:ncScan 5s linear infinite}
@@ -211,43 +221,35 @@ nav{position:fixed;top:0;left:0;right:0;z-index:400;height:56px;display:grid;gri
 .h-bl-t.y{color:rgba(224,128,60,.045)}
 .exp-mobile .h-bl-t{font-size:clamp(56px,16vw,90px)}
 .h-grid{position:absolute;inset:0;z-index:3;background-image:linear-gradient(rgba(224,128,60,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(224,128,60,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 60% 60% at 55% 50%,black,transparent 80%);pointer-events:none}
-.cx{position:absolute;z-index:5;font-size:11px;color:rgba(224,128,60,.32);letter-spacing:.08em;pointer-events:none}
-.cx.tl{top:64px;left:16px;animation:opacPulse 3.5s ease-in-out infinite}
-.cx.tr{top:64px;right:16px;animation:opacPulse 3.5s ease-in-out .9s infinite}
-.cx.bl{bottom:10px;left:16px;animation:opacPulse 3.5s ease-in-out 1.8s infinite}
-.cx.br{bottom:10px;right:16px;animation:opacPulse 3.5s ease-in-out 2.7s infinite}
-.exp-mobile .cx.bl,.exp-mobile .cx.br{bottom:64px}
-.h-deco{position:absolute;z-index:5;font-size:9px;color:rgba(255,255,255,.14);letter-spacing:.16em;text-transform:uppercase;pointer-events:none;line-height:2.1;text-align:right}
-.h-deco-1{top:20%;right:clamp(18px,5vw,60px);animation:floatUD 6s ease-in-out infinite}
-.h-deco-2{bottom:18%;right:clamp(18px,5vw,60px);animation:floatUD 6s ease-in-out 1.2s infinite}
-.exp-mobile .h-deco{display:none}
+/* THE HERO SAYS ONE THING NOW. There were framing brackets in all four
+   corners, two floating spec decks and a camera HUD along the bottom —
+   the furniture of a film set, on a page about sculpting. What is left is
+   a caption: who he is and where he works. */
+.h-cap{position:absolute;top:88px;right:clamp(18px,5vw,60px);z-index:5;font-size:9.5px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--mt);line-height:2.2;
+  text-align:right;pointer-events:none;max-width:40vw}
+.exp-mobile .h-cap{display:none}
 .h-inner{position:relative;z-index:10;max-width:1360px;margin:0 auto;padding:60px clamp(18px,5vw,60px);width:100%}
 .exp-mobile .h-inner{padding:0 20px}
 .h-pre{font-size:12px;letter-spacing:.26em;color:var(--cy);text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:18px;animation:floatUD 5s ease-in-out infinite}
+/* On a phone the three parts were spread across the full width by the flex
+   gap and read as three separate labels. They are one line. */
+.exp-mobile .h-pre{flex-wrap:wrap;gap:6px;font-size:10.5px;letter-spacing:.18em}
 .h-pre b{color:var(--lm);font-weight:700}
 .h-pre-line{width:26px;height:1px;background:var(--cy);opacity:.5}
 .h-h1{font-family:var(--fd);font-size:clamp(60px,11vw,168px);line-height:.84;letter-spacing:-.01em}
 .exp-mobile .h-h1{font-size:clamp(58px,17vw,96px);line-height:.86}
 /* ── hero glitch: slow loop, hard RGB burst. uses `translate` (not transform)
    so it layers on top of the float transform instead of overriding it ── */
-@keyframes hGlA{
-  0%,77%,86%,100%{text-shadow:none;translate:0 0;clip-path:inset(-20% -10% -20% -10%)}
-  78%{text-shadow:-7px 0 var(--cy),7px 0 var(--yw);translate:5px 0;clip-path:inset(8% -10% 55% -10%)}
-  80%{text-shadow:7px 0 var(--cy),-7px 0 var(--yw);translate:-6px 0;clip-path:inset(48% -10% 6% -10%)}
-  82%{text-shadow:-4px 0 var(--lm),4px 0 var(--yw);translate:4px 0;clip-path:inset(24% -10% 28% -10%)}
-  84%{text-shadow:3px 0 var(--cy),-3px 0 #fff;translate:-2px 0;clip-path:inset(-20% -10% -20% -10%)}
-}
-@keyframes hGlB{
-  0%,68%,82%,100%{text-shadow:0 0 60px rgba(224,128,60,.3);translate:0 0;clip-path:inset(-20% -10% -20% -10%)}
-  70%{text-shadow:-9px 0 var(--cy),9px 0 #fff;translate:-8px 0;clip-path:inset(5% -10% 60% -10%)}
-  73%{text-shadow:9px 0 var(--cy),-9px 0 var(--lm);translate:8px 0;clip-path:inset(52% -10% 4% -10%)}
-  76%{text-shadow:-6px 0 var(--lm),6px 0 var(--cy);translate:-5px 0;clip-path:inset(28% -10% 30% -10%)}
-  79%{text-shadow:5px 0 #fff,-5px 0 var(--yw);translate:3px 0;clip-path:inset(14% -10% 44% -10%)}
-  80.5%{text-shadow:0 0 60px rgba(224,128,60,.55);translate:-1px 0;clip-path:inset(-20% -10% -20% -10%)}
-}
-.h-l1{display:block;color:var(--wh);animation:floatUD 6s ease-in-out 0s infinite,hGlA 5.5s steps(1) 2.4s infinite;will-change:transform,translate}
-.h-l2{display:block;color:var(--yw);animation:floatUD 6s ease-in-out .6s infinite,hGlB 5.5s steps(1) .5s infinite;text-shadow:0 0 60px rgba(224,128,60,.3);will-change:transform,translate}
-.h-l3{display:block;color:var(--wh);animation:floatUD 6s ease-in-out 1.2s infinite,hGlA 6.5s steps(1) 4.2s infinite;will-change:transform,translate}
+/* THE HEADLINE IS JUST THE HEADLINE NOW. Each line used to tear into RGB
+   channels every five and a half seconds, forever. Two things were wrong
+   with it: a screen fault on a loop reads as a broken screen rather than as
+   a flourish, and the lines are held paused while the section is off screen,
+   so the tear resumed at an unpredictable moment — often the first moment a
+   visitor looked at the page. What is left is the slow drift. */
+.h-l1{display:block;color:var(--wh);animation:floatUD 6s ease-in-out 0s infinite;will-change:transform}
+.h-l2{display:block;color:var(--yw);animation:floatUD 6s ease-in-out .6s infinite;text-shadow:0 0 60px rgba(224,128,60,.3);will-change:transform}
+.h-l3{display:block;color:var(--wh);animation:floatUD 6s ease-in-out 1.2s infinite;will-change:transform}
 .h-sub{font-size:15px;color:var(--sv);letter-spacing:.07em;line-height:1.9;margin-top:24px;max-width:380px;animation:floatLR 8s ease-in-out infinite}
 .h-sub strong{color:var(--wh);font-weight:400}
 .h-ctas{display:flex;gap:9px;margin-top:28px;flex-wrap:wrap}
@@ -263,13 +265,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:400;height:56px;display:grid;gri
 .h-stats{display:flex;gap:28px;margin-top:34px;flex-wrap:wrap}
 .h-stat .n{font-family:var(--fd);font-size:clamp(26px,3vw,40px);color:var(--lm);line-height:1;text-shadow:0 0 24px rgba(62,224,208,.3)}
 .h-stat .k{font-size:11.5px;color:var(--mt);letter-spacing:.18em;text-transform:uppercase;margin-top:3px}
-.h-hud{position:absolute;bottom:22px;left:clamp(18px,4vw,60px);z-index:10;display:flex;gap:16px;flex-wrap:wrap}
-.h-hud-i{font-size:9px;color:rgba(255,255,255,.18);letter-spacing:.13em;display:flex;align-items:center;gap:4px}
-.h-hud-d{width:3px;height:3px;border-radius:50%;background:var(--yw);opacity:.6}
-.h-hud-r{position:absolute;bottom:22px;right:clamp(18px,4vw,60px);z-index:10;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
-.h-hud-r span{font-size:9px;color:rgba(255,255,255,.15);letter-spacing:.13em}
-.h-hud-r span.on{color:var(--yw);animation:opacPulse 1.6s ease-in-out infinite}
-.exp-mobile .h-hud,.exp-mobile .h-hud-r{display:none}
 .m-scroll-hint{display:none}
 .exp-mobile .m-scroll-hint{display:flex;position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:10;flex-direction:column;align-items:center;gap:5px}
 .m-sh-line{width:1px;height:26px;background:linear-gradient(to bottom,var(--lm),transparent);animation:shLine 1.8s ease-in-out infinite}
@@ -277,9 +272,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:400;height:56px;display:grid;gri
 .m-sh-t{font-size:8px;letter-spacing:.2em;color:rgba(255,255,255,.22);text-transform:uppercase}
 
 /* ═══ FILM STRIP + TICKER ═══ */
-.filmstrip{height:26px;background:#080e12;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);overflow:hidden;position:relative;z-index:5;display:flex;align-items:center}
-.fs-track{display:flex;animation:loopL 14s linear infinite;flex-shrink:0;will-change:transform}
-.fs-hole{width:9px;height:11px;background:var(--bk);border:1px solid #1e2e36;border-radius:1.5px;margin:0 7px;flex-shrink:0}
 .ticker{height:34px;background:var(--lm);display:flex;align-items:center;overflow:hidden;position:relative;z-index:6}
 .t-track{display:flex;animation:loopL 24s linear infinite;white-space:nowrap;will-change:transform}
 .t-item{font-size:13.5px;letter-spacing:.18em;font-weight:700;text-transform:uppercase;color:#04070a;padding:0 24px;display:flex;align-items:center;gap:8px}
@@ -324,7 +316,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:400;height:56px;display:grid;gri
 .exp-mobile .wc.feat,.exp-mobile .wc.wc-wide{grid-column:1/-1;aspect-ratio:16/9}
 .exp-mobile .wc-info{padding:11px 11px 12px}
 .exp-mobile .wc-num{font-size:8.5px;letter-spacing:.14em;margin-bottom:3px}
-.exp-mobile .wc-tc{top:10px;right:10px}
 /* half-width cards are tight: hold the title to two lines and lift the play
    badge into the artwork so it never lands behind the type */
 .exp-mobile .wg .wc:not(.feat):not(.wc-wide) .wc-title{font-size:12.5px;letter-spacing:.03em;line-height:1.2;
@@ -566,8 +557,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:400;height:56px;display:grid;gri
 .m-page{color:var(--lm);border-color:rgba(62,224,208,.38);margin-left:auto}
 .m-page:hover{background:var(--lm);color:var(--bk)}
 .exp-desktop .m-ext{cursor:none}
-.wc-tc{position:absolute;top:16px;right:16px;z-index:5;font-size:9px;color:rgba(255,255,255,.14);letter-spacing:.1em;background:rgba(0,0,0,.32);padding:1px 6px;transition:color .3s}
-.wc:hover .wc-tc{color:var(--lm)}
 .rail-dots{display:none}
 .exp-mobile .rail-dots{display:flex;justify-content:center;gap:5px;margin-top:14px}
 .rd{width:5px;height:5px;border-radius:50%;background:var(--gr);transition:background .25s,transform .25s}
@@ -809,28 +798,26 @@ nav{position:fixed;top:0;left:0;right:0;z-index:400;height:56px;display:grid;gri
 footer{position:relative;background:var(--ch);border-top:1px solid var(--bd);z-index:5;overflow:hidden}
 .exp-mobile footer .ft-main{padding-bottom:calc(86px + env(safe-area-inset-bottom))}
 /* ═══ CREATIVE FOOTER ═══ */
-/* Signal bars, not a level meter. They are thin and many, coloured from the
-   404 deck's test pattern, and they STEP between heights — a meter glides,
-   a torn signal jumps. chrome.js builds them so the count follows the width
-   and every page gets the same strip. */
+/* A measured strip, not a level meter. Thin bars at set heights, coloured
+   from the 404 deck's test pattern — chrome.js builds them so the count
+   follows the width and every page gets the same rule.
+
+   They used to jump between heights forever. A meter twitching at the foot
+   of every page is motion with nothing behind it: nothing is being measured,
+   so there is nothing for it to report. Still, they read as a ruled edge —
+   which is what a footer wants. */
 .ft-bars{display:flex;align-items:flex-end;justify-content:space-between;gap:0;
   height:30px;padding:0 clamp(18px,4vw,40px);border-bottom:1px solid var(--bd);
   overflow:hidden}
-.ft-bars i{flex:0 0 3px;height:14%;opacity:.34;animation-name:ftGl;
-  animation-timing-function:steps(1);animation-iteration-count:infinite}
-.ft-bars i.hot{opacity:.85;box-shadow:0 0 8px currentColor}
-@keyframes ftGl{
-  0%{height:12%}  9%{height:64%} 18%{height:22%} 27%{height:88%}
- 36%{height:34%} 45%{height:16%} 54%{height:72%} 63%{height:28%}
- 72%{height:96%} 81%{height:20%} 90%{height:48%} 100%{height:12%}
-}
+.ft-bars{height:22px}
+.ft-bars i{flex:0 0 3px;opacity:.16}
+.ft-bars i.hot{opacity:.4}
 .ft-main{display:flex;flex-direction:column;align-items:center;text-align:center;padding:44px clamp(18px,4vw,40px) 36px;gap:14px}
 .ft-big{font-family:var(--fd);font-size:clamp(54px,9vw,120px);line-height:.9;color:var(--wh);letter-spacing:.04em}
 .ft-tag{font-size:10.5px;letter-spacing:.34em;color:var(--mt);text-transform:uppercase}
 .ft-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;font-size:10.5px;color:var(--mt);letter-spacing:.12em;margin-top:8px}
 .ft-meta b{color:var(--yw);font-weight:400}
 .ft-dot{font-size:6px;color:var(--md)}
-.ft-tc{color:var(--lm)}
 #modal{position:fixed;inset:0;z-index:9000;background:rgba(3,5,8,.96);backdrop-filter:blur(24px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .36s,visibility .36s}
 #modal.open{opacity:1;visibility:visible}
 .m-inner{width:min(92vw,1040px);position:relative}
@@ -1128,7 +1115,6 @@ footer{position:relative;background:var(--ch);border-top:1px solid var(--bd);z-i
 
 /* compositing work a phone should not be asked for */
 .exp-mobile nav,
-.exp-mobile #np,
 .exp-mobile .wc-pb,
 .exp-mobile #modal,
 .exp-mobile .ad-top,
@@ -1142,50 +1128,6 @@ footer{position:relative;background:var(--ch);border-top:1px solid var(--bd);z-i
 
 /* a promoted layer is GPU memory held whether or not anything moves */
 .exp-mobile *:not(#prog){will-change:auto!important}
-
-/* ══ PIXL — the little screen that lives here ═════════════════════════
-   Fixed to the bottom of the window and moved with a transform, so it
-   never touches layout and never causes one. The wrapper takes no
-   pointer events; only the character itself does, or a mascot would be
-   an invisible wall across the bottom of every page. */
-#pixl{position:fixed;left:0;top:0;z-index:7000;pointer-events:none;
-  will-change:transform;transition:opacity .3s,visibility .3s}
-#pixl.away{opacity:0;visibility:hidden}
-.pixl-cv{display:block;pointer-events:auto;cursor:grab;touch-action:none;
-  image-rendering:pixelated;image-rendering:crisp-edges;
-  filter:drop-shadow(0 6px 18px rgba(0,0,0,.55));
-  transform-origin:50% 100%;transition:filter .25s}
-.pixl-cv:hover{filter:drop-shadow(0 0 16px rgba(95,212,255,.4))
-  drop-shadow(0 6px 18px rgba(0,0,0,.55))}
-/* held: it lifts off the page and the cursor says so */
-#pixl.held .pixl-cv{cursor:grabbing;
-  filter:drop-shadow(0 0 26px rgba(95,212,255,.5)) drop-shadow(0 18px 26px rgba(0,0,0,.6))}
-
-/* The bubble is the site's own furniture: mono, uppercase, a hard edge
-   and a square tail — no rounded cartoon balloon, because nothing else
-   here is rounded. */
-.pixl-bub{position:absolute;left:50%;bottom:calc(100% + 12px);
-  transform-origin:0 100%;translate:-50% 0;
-  background:var(--pn);border:1px solid var(--cy);padding:8px 12px;
-  white-space:nowrap;opacity:0;visibility:hidden;
-  transition:opacity .22s var(--ease-out),visibility .22s;
-  box-shadow:0 0 22px rgba(95,212,255,.18)}
-.pixl-bub b{font-family:var(--fn);font-size:11px;font-weight:400;
-  letter-spacing:.16em;color:var(--cy);text-transform:uppercase}
-/* the tail: two squares, stepped — a pixel tail for a pixel character */
-.pixl-bub::after{content:'';position:absolute;left:22px;top:100%;
-  width:6px;height:6px;background:var(--pn);
-  border-right:1px solid var(--cy);border-bottom:1px solid var(--cy)}
-.pixl-bub.on{opacity:1;visibility:visible;animation:pixlPop .26s var(--ease-out)}
-@keyframes pixlPop{
-  0%{opacity:0;transform:translateY(6px) scale(.9)}
-  100%{opacity:1;transform:translateY(0) scale(1)}
-}
-/* never on a phone, and never over the console */
-.exp-mobile #pixl{display:none}
-@media (prefers-reduced-motion:reduce){
-  .pixl-bub.on{animation:none}
-}
 
 /* ══ THE SCROLLBAR ═══════════════════════════════════════════════════════
    The one piece of this site the browser was still drawing in its own

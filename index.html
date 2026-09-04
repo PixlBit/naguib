@@ -26,7 +26,6 @@
 <script defer src="chrome.js?v=1"></script>
 <script defer src="motion.js?v=1"></script>
 <script defer src="grid.js?v=1"></script>
-<script defer src="mascot.js?v=1"></script>
 <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
@@ -86,13 +85,10 @@
 <body>
 <div id="cur"></div><div id="tr"></div>
 <div id="prog"></div>
-<div id="np"><div class="np-dot"></div>NOW PLAYING: <b id="np-label">OPENING SEQUENCE</b></div>
 
 <div id="ldr">
-  <div class="l-tc" id="l-tc">00:00:00:00</div>
   <img class="l-face" src="assets/naguib-portrait.png" alt="" aria-hidden="true" />
   <div class="l-logo">AHMED<b>NAGUIB</b></div>
-  <div class="l-wave" id="l-wave"></div>
   <div class="l-bar">
     <div class="l-rail"><div class="l-fill" id="l-fill"></div></div>
     <div class="l-foot"><span id="l-say">READING MARKUP</span><span id="l-pct">0%</span></div>
@@ -102,22 +98,16 @@
 <nav>
   <a href="#hero" class="n-logo"><div class="n-pip"></div><span class="n-type">AHMED <b>NAGUIB</b></span></a>
   <ul class="n-links">
-    <li><a href="#philosophy" data-txt="ABOUT" class="on">ABOUT</a></li>
-    <li><a href="#work" data-txt="WORK">WORK</a></li>
+    <li><a href="#work" data-txt="WORK" class="on">WORK</a></li>
+    <li><a href="#philosophy" data-txt="ABOUT">ABOUT</a></li>
     <li><a href="#ai" data-txt="CONCEPT">CONCEPT</a></li>
     <li><a href="#archive" data-txt="DETAIL">DETAIL</a></li>
     <li><a href="#services" data-txt="SKILLS">SKILLS</a></li>
-    <li><a href="#pipeline" data-txt="PIPELINE">PIPELINE</a></li>
+    <li><a href="#pipeline" data-txt="PROCESS">PROCESS</a></li>
     <li><a href="#contact" data-txt="CONTACT">CONTACT</a></li>
   </ul>
   <div class="n-right">
-    <div class="n-clock" id="n-clock" aria-label="Marseille local time">
-      <span class="nc-orb" id="nc-orb"><svg viewBox="0 0 24 24"><g class="nc-sun"><circle cx="12" cy="12" r="4"></circle><g class="nc-rays"><line x1="12" y1="1.5" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="22.5"></line><line x1="1.5" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="22.5" y2="12"></line><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"></line><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"></line><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"></line><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"></line></g></g><g class="nc-moon"><path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"></path></g></svg></span>
-      <span class="nc-stack"><b class="nc-day" id="nc-day">&#8212;</b><span class="nc-date" id="nc-date">&#8212;</span></span>
-      <span class="nc-sep"></span>
-      <span class="nc-time" id="nc-time">00<i>:</i>00<i>:</i>00</span>
-      <span class="nc-zone">MRS</span>
-    </div>
+    <span class="n-avail"><i></i>AVAILABLE FOR WORK</span>
     <a href="#contact" class="n-cta">GET IN TOUCH</a>
   </div>
 </nav>
@@ -129,14 +119,14 @@
      and ABOUT is back: a phone had no way to reach it at all. -->
 <div id="dock">
   <a href="#hero" class="on" data-sec="hero"><svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"></path><path d="M5 10v10h5v-6h4v6h5V10"></path></svg>HOME</a>
+  <a href="#work" data-sec="work"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>WORK</a>
   <a href="#philosophy" data-sec="philosophy"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21v-1a7 7 0 0114 0v1"></path></svg>ABOUT</a>
-  <a href="#work" data-sec="work"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"></rect><polygon points="10,9 15,12 10,15"></polygon></svg>WORK</a>
   <a href="#services" data-sec="services"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"></polygon></svg>SKILLS</a>
   <a href="#contact" data-sec="contact"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><polyline points="4,7 12,13 20,7"></polyline></svg>CONTACT</a>
 </div>
 
 <!-- HERO — single screen, no pin -->
-<section id="hero" data-np="OPENING SEQUENCE" data-screen-label="Hero">
+<section id="hero" data-screen-label="Hero">
   <div class="h-vbg">
     <div class="h-aurora"></div>
     <!-- The hero used to be a looping film. A 3D portfolio has no loop to
@@ -150,10 +140,7 @@
   <div class="h-ov"></div>
   <div class="h-vig"></div>
   <div class="h-grid"></div>
-  <div class="cx tl">&#215; &#215; &#215;</div><div class="cx tr">&#215; &#215; &#215;</div>
-  <div class="cx bl">&#215; &#215; &#215;</div><div class="cx br">&#215; &#215; &#215;</div>
-  <div class="h-deco h-deco-1">3D ARTIST &#183; CHARACTERS &amp; PROPS<br />MARSEILLE &#183; FRANCE &#183; 2026</div>
-  <div class="h-deco h-deco-2">ZBRUSH &#183; 3DS MAX &#183; MAYA<br />SUBSTANCE &#183; <span style="color:var(--lm)">&#9679; UNREAL</span></div>
+  <p class="h-cap">3D ARTIST &#183; CHARACTERS, ENVIRONMENTS &amp; PROPS<br />MARSEILLE, FRANCE</p>
 
   <div class="h-inner" id="h-inner">
     <div class="h-pre" id="h-pre"><div class="h-pre-line"></div>3D ARTIST &#183; <b class="h-pre-co">&#201;COLE DE COND&#201;</b> &#183; MARSEILLE</div>
@@ -174,20 +161,28 @@
     </div>
   </div>
 
-  <div class="h-hud">
-    <div class="h-hud-i"><div class="h-hud-d"></div>MARSEILLE, FR</div>
-    <div class="h-hud-i"><div class="h-hud-d"></div>QUADS ONLY</div>
-    <div class="h-hud-i"><div class="h-hud-d"></div>RENDER <span style="color:var(--yw);margin-left:3px">&#9679;</span></div>
-    <div class="h-hud-i"><span id="hero-tc">00:00:00:00</span></div>
-  </div>
-  <div class="h-hud-r"><span class="on">&#9679; 4K</span><span>PBR</span><span>UE5</span></div>
   <div class="m-scroll-hint"><div class="m-sh-line"></div><span class="m-sh-t">SCROLL</span></div>
 </section>
 
 <div class="ticker io-anim"><div class="t-track" id="t-track"></div></div>
 
-<!-- ABOUT — THE EDITOR (CV) -->
-<section id="philosophy" class="sec rise io-anim" data-np="ABOUT — NAGUIB" data-screen-label="About">
+<section id="work" class="sec io-anim" data-screen-label="Work">
+  <div class="sp">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div>
+        <p class="s-pre">// 01 &#8212; SELECTED WORK</p>
+        <h2 class="s-title">SELECTED<br /><b>ASSETS</b></h2>
+      </div>
+      <div style="text-align:right">
+        <p class="d-note" id="work-count" style="font-size:9.5px;color:var(--mt);line-height:2;letter-spacing:.08em;margin-bottom:10px"></p>
+      </div>
+    </div>
+    <div class="wf" id="wf"></div>
+    <div class="wg" id="wg"></div>
+  </div>
+</section>
+
+<section id="philosophy" class="sec rise io-anim" data-screen-label="About">
   <div class="phi-glow"></div>
   <div class="sp">
     <div class="ab-head">
@@ -256,33 +251,13 @@
   </div>
 </section>
 
-<!-- WORK -->
-<section id="work" class="sec io-anim" data-np="SELECTED WORK" data-screen-label="Work">
-  <div class="sp">
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px">
-      <div>
-        <p class="s-pre">// 03 &#8212; SELECTED WORK</p>
-        <h2 class="s-title">SELECTED<br /><b>ASSETS</b></h2>
-      </div>
-      <div style="text-align:right">
-        <p class="d-note" id="work-count" style="font-size:9.5px;color:var(--mt);line-height:2;letter-spacing:.08em;margin-bottom:10px"></p>
-      </div>
-    </div>
-    <div class="wf" id="wf"></div>
-    <div class="wg" id="wg"></div>
-  </div>
-</section>
-
-<div class="filmstrip io-anim"><div class="fs-track" id="fs1"></div></div>
-
-<!-- DREAM ENGINE — AI-generated reels -->
-<section id="ai" class="sec io-anim" data-np="THE CONCEPT LAB" data-screen-label="Concept">
+<section id="ai" class="sec io-anim" data-screen-label="Concept">
   <div class="ai-field" aria-hidden="true"></div>
   <div class="ai-lattice" aria-hidden="true"></div>
   <div class="sp">
     <div class="ai-head">
       <div>
-        <p class="s-pre">// 04 &#8212; CONCEPT LAB</p>
+        <p class="s-pre">// 03 &#8212; CONCEPT LAB</p>
         <h2 class="s-title ai-h2">THE 2D<br /><b>BEFORE THE 3D</b></h2>
         <p class="ai-tag">SKETCH &#8594; SHEET &#183; <b>DESIGN PASSES FOR THE FILM</b></p>
       </div>
@@ -298,15 +273,12 @@
   </div>
 </section>
 
-<div class="filmstrip io-anim"><div class="fs-track" id="fs4"></div></div>
-
-<!-- THE VAULT — archived work from the previous portfolio -->
-<section id="archive" class="sec io-anim" data-np="DETAIL PASSES" data-screen-label="Detail">
+<section id="archive" class="sec io-anim" data-screen-label="Detail">
   <div class="vault-glow"></div>
   <div class="sp">
     <div class="vault-head">
       <div>
-        <p class="s-pre">// 05 &#8212; DETAIL PASSES</p>
+        <p class="s-pre">// 04 &#8212; DETAIL PASSES</p>
         <h2 class="s-title">THE OTHER<br /><b>ANGLES</b></h2>
         <p class="vault-tag">TURNAROUNDS, BACK VIEWS AND THE STUDIES BEHIND A <b>HERO RENDER</b></p>
       </div>
@@ -324,12 +296,9 @@
   </div>
 </section>
 
-<div class="filmstrip io-anim"><div class="fs-track" id="fs3"></div></div>
-
-<!-- SERVICES -->
-<section id="services" class="sec io-anim" data-np="SERVICES" data-screen-label="Services">
+<section id="services" class="sec io-anim" data-screen-label="Services">
   <div class="sp">
-    <p class="s-pre">// 06 &#8212; CAPABILITIES</p>
+    <p class="s-pre">// 05 &#8212; CAPABILITIES</p>
     <h2 class="s-title">WHAT I<br /><b>DO</b></h2>
     <div class="sg">
       <div class="sc-card"><div class="sc-num">S.01</div><div class="sc-icon"><svg class="ic-edit" viewBox="0 0 48 48"><rect class="track" x="4" y="18" width="40" height="13" rx="1"></rect><rect class="clip clip1" x="6.5" y="20.5" width="10" height="8"></rect><rect class="clip clip2" x="19" y="20.5" width="8" height="8"></rect><rect class="clip clip3" x="29.5" y="20.5" width="12" height="8"></rect><g class="phg"><line class="ph" x1="8" y1="11" x2="8" y2="38"></line><polygon class="ph-head" points="5.5,11 10.5,11 8,15"></polygon></g></svg></div><div class="sc-name">3D MODELING</div></div>
@@ -344,13 +313,10 @@
   </div>
 </section>
 
-<div class="filmstrip io-anim"><div class="fs-track" id="fs2"></div></div>
-
-<!-- PIPELINE -->
-<section id="pipeline" class="sec io-anim" data-np="CREATIVE PIPELINE" data-screen-label="Pipeline">
+<section id="pipeline" class="sec io-anim" data-screen-label="Pipeline">
   <div class="sp">
     <div class="pipe-header">
-      <div><p class="s-pre">// 07 &#8212; PROCESS</p><h2 class="s-title">THE 3D<br /><b>PIPELINE</b></h2></div>
+      <div><p class="s-pre">// 06 &#8212; PROCESS</p><h2 class="s-title">THE 3D<br /><b>PIPELINE</b></h2></div>
       <div class="pipe-ind">NOW: <span id="active-stage">STANDBY</span></div>
     </div>
     <div style="position:relative">
@@ -372,12 +338,11 @@
   </div>
 </section>
 
-<!-- CLIENTS -->
-<section id="clients" class="sec io-anim" data-np="THE TOOLKIT" data-screen-label="Toolkit">
+<section id="clients" class="sec io-anim" data-screen-label="Toolkit">
   <div class="sp" style="padding-bottom:68px">
     <div class="cl-head">
       <div>
-        <p class="s-pre">// 08 &#8212; THE TOOLKIT</p>
+        <p class="s-pre">// 07 &#8212; THE TOOLKIT</p>
         <h2 class="s-title" style="font-size:clamp(28px,4vw,52px)">SOFTWARE<br /><b>I LIVE IN</b></h2>
       </div>
       <p class="d-note" id="client-count" style="font-size:9.5px;color:var(--mt);line-height:2;letter-spacing:.08em"></p>
@@ -387,12 +352,11 @@
   </div>
 </section>
 
-<!-- CONTACT -->
-<section id="contact" class="sec io-anim" data-np="LET'S BUILD SOMETHING" data-screen-label="Contact">
+<section id="contact" class="sec io-anim" data-screen-label="Contact">
   <div class="c-bg-glow"></div>
   <div class="cg">
     <div id="c-head">
-      <p class="c-pre">// 09 &#8212; LET'S COLLABORATE</p>
+      <p class="c-pre">// 08 &#8212; LET'S COLLABORATE</p>
       <h2 class="c-h2"><span class="l1">LET'S</span><span class="l2">BUILD</span><span class="l3">SOMETHING</span><span class="l4">WORTH LOOKING AT.</span></h2>
       <p class="c-meta">
         <span>MARSEILLE, FRANCE</span>
@@ -402,7 +366,17 @@
     </div>
 
     <div id="c-left">
-      <div class="cf-hd"><span>REACH ME</span><div class="cf-hd-l"></div><span class="cs2-on">&#9679; MARSEILLE &#183; CET</span></div>
+      <div class="cf-hd"><span>REACH ME</span><div class="cf-hd-l"></div>
+        <!-- The clock was in the nav, where the time somewhere else is a
+             decoration. Here it answers the question somebody in another
+             country is actually asking before they press CALL. -->
+        <span class="c-clock" id="n-clock" aria-label="Local time in Marseille">
+          <span class="nc-orb" id="nc-orb"><svg viewBox="0 0 24 24"><g class="nc-sun"><circle cx="12" cy="12" r="4"></circle><g class="nc-rays"><line x1="12" y1="1.5" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="22.5"></line><line x1="1.5" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="22.5" y2="12"></line><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"></line><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"></line><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"></line><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"></line></g></g><g class="nc-moon"><path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"></path></g></svg></span>
+          <span class="nc-time" id="nc-time">00<i>:</i>00<i>:</i>00</span>
+          <b class="nc-day" id="nc-day">&#8212;</b>
+          <span class="nc-date" id="nc-date" hidden>&#8212;</span>
+          <span class="nc-zone">MARSEILLE</span>
+        </span></div>
       <div class="cs2-list">
         <a class="cs2 reach" href="mailto:naguibart@gmail.com">
           <span class="cs2-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.5" y="4.5" width="19" height="15"></rect><polyline points="2.5,6 12,13.5 21.5,6"></polyline></svg></span>
@@ -458,7 +432,6 @@
     <div class="ft-meta">
       <span>&#169; 2026 AHMED NAGUIB</span>
       <span class="ft-dot">&#9679;</span><span>MARSEILLE, FRANCE</span>
-      <span class="ft-dot">&#9679;</span><span class="ft-tc" id="ft-tc">TC 00:00:00:00</span>
     </div>
   </div>
 </footer>

@@ -38,9 +38,6 @@
 /sound.js
   Cache-Control: public, max-age=0, must-revalidate
 
-/mascot.js
-  Cache-Control: public, max-age=0, must-revalidate
-
 /motion.js
   Cache-Control: public, max-age=0, must-revalidate
 

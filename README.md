@@ -13,17 +13,16 @@ Live domain: **https://naguib.art** · Hosting: **Cloudflare Pages**
 
 | File | Purpose |
 |------|---------|
-| `index.html` | The whole page — loader, hero, about/CV, work grid, the concept lab, the detail passes, skills, pipeline, toolkit, contact, footer, lightbox |
+| `index.html` | The whole page — loader, hero, work grid, about/CV, the concept lab, the detail passes, skills, process, toolkit, contact, footer, lightbox |
 | `studio.css` | All styling (copper `#e0803c`, aqua `#3ee0d0`, ice `#5fd4ff` on `#04070a`) |
-| `studio.js` | Engine: the work data, the card engine, the lightbox, the live Marseille clock, dust particles, scroll choreography, custom cursor, the pipeline timeline |
+| `studio.js` | Engine: the work data, the card engine, the lightbox, dust particles, scroll choreography, custom cursor, the process timeline |
 | `assets/work/` | Every render, twice: `<id>.jpg` (1600×900) and `<id>-sm.jpg` (880×495) |
 | `assets/concept/` | The 2D sheets, same pair at 1400×1050 and 760×570 |
 | `assets/` | The hero cut-out, the portrait, the favicons, the `og.jpg` share card, the portfolio PDF |
 | `404.html` / `notfound.*` | The not-found page — a monitor that lost its feed |
-| `chrome.js` | Shared furniture: the Marseille clock, the running timecode, the progress bar |
+| `chrome.js` | Shared furniture: the Marseille clock (in the contact block), the running timecode, the progress bar |
 | `motion.js` | The slice of GSAP the site used, written out longhand — see *Security* |
 | `grid.js` | How a row of work is arranged — shared by the site and the console |
-| `mascot.js` | PIXL, the small CRT that wanders the page. Desktop only |
 | `sound.js` | The interface's voice, off until a visitor turns it on |
 | `studio-admin.*` | The work console: arrange the grid, upload renders, publish |
 | `functions/_middleware.js` | The edge lock on the console — username + password |
@@ -32,6 +31,57 @@ Live domain: **https://naguib.art** · Hosting: **Cloudflare Pages**
 | `_headers` | Cloudflare Pages security + caching headers |
 | `robots.txt` / `sitemap.xml` | SEO — `sitemap.xml` is generated, don't hand-edit |
 | `_routes.json` | Limits the edge Function to `/studio-admin*` so nothing else invokes it |
+
+## How the page is ordered
+
+A portfolio's job is to show the work, so the work is the first thing under
+the headline — before the biography, before the process, before anything
+about the person. Everything after it is there to answer a question the work
+has already raised:
+
+    HERO      the piece the portfolio opens on
+    WORK      the selected grid — fifteen renders
+    ABOUT     who made them, and where he learned to
+    CONCEPT   the 2D that came before the 3D
+    DETAIL    turnarounds and studies of the same assets
+    SKILLS    what he does
+    PROCESS   how, from blockout to final render
+    TOOLKIT   what he does it in
+    CONTACT   how to reach him, and what time it is where he is
+
+## What this site deliberately does not have
+
+It is built on the bones of a film-studio site, and a 3D portfolio is not a
+film studio. Everything below was in that lineage and has been taken out
+rather than renamed, because furniture borrowed from another trade reads as
+costume:
+
+- **A clock in the navigation.** The time in a city the visitor is not in,
+  ticking in the corner of every page, above the fold, more animated than
+  anything else in the header. It moved to the contact block, beside the
+  phone number, where it answers the question somebody in another country is
+  actually asking. The header says whether he is taking work instead
+- **A mascot.** A small CRT character that wandered the window, watched the
+  cursor and commented on each section. It was charming and it was the first
+  thing a studio art director would see moving
+- **A "NOW PLAYING" readout** naming each section as you scrolled into it
+- **A running 24fps timecode** in the nav, the hero, the lightbox and the
+  footer. A clock counting frames belongs to a site that plays them; over a
+  still render it is a playhead pretending
+- **The camera HUD** — REC dot, 2.39:1, frame rate, corner framing brackets,
+  two floating spec decks. A film set's furniture on a page about sculpting
+- **Sprocket-hole filmstrips** between every section
+- **A timecode on every card**, counting up as if the grid were a timeline
+- **A headline that tore into RGB channels every five seconds, forever.** A
+  screen fault on a loop reads as a broken screen, not as a flourish — and
+  because off-screen sections are paused, it resumed at unpredictable
+  moments, often the first moment anybody looked
+- **A flickering signal meter** across the foot of every page, measuring
+  nothing. It is a still ruled strip now
+
+What is kept is what belongs to any studio that works in frames: the loader,
+the custom cursor, the section glyphs, the scroll choreography, the grain of
+the type. Restraint, not sterility.
 
 ## Deploy
 

@@ -16,17 +16,9 @@
     path.textContent = where || '/';
   }
 
-  /* a second timecode, running at 24fps like the tape it can't find */
-  const tc = document.getElementById('nf-tc');
-  if (tc) {
-    let fr = 0;
-    setInterval(() => {
-      fr++;
-      const f = fr % 24, s = Math.floor(fr / 24) % 60,
-            m = Math.floor(fr / 1440) % 60, h = Math.floor(fr / 86400) % 24;
-      tc.textContent = [h, m, s, f].map(n => String(n).padStart(2, '0')).join(':');
-    }, 1000 / 24);
-  }
+  /* A 24fps timecode used to run here, counting up beside a REC dot, as if
+     the page were recording something. It is a failed render, not a take —
+     the readout says so once and then holds still. */
 
   document.body.classList.toggle('exp-mobile',
     matchMedia('(max-width: 768px)').matches || ('ontouchstart' in window && innerWidth < 900));
