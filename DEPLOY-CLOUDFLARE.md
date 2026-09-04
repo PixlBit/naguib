@@ -11,31 +11,32 @@
 
 1. اعمل حساب على **https://dash.cloudflare.com** (مجاني).
 2. من القايمة الجانبية: **Workers & Pages** ← **Create** ← تبويب **Pages** ← **Connect to Git**.
-3. اربط حساب GitHub بتاعك واختار الريبو: **`PixlBit/Gonaim`**.
+3. اربط حساب GitHub بتاعك واختار الريبو: **`PixlBit/naguib`**.
 4. في إعدادات الـ Build حط الآتي بالظبط:
    - **Production branch**: `main`
    - **Framework preset**: `None`
    - **Build command**: (سيبه فاضي)
    - **Build output directory**: `/`
 5. اضغط **Save and Deploy**. بعد أقل من دقيقة الموقع هيبقى شغّال على رابط زي:
-   `https://gonaim.pages.dev`
+   `https://naguib.pages.dev`
 
 > أي `git push` على فرع `main` بعد كده بيعمل deploy جديد أوتوماتيك.
 
 ---
 
-## الجزء 2 — شراء الدومين (`gonaim.com`)
+## الجزء 2 — شراء الدومين (`naguib.art`)
 
 **أوفر وأنضف طريقة: اشتريه من Cloudflare نفسها** — Cloudflare بتبيع الدومين **بسعر التكلفة بدون أرباح**
 (at-cost) ومفيش رسوم مخفية ولا تجديد بسعر أغلى:
 
 1. من الـ Dashboard: **Domain Registration** ← **Register Domains**.
-2. اكتب `gonaim` وشوف `.com` متاح ولا لأ، وكمّل الشراء بالكارت.
+2. اكتب `naguib` وشوف `.com` متاح ولا لأ، وكمّل الشراء بالكارت.
 3. لو اشتريته من Cloudflare، الدومين بيتربط بحسابك تلقائيًا وتقدر تعدّي على **الجزء 3** على طول.
 
-> لو `gonaim.com` مش متاح، بدائل كويسة: `gonaim.studio` أو `gonaim.sa` (سعودي) أو `ahmedgonaim.com`.
-> **لو غيّرت الدومين:** لازم تعمل find-and-replace لكلمة `gonaim.com` في 3 ملفات فقط:
-> `index.html` و `robots.txt` و `sitemap.xml` — قولّي وأنا أعملها لك.
+> لو `naguib.art` مش متاح، بدائل كويسة: `naguib.studio` أو `artofnaguib.com` أو `ahmednaguib.fr`.
+> **لو غيّرت الدومين:** لازم تعمل find-and-replace لكلمة `naguib.art` في 4 ملفات فقط:
+> `index.html` و `robots.txt` و `sitemap.xml` و `tools/build-project-pages.mjs`
+> (السطر `const SITE`) — وبعدين شغّل `node tools/build-project-pages.mjs`.
 
 ### لو اشتريت الدومين من مكان تاني (GoDaddy / Namecheap...)
 لسه تقدر تستخدم Cloudflare مجانًا:
@@ -48,23 +49,24 @@
 ## الجزء 3 — ربط الدومين بالموقع
 
 1. ادخل مشروع الـ Pages بتاعك ← تبويب **Custom domains** ← **Set up a domain**.
-2. اكتب `gonaim.com` واضغط Continue، وبعدين `www.gonaim.com` كمان (اختياري لكن مُستحسن).
+2. اكتب `naguib.art` واضغط Continue، وبعدين `www.naguib.art` كمان (اختياري لكن مُستحسن).
 3. Cloudflare هتضيف الـ DNS records وشهادة الـ SSL أوتوماتيك. خلال دقايق يبقى:
-   **https://gonaim.com** شغّال بشهادة أمان مجانية 🔒.
+   **https://naguib.art** شغّال بشهادة أمان مجانية 🔒.
 
 ### توجيه www للدومين الرئيسي (اختياري)
-عشان `www.gonaim.com` يودّي على `gonaim.com`:
-**Rules** ← **Redirect Rules** ← اعمل redirect من `www.gonaim.com/*` لـ `https://gonaim.com/$1`.
+عشان `www.naguib.art` يودّي على `naguib.art`:
+**Rules** ← **Redirect Rules** ← اعمل redirect من `www.naguib.art/*` لـ `https://naguib.art/$1`.
 
 ---
 
 ## الجزء 4 — مهم جدًا قبل ما تعلن عن الموقع ⚠️
 
-1. **صلاحيات فيديوهات Vimeo**: كل فيديو متضمّن في الموقع لازم تضيف دومين `gonaim.com`
-   في إعدادات الخصوصية بتاعته على Vimeo (Video Settings ← Privacy ← *Where can this be embedded?*
-   ← ضيف `gonaim.com`)، وإلا الفيديو هيطلع رسالة **"not authorized"**.
-2. **رابط الإنستجرام**: حاليًا `https://www.instagram.com/gonaim/` (مفترض من اليوزر المعروض).
-   أكّد إنه صح أو ابعتلي الصح وأنا أعدّله.
+1. **الصور كلها محلّية**: مافيش أي فيديو ولا صورة بتيجي من موقع تاني — كل رندر
+   متخزّن في الريبو نفسه تحت `assets/work/`. يعني مافيش صلاحيات ولا إعدادات
+   خصوصية لازم تظبطها عند حد تاني، والـ CSP في `_headers` مقفول على `'self'`.
+2. **روابط التواصل**: ArtStation `artofnaguib` و LinkedIn `in/artofnaguib`.
+   لو أي واحد فيهم اتغيّر، عدّله في `index.html` (قسم CONTACT وقسم ABOUT)
+   وفي بلوك الـ JSON-LD فوق.
 3. **اختبار المشاركة**: بعد ما الدومين يشتغل، جرّب تحط الرابط في
    [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) للتأكد إن
    صورة المشاركة (`og.jpg`) بتظهر صح.
@@ -78,7 +80,7 @@
 مسموحين).
 
 1. من لوحة Cloudflare: **Analytics & Logs** ← **Web Analytics**.
-2. اضغط **Add a site** واختر `gonaim.com`.
+2. اضغط **Add a site** واختر `naguib.art`.
 3. لو الموقع على Pages، فعّل **Automatic Setup** — كلاودفلير تحقن سكربت
    القياس بنفسها على الحافة، وما تلمس الريبو.
 4. أول أرقام تظهر خلال دقايق: الزوار، الصفحات الأكثر فتحًا، من وين جايين،
@@ -92,12 +94,12 @@
 
 ## الجزء 6 — قفل لوحة التحكم 🔐
 
-لوحة التحكم على `gonaim.com/studio-admin.html`. **ما تشتغل لحد ما تحط
+لوحة التحكم على `naguib.art/studio-admin.html`. **ما تشتغل لحد ما تحط
 اليوزر والباسورد** — قبلها ترجع `404` للكل، حتى لك. هذا مقصود: لو نسيت
 تضبطها، الباب يظل مقفول مو مفتوح.
 
 ### الخطوات (دقيقتين)
-1. لوحة Cloudflare ← **Workers & Pages** ← مشروع `gonaim` ← **Settings**.
+1. لوحة Cloudflare ← **Workers & Pages** ← مشروع `naguib` ← **Settings**.
 2. **Variables and Secrets** ← **Add**.
 3. ضيف اثنين، **واختر النوع Secret مو Plaintext**:
 
@@ -107,7 +109,7 @@
    | `ADMIN_PASS` | باسورد قوي — 16 حرف على الأقل، مو مستخدم بأي مكان ثاني |
 
 4. اضغط **Save**، وبعدها **Deployments ← Retry deployment** عشان القيم توصل.
-5. افتح `gonaim.com/studio-admin.html` — المتصفح بيطلب منك يوزر وباسورد.
+5. افتح `naguib.art/studio-admin.html` — المتصفح بيطلب منك يوزر وباسورد.
 
 ### ليش هذي الطريقة بالذات
 الفحص يصير على **سيرفر كلاودفلير قبل ما يتبعث أي ملف**. يعني اللي ما عنده
@@ -119,22 +121,22 @@
 تسرّب، غيّره من نفس المكان بدون أي تعديل بالكود.
 
 > **طريقة أقوى لو حبيت:** Cloudflare **Zero Trust ← Access** — تحط سياسة على
-> `gonaim.com/studio-admin*` تسمح لإيميلك أنت فقط، وكلاودفلير ترسل لك كود
+> `naguib.art/studio-admin*` تسمح لإيميلك أنت فقط، وكلاودفلير ترسل لك كود
 > تحقق على الإيميل كل مرة. مجانية لين 50 مستخدم، وما فيها باسورد مشترك
 > ينسرق أصلاً. تقدر تشغّلها فوق الحماية الحالية أو بدالها.
 
-### لو فتحت على `gonaim.pages.dev` وما فتحت على `gonaim.com`
+### لو فتحت على `naguib.pages.dev` وما فتحت على `naguib.art`
 
 نفس النسخة بالضبط تنخدم على العنوانين، فالفرق مو من الكود — الفرق إن
-`gonaim.com` يمرّ على إعدادات الدومين نفسه (WAF، Redirect Rules، Cache
+`naguib.art` يمرّ على إعدادات الدومين نفسه (WAF، Redirect Rules، Cache
 Rules، Bot Fight Mode، Access)، و`pages.dev` يعديها كلها. **شوف إيش يطلع لك
-بالضبط على `gonaim.com/studio-admin`**، وكل حالة تودّيك لمكان واحد:
+بالضبط على `naguib.art/studio-admin`**، وكل حالة تودّيك لمكان واحد:
 
 | اللي تشوفه | معناه | وين تصلحه |
 |-----------|-------|-----------|
 | صندوق يوزر وباسورد | القفل شغّال — الباسورد بس غلط | جرّب نسخ/لصق، أو غيّر `ADMIN_PASS` |
 | سطر أبيض مكتوب فيه `Not found` | القفل شغّال بس ما شاف المتغيّرات | Settings ← Variables and Secrets: لازم يكونون على **Production** مو Preview، وبعدها **Retry deployment** |
-| صفحة الـ 404 الملوّنة حقّت الموقع، أو الصفحة الرئيسية | الفنكشن ما اشتغلت أصلاً — الطلب ما وصل للمشروع | Workers & Pages ← `gonaim` ← **Custom domains**: لازم `gonaim.com` مضاف هنا وحالته Active، و DNS الدومين يكون CNAME مربوط على `gonaim.pages.dev` و**البرتقالة مفعّلة** (Proxied) |
+| صفحة الـ 404 الملوّنة حقّت الموقع، أو الصفحة الرئيسية | الفنكشن ما اشتغلت أصلاً — الطلب ما وصل للمشروع | Workers & Pages ← `naguib` ← **Custom domains**: لازم `naguib.art` مضاف هنا وحالته Active، و DNS الدومين يكون CNAME مربوط على `naguib.pages.dev` و**البرتقالة مفعّلة** (Proxied) |
 | شاشة تحقق من كلاودفلير أو `403` | WAF أو Bot Fight Mode ماسك الطلب | Security ← Events: دوّر على الطلب وشوف أي قاعدة مسكته |
 | صفحة تسجيل دخول بإيميل | Zero Trust Access شغّال على المسار | Zero Trust ← Access ← Applications |
 
@@ -152,7 +154,7 @@ Rules، Bot Fight Mode، Access)، و`pages.dev` يعديها كلها. **شوف
 
 ### الخطوات (مرة وحدة بس)
 1. افتح [github.com/settings/personal-access-tokens/new](https://github.com/settings/personal-access-tokens/new).
-2. **Repository access** ← *Only select repositories* ← اختر `Gonaim` **لحاله**.
+2. **Repository access** ← *Only select repositories* ← اختر `naguib` **لحاله**.
 3. **Permissions** ← *Repository permissions* ← **Contents** ← اختر
    **Read and write**. لا تزيد ولا صلاحية ثانية.
 4. **Expiration** — حط تاريخ انتهاء (٩٠ يوم مثلاً). لما ينتهي، سوّ واحد جديد.
@@ -185,6 +187,6 @@ Rules، Bot Fight Mode، Access)، و`pages.dev` يعديها كلها. **شوف
 | استضافة Cloudflare Pages | **مجاني** (bandwidth غير محدود) |
 | شهادة SSL / HTTPS | **مجاني** |
 | CDN عالمي | **مجاني** |
-| الدومين `gonaim.com` | **~$10 سنويًا** (السعر الوحيد المدفوع) |
+| الدومين `naguib.art` | **~$10 سنويًا** (السعر الوحيد المدفوع) |
 
-كده الموقع بيبقى شغّال على `https://gonaim.com` باستضافة احترافية سريعة وبأقل تكلفة ممكنة.
+كده الموقع بيبقى شغّال على `https://naguib.art` باستضافة احترافية سريعة وبأقل تكلفة ممكنة.

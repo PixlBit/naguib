@@ -596,3 +596,24 @@ button,input,select{font:inherit;color:inherit}
 .ad-add input.ad-year{flex:0 1 110px}
 .ad-add-note{flex:0 0 100%;font-size:var(--t-xs);letter-spacing:var(--ls-n);
   color:var(--mt)}
+
+/* ════════════════════════════════════════════════════════════════════════
+   THE PICTURE CONTROLS — a console for work that is files, not links
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* UPLOAD RENDER, in the row itself. It states what it will do — upload,
+   replace, or "already queued" — and turns amber when the row names a
+   picture that is not there, which is the one fault a grid of thumbnails
+   cannot show you: a blank card looks like a slow one. */
+.ad-up{font-family:var(--fn);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 9px;background:transparent;border:1px solid var(--gr);color:var(--sv);
+  cursor:pointer;white-space:nowrap;transition:border-color .2s,color .2s,background .2s}
+.ad-up:hover{border-color:var(--lm);color:var(--lm);background:rgba(62,224,208,.08)}
+.ad-up:disabled{opacity:.5;cursor:default}
+.ad-up.warn{border-color:var(--yw);color:var(--yw)}
+.ad-up.warn:hover{background:rgba(224,128,60,.1)}
+.ad-seg.warn{border-color:var(--yw);color:var(--yw)}
+
+/* the row thumbnail is a real frame now, so it is worth a little more room */
+.ad-thumb{background-size:cover;background-position:center}
+.ad-cover-state.warn{color:var(--yw)}

@@ -12,16 +12,22 @@
    page is behind HTTP Basic auth at the edge, so nobody who is not you ever
    receives a byte of it — see functions/_middleware.js.
 
-   Nine blocks are owned by this page: PROJECTS, CAT, CAT_RANK, AUTO_ORDER,
-   ARCHIVE, ACAT, AI_REELS, HERO_VIDEO and SHOWREEL_ID. It also writes two
-   kinds of image into the repository — reel covers and the portrait —
-   which are scaled and re-encoded here before they are sent, and always
-   uploaded BEFORE the code that names them.
+   Eight blocks are owned by this page: PROJECTS, CAT, CAT_RANK, AUTO_ORDER,
+   ARCHIVE, ACAT, CONCEPTS and HERO_ART.
+
+   THE PICTURES ARE THE POINT. A film console edits links; the work here is
+   files this repository owns, so this one edits pictures. Choose a render and
+   it is decoded, scaled to the two sizes the site actually draws — the grid
+   takes the small one, the lightbox the large — and queued. PUBLISH writes
+   every queued picture BEFORE it writes studio.js, so a card can never be
+   published pointing at a file that is not there yet.
 
    CHECK runs makeLayout() from grid.js — the very function the site builds
    its grid with, not a copy — so what it says about the last row is what the
    site will actually do, including the rule that a full-width banner waits
-   for the row of cards before it to finish.
+   for the row of cards before it to finish. It also asks the server for every
+   picture the data names, so a missing render is found here rather than as a
+   black card on the live site.
    ════════════════════════════════════════════════════════════════════════ */
 (() => {
   'use strict';
@@ -37,7 +43,6 @@
   const say = (msg, kind) => { state.textContent = msg; state.className = 'ad-state' + (kind ? ' ' + kind : ''); };
 
   let SRC = '';                       /* the untouched studio.js text */
-  let IDX = '';                       /* index.html, for the hero film's src */
   let D = null;                       /* the working copy of the data */
   let ORIGINAL = '';                  /* JSON snapshot, to detect real changes */
 
@@ -158,41 +163,33 @@
     const res = await fetch('studio.js?t=' + Date.now());
     if (!res.ok) throw new Error('studio.js came back ' + res.status);
     SRC = await res.text();
-    /* index.html carries the hero film's src in its markup so the film needs
-       no script to play. That means this page owns a line in a second file,
-       and it reads it here so publishing can keep the two in step. Failing to
-       fetch it is not fatal: studio.js still repoints the iframe at runtime,
-       so the worst case is the old behaviour rather than a broken hero. */
-    IDX = '';
-    try {
-      const r2 = await fetch('index.html?t=' + Date.now());
-      if (r2.ok) IDX = await r2.text();
-    } catch {}
     D = {
       projects: literal(SRC, 'PROJECTS'),
       cat: literal(SRC, 'CAT'),
       rank: literal(SRC, 'CAT_RANK'),
       auto: literal(SRC, 'AUTO_ORDER'),
-      /* the vault and the reels are lists like PROJECTS, owned the same way */
+      /* the detail passes and the concept sheets are lists like PROJECTS,
+         owned the same way */
       archive: literal(SRC, 'ARCHIVE'),
       acat: literal(SRC, 'ACAT'),
-      reels: literal(SRC, 'AI_REELS'),
-      /* two bare ids, quoted rather than bracketed */
-      hero: bare(SRC, 'HERO_VIDEO'),
-      showreel: bare(SRC, 'SHOWREEL_ID'),
+      concepts: literal(SRC, 'CONCEPTS'),
+      /* one bare path, quoted rather than bracketed */
+      heroArt: bare(SRC, 'HERO_ART'),
       renamed: {},          /* old category key → the key it became */
     };
     /* the array in the file is in source order; the site sorts it on load, so
        sort here too or the console would show an order nobody ever sees */
     if (D.auto) D.projects = autoSort(D.projects);
     ORIGINAL = snapshot();
-    say('studio.js loaded · ' + D.projects.length + ' projects', 'ok');
+    haveImage.clear();
+    probeImages();
+    say('studio.js loaded · ' + D.projects.length + ' pieces', 'ok');
   }
 
   /* Anything not in here is invisible to the dirty check, which means an
      edit to it would never enable the save button. */
   const snapshot = () => JSON.stringify(
-    [D.projects, D.cat, D.rank, D.auto, D.archive, D.acat, D.reels, D.hero, D.showreel, covers()]);
+    [D.projects, D.cat, D.rank, D.auto, D.archive, D.acat, D.concepts, D.heroArt, covers()]);
   const dirty = () => snapshot() !== ORIGINAL;
 
   /* ── what actually changed ────────────────────────────────────────────
@@ -242,35 +239,33 @@
         out.push(['~', q(p.title) + ' is now ' + (p.hi ? 'full width' : 'a card')]);
     }
 
-    /* the vault */
-    const [ , , , , wasArch, wasAcat, wasReels, wasHero, wasShow ] = JSON.parse(ORIGINAL);
+    /* the detail passes */
+    const [ , , , , wasArch, wasAcat, wasCon, wasHero ] = JSON.parse(ORIGINAL);
     const aBefore = new Map((wasArch || []).map(p => [p.id, p]));
     const aNow = new Set(D.archive.map(p => p.id));
-    for (const p of (wasArch || [])) if (!aNow.has(p.id)) out.push(['\u2212', 'Vault: removed ' + q(p.title)]);
+    for (const p of (wasArch || [])) if (!aNow.has(p.id)) out.push(['\u2212', 'Detail: removed ' + q(p.title)]);
     for (const p of D.archive) {
       const was = aBefore.get(p.id);
-      if (!was) { out.push(['+', 'Vault: added ' + q(p.title)]); continue; }
-      if (was.title !== p.title) out.push(['~', 'Vault: renamed ' + q(was.title) + ' \u2192 ' + q(p.title)]);
-      if (was.cat !== p.cat) out.push(['~', 'Vault: ' + q(p.title) + ' moved to ' + (D.acat[p.cat] || p.cat)]);
+      if (!was) { out.push(['+', 'Detail: added ' + q(p.title)]); continue; }
+      if (was.title !== p.title) out.push(['~', 'Detail: renamed ' + q(was.title) + ' \u2192 ' + q(p.title)]);
+      if (was.cat !== p.cat) out.push(['~', 'Detail: ' + q(p.title) + ' moved to ' + (D.acat[p.cat] || p.cat)]);
     }
-    if (JSON.stringify(wasAcat) !== JSON.stringify(D.acat)) out.push(['~', 'Vault categories changed']);
+    if (JSON.stringify(wasAcat) !== JSON.stringify(D.acat)) out.push(['~', 'Detail categories changed']);
 
-    /* the reels */
-    const rBefore = new Map((wasReels || []).map(r => [r.id, r]));
-    const rNow = new Set(D.reels.map(r => r.id));
-    for (const r of (wasReels || [])) if (!rNow.has(r.id)) out.push(['\u2212', 'Reel ' + q(r.id) + ' removed']);
-    for (const r of D.reels) {
-      const was = rBefore.get(r.id);
-      if (!was) { out.push(['+', 'Reel ' + q(r.id) + ' added']); continue; }
-      if ((was.t || '') !== (r.t || '')) out.push(['~', 'Reel ' + q(r.id) + ' titled ' + q(r.t || '\u2014')]);
-      if (!!was.cover !== !!r.cover) out.push(['~', 'Reel ' + q(r.id) + (r.cover ? ' got a cover' : ' lost its cover')]);
+    /* the concept sheets */
+    const cBefore = new Map((wasCon || []).map(r => [r.id, r]));
+    const cNow = new Set(D.concepts.map(r => r.id));
+    for (const r of (wasCon || [])) if (!cNow.has(r.id)) out.push(['\u2212', 'Concept ' + q(r.title || r.id) + ' removed']);
+    for (const r of D.concepts) {
+      const was = cBefore.get(r.id);
+      if (!was) { out.push(['+', 'Concept ' + q(r.title || r.id) + ' added']); continue; }
+      if ((was.title || '') !== (r.title || '')) out.push(['~', 'Concept ' + q(r.id) + ' titled ' + q(r.title || '\u2014')]);
     }
 
-    /* the two films and the portrait */
-    if (wasHero !== D.hero) out.push(['~', 'Hero video \u2192 vimeo.com/' + D.hero]);
-    if (wasShow !== D.showreel) out.push(['~', 'Showreel \u2192 vimeo.com/' + D.showreel]);
+    /* the hero render, and any picture waiting to go up with it */
+    if (wasHero !== D.heroArt) out.push(['~', 'Hero render \u2192 ' + D.heroArt]);
     for (const path of covers())
-      out.push(['+', path === PORTRAIT ? 'New portrait uploaded' : 'Cover uploaded: ' + path.split('/').pop()]);
+      out.push(['+', 'Uploads: ' + path]);
 
     /* arrangement */
     if(wasA !== D.auto)
@@ -280,15 +275,11 @@
     return out;
   }
 
+  /* Ranking by category is all there is to sort on: a render has no upload
+     date to sort on, so within a group the order is the order in the file,
+     and a stable sort keeps it that way. */
   function autoSort(list) {
-    return [...list].sort((a, b) => {
-      if (a.id === D.showreel) return -1;
-      if (b.id === D.showreel) return 1;
-      const r = (D.rank[a.cat] ?? 99) - (D.rank[b.cat] ?? 99);
-      if (r) return r;
-      const na = /^\d+$/.test(a.id) ? +a.id : -1, nb = /^\d+$/.test(b.id) ? +b.id : -1;
-      return nb - na;
-    });
+    return [...list].sort((a, b) => (D.rank[a.cat] ?? 99) - (D.rank[b.cat] ?? 99));
   }
 
   /* ── writing studio.js ─────────────────────────────────────────────── */
@@ -310,8 +301,8 @@
   /* The order here is the order in the file, so a project reads the way it
      is thought about: what it is, where it lives, how it is filed, how it is
      shown — and what belongs to it, last. */
-  const KEYS = ['title', 'id', 'cat', 'year', 'hi', 'yt', 'ig', 'x',
-                'slug', 'desc', 'client', 'role', 'studio', 'facts', 'bts'];
+  const KEYS = ['title', 'id', 'cat', 'year', 'hi',
+                'prod', 'soft', 'slug', 'desc', 'role', 'facts'];
   /* An array or an object is written as JSON — `bts` is the only one so far,
      and a list of videos has no business being hand-formatted. */
   const emitVal = v => (typeof v === 'boolean' ? String(v)
@@ -356,9 +347,8 @@
       ['AUTO_ORDER', String(D.auto)],
       ['ARCHIVE', emitList(D.archive, KEYS)],
       ['ACAT', '{' + Object.entries(D.acat).map(([k, v]) => k + ':' + jsStr(v)).join(',') + '}'],
-      ['AI_REELS', emitList(D.reels, ['title', 'id', 'yt', 'ig', 'x', 'cover'])],
-      ['HERO_VIDEO', "'" + D.hero + "'"],
-      ['SHOWREEL_ID', "'" + D.showreel + "'"],
+      ['CONCEPTS', emitList(D.concepts, ['title', 'id'])],
+      ['HERO_ART', "'" + D.heroArt + "'"],
     ].map(([name, text]) => ({ ...blockOf(SRC, name), text }))
       .sort((a, b) => b.start - a.start);
     let out = SRC;
@@ -366,31 +356,49 @@
     return out;
   }
 
-  /* ── posters ───────────────────────────────────────────────────────────
-     A video shows up twice — once in the grid preview, once in its row — and
-     more if it moves. One oEmbed lookup per video serves all of them.      */
-  const posters = new Map();                 /* id → url, or null if none    */
-  const waiting = new Map();                 /* id → elements still expecting */
-  function thumb(el, p) {
-    if (p.ig || p.x) return;             /* neither publishes a poster */
-    if (posters.has(p.id)) {
-      const u = posters.get(p.id);
-      if (u) el.style.backgroundImage = 'url(' + u + ')';
-      return;
-    }
-    if (waiting.has(p.id)) { waiting.get(p.id).push(el); return; }
-    waiting.set(p.id, [el]);
-    const done = u => {
-      posters.set(p.id, u);
-      if (u) for (const n of waiting.get(p.id)) n.style.backgroundImage = 'url(' + u + ')';
-      waiting.delete(p.id);
-    };
-    if (p.yt) return done('https://i.ytimg.com/vi/' + p.id + '/mqdefault.jpg');
-    if (!/^\d+$/.test(p.id)) return done(null);
-    fetch('https://vimeo.com/api/oembed.json?url=https://vimeo.com/' + p.id + '&width=295')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => done(d && d.thumbnail_url ? d.thumbnail_url : null))
-      .catch(() => done(null));
+  /* ── the pictures ─────────────────────────────────────────────────────
+     Every frame belongs to this repository, so there is no lookup to make:
+     a row's thumbnail is the small rendition the grid itself loads. What
+     IS worth asking is whether the file is actually there — a row can name
+     a picture nobody has uploaded yet, and that is a black card on the live
+     site. So each id is probed once, the answer kept, and CHECK reports the
+     ones that came back missing.
+
+     A picture queued for upload counts as present: it will exist by the time
+     studio.js names it, because PUBLISH writes the files first.           */
+  const smUrl = (p, dir) => 'assets/' + (dir || 'work') + '/' + p.id + '-sm.jpg';
+  const lgUrl = (p, dir) => 'assets/' + (dir || 'work') + '/' + p.id + '.jpg';
+  const haveImage = new Map();               /* path → true | false */
+  let probing = null;
+
+  function thumb(el, p, dir) {
+    if (!p || !p.id) return;
+    const q = pending.get(smUrl(p, dir));
+    if (q) { paintPreview(el, q.blob, { w: 88, h: 50 }); return; }
+    el.style.backgroundImage = 'url(' + smUrl(p, dir) + '?t=' + BOOTED + ')';
+  }
+  /* one cache-buster for the whole session: a picture replaced during this
+     sitting must not keep showing the one the browser already holds, and a
+     fresh number per row would defeat the cache entirely */
+  const BOOTED = Date.now();
+
+  /* Asks for every picture the data names, in one pass, and redraws CHECK
+     when the answers are in. HEAD rather than GET: the question is whether
+     the file exists, not what is in it. */
+  function probeImages() {
+    const want = [
+      ...D.projects.map(p => smUrl(p, 'work')),
+      ...D.archive.map(p => smUrl(p, 'work')),
+      ...D.concepts.map(p => smUrl(p, 'concept')),
+    ];
+    const todo = [...new Set(want)].filter(u => !haveImage.has(u));
+    if (!todo.length) return;
+    probing = Promise.all(todo.map(async u => {
+      try {
+        const r = await fetch(u, { method: 'HEAD', cache: 'no-store' });
+        haveImage.set(u, r.ok);
+      } catch { haveImage.set(u, false); }
+    })).then(() => { probing = null; drawProblems(); });
   }
 
   /* ── how the grid will come out ────────────────────────────────────────
@@ -430,9 +438,11 @@
   const tpl = $('#row-tpl');
 
   const WORK_CTX = { get list(){ return D.projects; }, get cats(){ return D.cat; },
-                     redraw: () => drawProjects(), manual: true };
+                     redraw: () => drawProjects(), manual: true, dir: 'work',
+                     what: 'the grid' };
   const VAULT_CTX = { get list(){ return D.archive; }, get cats(){ return D.acat; },
-                      redraw: () => drawArchive(), manual: false };
+                      redraw: () => drawArchive(), manual: false, dir: 'work',
+                      what: 'the detail passes' };
 
   function drawProjects() {
     const ol = $('#plist');
@@ -442,7 +452,7 @@
     const os = $('#order-state');
     os.className = 'ad-order ' + (D.auto ? 'auto' : 'manual');
     os.innerHTML = D.auto
-      ? 'ORDER: <b>AUTOMATIC</b> — by category, then newest first'
+      ? 'ORDER: <b>AUTOMATIC</b> — grouped by category, in the order the categories are ranked'
       : 'ORDER: <b>MANUAL</b> — exactly as listed below';
     markDirty();
   }
@@ -457,7 +467,7 @@
     li.dataset.i = i;
     li.classList.toggle('banner', !!p.hi);
     li.querySelector('.ad-idx').textContent = String(i + 1).padStart(2, '0');
-    thumb(li.querySelector('.ad-thumb'), p);
+    thumb(li.querySelector('.ad-thumb'), p, ctx.dir);
 
     const t = li.querySelector('.ad-title');
     t.value = p.title;
@@ -465,8 +475,8 @@
     t.addEventListener('input', () => {
       p.title = t.value;
       t.classList.toggle('ar', isAR(t.value));
-      /* NOT manual(): the automatic sort goes by category then Vimeo id, so a
-         title has no bearing on it. Calling it here switched the whole site to
+      /* NOT manual(): the automatic sort goes by category alone, so a title
+         has no bearing on it. Calling it here would switch the whole site to
          hand-ordering because someone fixed a typo. */
       markDirty();
     });
@@ -483,41 +493,54 @@
     y.value = p.year || '';
     y.addEventListener('input', () => { p.year = y.value.trim(); markDirty(); });
 
-    /* ── where the video lives, and which video it is ────────────────────
-       The id used to be a label you could read and not change, which meant
-       fixing a wrong link was a delete and a re-add — losing the title, the
-       category, the year, the order and anything attached to it. Both are
-       fields now: change the host and the row keeps everything but its
-       address; paste a different link over it and the row becomes that
-       video, still in its place in the grid. */
-    const host = li.querySelector('.ad-host');
-    for (const [k, label] of HOSTS)
-      host.appendChild(new Option(label, k, false, k === hostOf(p)));
-
+    /* ── which picture this is ───────────────────────────────────────────
+       One field, and it is the piece's whole identity: the file its render
+       is in, the folder its page is written to, and the name every other
+       list refers to it by. Rename it and the row keeps everything else —
+       but the pictures do not follow, so the row will say its render is
+       missing until one is uploaded under the new name. That is the honest
+       thing for it to say, and it is said the moment it becomes true rather
+       than after a publish. */
     const vid = li.querySelector('.ad-vid');
     const showVid = () => { vid.value = p.id; vid.classList.remove('bad'); };
+    vid.placeholder = 'file name';
     showVid();
 
-    host.addEventListener('change', () => {
-      setHost(p, host.value);
-      posters.delete(p.id);                 /* a different host, a different poster */
+    vid.addEventListener('change', () => {
+      const raw = slugify(vid.value);
+      if (!raw) { showVid(); return say('a file name is lowercase letters, digits and dashes', 'err'); }
+      if (raw === p.id) return showVid();
+      if (list.some(x => x !== p && x.id === raw)) {
+        showVid();
+        return say('there is already a piece called ' + q(raw) + ' — nothing changed', 'err');
+      }
+      /* a queued picture belongs to the name it was queued under */
+      for (const dir of ['work', 'concept'])
+        for (const suffix of ['.jpg', '-sm.jpg']) {
+          const from = 'assets/' + dir + '/' + p.id + suffix;
+          if (pending.has(from)) {
+            pending.set('assets/' + dir + '/' + raw + suffix, pending.get(from));
+            pending.delete(from);
+          }
+        }
+      p.id = raw;
       redraw();
+      probeImages();
+      say('renamed to ' + q(raw) + ' — its render has to be uploaded under that name', 'ok');
     });
 
-    vid.addEventListener('change', () => {
-      const raw = vid.value.trim();
-      if (!raw || raw === p.id) return showVid();
-      const got = videoFrom(raw, hostOf(p));
-      if (!got) { showVid(); return say('that is not a video link — nothing changed', 'err'); }
-      if (list.some(x => x !== p && x.id === got.id)) {
-        showVid();
-        return say('that video is already in this list — nothing changed', 'err');
-      }
-      p.id = got.id;
-      setHost(p, got.yt ? 'yt' : got.ig ? 'ig' : got.x ? 'x' : 'vimeo');
-      redraw();
-      say('row now points at ' + hostOf(p).toUpperCase() + ' ' + p.id, 'ok');
-    });
+    /* ── the render itself ────────────────────────────────────────────── */
+    const up = li.querySelector('.ad-up');
+    if (up) {
+      const smPath = smUrl(p, ctx.dir), lgPath = lgUrl(p, ctx.dir);
+      const queued = pending.has(smPath);
+      const here = queued || haveImage.get(smPath) !== false;
+      up.textContent = queued ? 'RENDER READY' : here ? 'REPLACE RENDER' : 'UPLOAD RENDER';
+      up.classList.toggle('warn', !here);
+      up.title = queued ? 'Waiting to be uploaded when you publish'
+        : here ? smPath : 'No picture at ' + smPath + ' — this card is blank on the site';
+      up.addEventListener('click', () => uploadFrame(up, p, ctx.dir, redraw));
+    }
 
     /* ── everything else about this project ────────────────────────────
        Only the live grid has project pages, so only the live grid has any
@@ -548,8 +571,8 @@
     const del = li.querySelector('.ad-del');
     del.setAttribute('aria-label', 'Remove ' + p.title);
     del.addEventListener('click', () => {
-      if (!confirm('Remove "' + p.title + '" from the ' + (ctx.manual ? 'grid' : 'vault') +
-        '?\n\nThe video stays where it is on Vimeo — this only takes it off the site.')) return;
+      if (!confirm('Remove "' + p.title + '" from ' + ctx.what +
+        '?\n\nThe picture stays in the repository — this only takes it off the page.')) return;
       list.splice(i, 1);
       redraw();
       say('removed “' + p.title + '” — press DISCARD to bring it back', 'ok');
@@ -576,7 +599,7 @@
      These defaults are the generator's, mirrored — tools/build-project-
      pages.mjs is the one that renders them, and a test holds the two in
      step rather than trusting them to stay that way.                    */
-  const DEFAULTS = { role: 'Post-Production Lead', studio: 'Direct Group · Riyadh' };
+  const DEFAULTS = { role: '3D Artist' };
   const autoClient = title => {
     const m = /^(.+?)\s*[—–-]\s*/.exec(String(title || ''));
     return m && m[1].length <= 34 ? m[1].trim() : '';
@@ -590,38 +613,28 @@
   };
   /* The sentence the page writes when the brief is left empty. This is the
      generator's describe(), mirrored so the placeholder can show exactly
-     what will be published — and console4.cjs compares the two against a
-     real generated page, so a change to one that is not made to the other
-     fails rather than drifts. */
+     what will be published. */
   function autoDesc(p) {
-    const cat = String(D.cat[p.cat] || p.cat).toLowerCase();
-    const ar = ' أحمد غنيم · الرياض.';
-    const one = cat.replace(/s$/, '');
-    const kind = one === 'film' || one === 'showreel' ? 'A ' + one
-      : /^[aeiou]/.test(one) ? 'An ' + one + ' film' : 'A ' + one + ' film';
-    const head = isAR(p.title)
-      ? kind + (p.year ? ', ' + p.year : '') + '.'
-      : p.title + ' — ' + cat + (p.year ? ', ' + p.year : '') + '.';
-    const c = isAR(p.title) ? null : autoClient(p.title);
-    const by = c ? 'Post-production for ' + c + ' by Ahmed Gonaim, Riyadh.'
-                 : 'Post-production by Ahmed Gonaim, Riyadh.';
-    const out = head + ' ' + by + ' Editing, motion, VFX, colour.' + ar;
-    return out.length > 158 ? head + ' ' + by + ar : out;
+    const cat = String(D.cat[p.cat] || p.cat).toLowerCase().replace(/s$/, '');
+    const ar = ' أحمد نجيب.';
+    const head = p.title + ' — ' + cat + (p.year ? ', ' + p.year : '') + '.';
+    const c = p.prod ? ' Made for ' + p.prod + '.' : '';
+    const by = ' 3D modeling and texturing by Ahmed Naguib, Marseille.';
+    const out = head + c + by + ar;
+    return out.length > 158 ? head + by + ar : out;
   }
 
   /* what the button says before it is opened: how much is written here */
-  const written = p => (p.desc ? 1 : 0) + (p.client ? 1 : 0) + (p.role ? 1 : 0)
-    + (p.studio ? 1 : 0) + (p.slug ? 1 : 0)
-    + (Array.isArray(p.facts) ? p.facts.length : 0)
-    + (Array.isArray(p.bts) ? p.bts.length : 0);
+  const written = p => (p.desc ? 1 : 0) + (p.prod ? 1 : 0) + (p.soft ? 1 : 0)
+    + (p.role ? 1 : 0) + (p.slug ? 1 : 0)
+    + (Array.isArray(p.facts) ? p.facts.length : 0);
   function markMore(btn, p) {
     if (!btn) return;
     const n = written(p);
-    const films = Array.isArray(p.bts) ? p.bts.length : 0;
-    btn.querySelector('i').textContent = films ? String(films) : n ? '·' : '';
+    btn.querySelector('i').textContent = n ? '·' : '';
     btn.classList.toggle('has', n > 0);
     btn.title = n ? 'Written by hand: ' + n + ' of the details on this page'
-                  : 'Nothing written yet — the page works it all out from the title';
+                  : 'Nothing written yet — the page works it all out from the fields';
   }
 
   function drawDetails(box, p, li) {
@@ -640,7 +653,7 @@
     };
 
     /* ── the brief ──────────────────────────────────────────────────── */
-    section('// BRIEF', 'the paragraph under the film, and what Google shows');
+    section('// BRIEF', 'the paragraph under the render, and what Google shows');
     const ta = document.createElement('textarea');
     ta.className = 'ad-desc';
     ta.rows = 3;
@@ -685,9 +698,9 @@
       wrap.append(l, i);
       grid.appendChild(wrap);
     };
-    field('client', 'CLIENT', autoClient(p.title) || 'none');
+    field('prod', 'PRODUCTION', autoClient(p.title) || 'none');
+    field('soft', 'SOFTWARE', 'ZBrush · 3ds Max · Substance Painter');
     field('role', 'ROLE', DEFAULTS.role);
-    field('studio', 'STUDIO', DEFAULTS.studio);
     field('slug', 'WEB ADDRESS', autoSlug(p));
     box.appendChild(grid);
 
@@ -701,11 +714,11 @@
       const k = document.createElement('input');
       k.className = 'ad-fact-k';
       k.value = f.k || '';
-      k.placeholder = 'DIRECTOR';
+      k.placeholder = 'TRIANGLES';
       k.addEventListener('input', () => { f.k = k.value; refresh(); });
       const v = document.createElement('input');
       v.value = f.v || '';
-      v.placeholder = 'Name, tool, running time — anything';
+      v.placeholder = 'A count, a texture size, a render engine — anything';
       v.classList.toggle('ar', isAR(f.v || ''));
       v.addEventListener('input', () => {
         f.v = v.value;
@@ -740,157 +753,6 @@
     });
     box.appendChild(addFact);
 
-    /* ── the making-of ──────────────────────────────────────────────── */
-    const bts = document.createElement('div');
-    bts.className = 'ad-bts';
-    box.appendChild(bts);
-    drawBts(bts, p, li);
-  }
-
-  /* ── the behind-the-scenes list for one project ────────────────────────
-     These are videos that belong to a piece rather than to the grid: the
-     making-of, a cutdown, a second angle. They appear on that project's own
-     page, under the film, and nowhere else on the site — so nothing here
-     changes the grid, the vault or the AI rail.
-
-     Drawn on demand, into the row that owns it: thirty-five projects each
-     rendering an editor nobody opened is thirty-five editors to keep in
-     step with the data behind them.                                      */
-  function drawBts(box, p, li) {
-    if (!Array.isArray(p.bts)) p.bts = [];
-    box.innerHTML = '';
-
-    const head = document.createElement('div');
-    head.className = 'ad-bts-h';
-    const lbl = document.createElement('span');
-    lbl.textContent = '// BEHIND THE SCENES';
-    const on = document.createElement('em');
-    on.textContent = 'shown on the page for ' + q(p.title);
-    head.append(lbl, on);
-    box.appendChild(head);
-
-    const ol = document.createElement('ol');
-    ol.className = 'ad-bts-list';
-    box.appendChild(ol);
-
-    const refresh = () => {
-      if (!p.bts.length) delete p.bts;      /* an empty list is no list */
-      markMore(li.querySelector('.ad-more'), p);
-      markDirty();
-      drawBts(box, p, li);
-    };
-
-    p.bts.forEach((b, i) => {
-      const row = document.createElement('li');
-      row.className = 'ad-bts-row';
-
-      const shot = document.createElement('span');
-      shot.className = 'ad-thumb sm';
-      thumb(shot, b);
-
-      const t = document.createElement('input');
-      t.className = 'ad-title';
-      t.value = b.title || '';
-      t.placeholder = 'What is it — “The Making”, “Director’s cut”…';
-      t.setAttribute('aria-label', 'Title of this behind-the-scenes film');
-      t.classList.toggle('ar', isAR(b.title || ''));
-      t.addEventListener('input', () => {
-        b.title = t.value;
-        t.classList.toggle('ar', isAR(t.value));
-        markDirty();
-      });
-
-      const host = document.createElement('select');
-      host.className = 'ad-host';
-      host.setAttribute('aria-label', 'Where this film is hosted');
-      for (const [k, label] of HOSTS)
-        host.appendChild(new Option(label, k, false, k === hostOf(b)));
-      host.addEventListener('change', () => { setHost(b, host.value); refresh(); });
-
-      const vid = document.createElement('input');
-      vid.className = 'ad-vid';
-      vid.value = b.id;
-      vid.spellcheck = false;
-      vid.setAttribute('aria-label', 'Link or id');
-      vid.addEventListener('change', () => {
-        const got = videoFrom(vid.value.trim(), hostOf(b));
-        if (!got) { vid.value = b.id; return say('that is not a video link — nothing changed', 'err'); }
-        b.id = got.id;
-        setHost(b, got.yt ? 'yt' : got.ig ? 'ig' : got.x ? 'x' : 'vimeo');
-        refresh();
-      });
-
-      const open = document.createElement('a');
-      open.className = 'ad-mini';
-      open.target = '_blank';
-      open.rel = 'noopener';
-      open.href = watchUrl(b);
-      open.textContent = 'OPEN';
-
-      const del = document.createElement('button');
-      del.type = 'button';
-      del.className = 'ad-del sm';
-      del.textContent = 'REMOVE';
-      del.setAttribute('aria-label', 'Remove ' + (b.title || b.id) + ' from this project');
-      del.addEventListener('click', () => {
-        p.bts.splice(i, 1);
-        refresh();
-        say('taken off “' + p.title + '” — the video itself is untouched', 'ok');
-      });
-
-      row.append(shot, t, host, vid, open, del);
-      ol.appendChild(row);
-    });
-
-    if (!p.bts.length) {
-      const none = document.createElement('p');
-      none.className = 'ad-bts-none';
-      none.textContent = 'Nothing yet. Anything you add here shows up as a second '
-        + 'film on this project’s page, under the main one.';
-      box.appendChild(none);
-    }
-
-    /* ── adding one ──────────────────────────────────────────────────── */
-    const form = document.createElement('form');
-    form.className = 'ad-add sm';
-    form.innerHTML =
-      '<input name="link" autocomplete="off" spellcheck="false" ' +
-      'placeholder="Vimeo, YouTube, Instagram or X link" />' +
-      '<input name="title" autocomplete="off" placeholder="Title (optional)" />' +
-      '<button class="ad-btn sm" type="submit">+ ADD</button>' +
-      '<span class="ad-add-why"></span>';
-    const why = form.querySelector('.ad-add-why');
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const link = form.link.value.trim();
-      const got = videoFrom(link);
-      if (!got) {
-        form.link.classList.add('bad'); form.link.focus();
-        why.textContent = NOT_A_VIDEO; why.className = 'ad-add-why';
-        return;
-      }
-      if (got.id === p.id) {
-        why.textContent = 'That is this project’s own film — it is already the '
-          + 'video at the top of the page.';
-        why.className = 'ad-add-why';
-        return;
-      }
-      if (p.bts.some(b => b.id === got.id)) {
-        why.textContent = 'That one is already on this project.';
-        why.className = 'ad-add-why';
-        return;
-      }
-      const b = { title: form.title.value.trim(), id: got.id };
-      setHost(b, got.yt ? 'yt' : got.ig ? 'ig' : got.x ? 'x' : 'vimeo');
-      p.bts.push(b);
-      refresh();
-      say('added to “' + p.title + '”', 'ok');
-    });
-    form.link.addEventListener('input', () => {
-      form.link.classList.remove('bad');
-      why.textContent = '';
-    });
-    box.appendChild(form);
   }
 
   /* open one project's details and put it where it can be seen */
@@ -1084,120 +946,100 @@
 
   const firstCat = map => Object.keys(map).find(k => k !== 'all');
 
-  /* ── one reader for every list ──────────────────────────────────────────
-     PROJECTS, the vault, the AI rail and a project's behind-the-scenes all
-     take the same four kinds of link, so they share this: paste a URL from
-     any of the four hosts, or a bare id, and it comes back as the record the
-     site stores. Order matters — an Instagram code and a YouTube id are both
-     eleven-ish characters of the same alphabet, so the URL forms are tried
-     before either bare form. */
-  function videoFrom(raw, now) {
-    const s = String(raw).trim();
-    let m;
-    /* A URL says which host it is, so those are tried first and always win. */
-    if ((m = /vimeo\.com\/(?:video\/)?(\d+)/.exec(s))) return { id: m[1] };
-    /* Instagram's share button hands out four shapes of URL, including one
-       with the account name in the middle — that form is what the share
-       sheet gives you on a phone, so it is the one most often pasted. */
-    if ((m = /instagram\.com\/(?:[\w.]+\/)?(?:reels?|p|tv|share\/reel)\/([\w-]+)/.exec(s)))
-      return { id: m[1], ig: true };
-    if ((m = /(?:twitter|x)\.com\/(?:[^/]+\/)?status(?:es)?\/(\d+)/.exec(s))) return { id: m[1], x: true };
-    if ((m = /(?:youtu\.be\/|[?&]v=|youtube\.com\/(?:embed|shorts|live)\/)([\w-]{11})/.exec(s)))
-      return { id: m[1], yt: true };
+  /* ── one name for every list ────────────────────────────────────────────
+     A film console read four kinds of link. Here every list stores the same
+     thing — the name of a file this repository owns — so there is one rule
+     instead of four: lowercase letters, digits and dashes. Anything typed is
+     folded into that shape rather than rejected, because "Mine Wagon" and
+     "mine-wagon" are the same intention and only one of them is a filename. */
+  const slugify = raw => String(raw || '').normalize('NFKD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  const NOT_A_NAME = 'A file name is lowercase letters, digits and dashes — '
+    + 'the name of the picture in assets/, like mine-wagon. It becomes the '
+    + 'address of the piece\u2019s own page too.';
 
-    /* A BARE ID CANNOT SAY. An Instagram code and a YouTube id are both
-       eleven characters of the same alphabet — there is no telling them
-       apart, and guessing turned a pasted reel code into a YouTube video.
-       So when a row is being edited, a bare id keeps that row's host: you
-       are editing an Instagram row, you paste a code, it stays Instagram.
-       Only a full URL is allowed to change what a row is.
+  /* ── uploading a render ─────────────────────────────────────────────────
+     One picture in, two out: the frame the lightbox opens and the rendition
+     the grid loads. Both are made here, in this browser, from the file that
+     was chosen — a phone photograph or a 4K render straight out of Marmoset
+     is not what should land in the repository, and asking somebody to export
+     two sizes by hand is asking them to forget one.
 
-       `now` is the host of the row being edited, or nothing at all when
-       something is being added from scratch — there the shapes decide. */
-    if ((m = /^(\d{15,})$/.exec(s))) return { id: m[1], x: true };
-    if ((m = /^(\d{6,14})$/.exec(s))) return { id: m[1], ...(now === 'x' ? { x: true } : {}) };
-    if (now === 'ig' && (m = /^([\w-]{5,})$/.exec(s))) return { id: m[1], ig: true };
-    if ((m = /^([\w-]{11})$/.exec(s))) return { id: m[1], yt: true };
-    return null;
-  }
-  const NOT_A_VIDEO = 'That is not a link this site can play. Vimeo looks like '
-    + 'https://vimeo.com/1174930627, YouTube like https://youtu.be/dQw4w9WgXcQ, '
-    + 'Instagram like https://www.instagram.com/reel/DbyEq2GNEyR/, and X like '
-    + 'https://x.com/gonaim/status/1234567890123456789.';
-
-  /* where a video lives, and how to say so — the same four the site knows */
-  const HOSTS = [['vimeo', 'VIMEO'], ['yt', 'YOUTUBE'], ['ig', 'INSTAGRAM'], ['x', 'X']];
-  const hostOf = p => p.yt ? 'yt' : p.ig ? 'ig' : p.x ? 'x' : 'vimeo';
-  function setHost(p, host) {
-    delete p.yt; delete p.ig; delete p.x;
-    if (host !== 'vimeo') p[host] = true;
-  }
-  const WATCH = {
-    vimeo: id => 'https://vimeo.com/' + id,
-    yt:    id => 'https://youtu.be/' + id,
-    ig:    id => 'https://www.instagram.com/reel/' + id + '/',
-    x:     id => 'https://x.com/i/status/' + id,
+     Nothing uploads on pick. Files queue, and PUBLISH writes them before it
+     writes studio.js, so the picture always exists before the code names it. */
+  const SIZES = {
+    work:    { lg: [1600, 900],  sm: [880, 495] },
+    concept: { lg: [1400, 1050], sm: [760, 570] },
   };
-  const watchUrl = p => WATCH[hostOf(p)](p.id);
+  async function uploadFrame(btn, p, dir, redraw) {
+    const f = await pickFile('image/*');
+    if (!f) return;
+    const size = SIZES[dir] || SIZES.work;
+    const was = btn.textContent;
+    try {
+      btn.disabled = true; btn.textContent = 'RESIZING…';
+      const big = await shrink(f, size.lg[0], size.lg[1], 'image/jpeg', 0.84);
+      const small = await shrink(f, size.sm[0], size.sm[1], 'image/jpeg', 0.82);
+      pending.set(lgUrl(p, dir), { blob: big.blob, w: big.w, h: big.h, name: f.name });
+      pending.set(smUrl(p, dir), { blob: small.blob, w: small.w, h: small.h, name: f.name });
+      redraw();
+      say('render ready · ' + big.w + '×' + big.h + ' and ' + small.w + '×' + small.h
+        + ' · ' + kb(big.blob.size + small.blob.size) + ' — publish to upload them', 'ok');
+    } catch (err) { alert(err.message); btn.textContent = was; }
+    finally { btn.disabled = false; }
+  }
 
   wireAdd('#add-proj', '#why-proj', v => {
-    if (!v.link) return { err: 'Paste the video link first.', field: 'link' };
-    const vid = videoFrom(v.link);
-    if (!vid) return { err: NOT_A_VIDEO, field: 'link' };
-    if (D.projects.some(p => p.id === vid.id))
-      return { err: 'That video is already in the grid.', field: 'link' };
+    const id = slugify(v.id);
+    if (!id) return { err: NOT_A_NAME, field: 'id' };
+    if (D.projects.some(p => p.id === id))
+      return { err: 'There is already a piece called ' + q(id) + ' in the grid.', field: 'id' };
     if (!v.title) return { err: 'Give it a title — it is what a visitor reads under the frame.', field: 'title' };
     const year = String(v.year || '').trim();
     if (year && !/^\d{4}$/.test(year))
       return { err: 'A year is four digits, or nothing at all.', field: 'year' };
-    const p = { title: v.title, id: vid.id,
-                cat: v.cat || firstCat(D.cat),
-                year: year || String(new Date().getFullYear()) };
-    setHost(p, vid.yt ? 'yt' : vid.ig ? 'ig' : vid.x ? 'x' : 'vimeo');
-    D.projects.unshift(p);
+    D.projects.unshift({ title: v.title, id, cat: v.cat || firstCat(D.cat),
+                         year: year || String(new Date().getFullYear()) });
     manual();                            /* an addition is a deliberate order */
     drawProjects();
+    probeImages();
     /* AND OPEN IT. Adding used to drop a row at the top of a long list with
        nothing but a title in it and leave you to find the rest yourself.
-       The brief, the client, the role and the making-of are the things you
-       know at the moment you add something — so they are on screen at that
-       moment, not somewhere to be hunted for later. */
+       The brief, the production and the software are the things you know at
+       the moment you add something — so they are on screen at that moment,
+       not somewhere to be hunted for later. */
     openDetails(0);
-    return { ok: q(v.title) + ' added — its details are open below, ready to write.' };
+    return { ok: q(v.title) + ' added — its details are open below. Press UPLOAD '
+      + 'RENDER on its row to give it a picture.' };
   });
 
   wireAdd('#add-arch', '#why-arch', v => {
-    if (!v.link) return { err: 'Paste the video link first.', field: 'link' };
-    const vid = videoFrom(v.link);
-    if (!vid) return { err: NOT_A_VIDEO, field: 'link' };
-    if (D.archive.some(p => p.id === vid.id))
-      return { err: 'That video is already in the vault.', field: 'link' };
-    if (D.projects.some(p => p.id === vid.id))
-      return { err: 'That video is in PROJECTS. The vault hides anything already live, '
-        + 'so adding it here would show nothing.', field: 'link' };
+    const id = slugify(v.id);
+    if (!id) return { err: NOT_A_NAME, field: 'id' };
+    if (D.archive.some(p => p.id === id))
+      return { err: 'That name is already in the detail passes.', field: 'id' };
+    if (D.projects.some(p => p.id === id))
+      return { err: 'That piece is in the selected grid. This grid hides anything '
+        + 'already there, so adding it here would show nothing.', field: 'id' };
     if (!v.title) return { err: 'Give it a title.', field: 'title' };
-    const p = { title: v.title, id: vid.id, cat: firstCat(D.acat) };
-    setHost(p, vid.yt ? 'yt' : vid.ig ? 'ig' : vid.x ? 'x' : 'vimeo');
-    D.archive.unshift(p);
+    D.archive.unshift({ title: v.title, id, cat: firstCat(D.acat) });
     drawArchive();
-    return { ok: q(v.title) + ' added at the top of the vault.' };
+    probeImages();
+    return { ok: q(v.title) + ' added at the top of the detail passes.' };
   });
 
   wireAdd('#add-reel', '#why-reel', v => {
-    if (!v.link) return { err: 'Paste the link first.', field: 'link' };
-    const got = videoFrom(v.link);
-    if (!got) return { err: NOT_A_VIDEO, field: 'link' };
-    if (D.reels.some(r => r.id === got.id))
-      return { err: 'That video is already in this list.', field: 'link' };
-    const r = { title: v.title || '', id: got.id };
-    setHost(r, got.yt ? 'yt' : got.ig ? 'ig' : got.x ? 'x' : 'vimeo');
-    D.reels.unshift(r);
+    const id = slugify(v.id);
+    if (!id) return { err: NOT_A_NAME, field: 'id' };
+    if (D.concepts.some(r => r.id === id))
+      return { err: 'There is already a sheet called ' + q(id) + '.', field: 'id' };
+    if (!v.title) return { err: 'Give it a title — a sheet is a title and a picture.', field: 'title' };
+    D.concepts.unshift({ title: v.title, id });
     drawReels();
-    const host = hostOf(r);
-    return { ok: 'Added at the top of the AI section' + (host === 'ig' || host === 'x'
-      ? ' — ' + host.toUpperCase() + ' publishes no thumbnail, so it draws its own '
-        + 'artwork until you upload a frame.'
-      : ' — ' + host.toUpperCase() + ' brings its own poster.') };
+    probeImages();
+    return { ok: q(v.title) + ' added at the top of the concept lab. Press UPLOAD '
+      + 'SHEET on its row to give it a picture.' };
   });
 
   wireAdd('#newcat', '#why-cat', v => {
@@ -1227,67 +1069,40 @@
     await boot();
   });
 
-  /* ── the new controls ─────────────────────────────────────────────── */
-  const vimeoId = raw => {
-    const s = String(raw).trim();
-    const m = /vimeo\.com\/(?:video\/)?(\d+)/.exec(s) || /^(\d{6,})$/.exec(s);
-    return m ? m[1] : null;
-  };
-  /* Instagram hands out more shapes of link than it used to: the plain one,
-     the one with your username in front of it, /reels/ in the plural from the
-     app, /p/ and /tv/ from older posts, and all of them with a ?igsh=… tail.
-     Every one of those is a link somebody will actually paste, so every one of
-     them has to work — the code is the part between the slashes either way. */
-  const igCode = raw => {
-    const s = String(raw).trim();
-    const m = /instagram\.com\/(?:[\w.]+\/)?(?:reels?|p|tv|share\/reel)\/([\w-]+)/.exec(s)
-      || /^([\w-]{6,})$/.exec(s);
-    return m ? m[1] : null;
-  };
-  const REEL_URL = id => 'https://www.instagram.com/reel/' + id + '/';
-  const VIMEO_URL = id => 'https://vimeo.com/' + id;
+  /* ── the two pictures the site names directly ───────────────────────
+     Everything else on the site is a row in a list. These two are named in
+     the markup itself — the render behind the headline and the portrait on
+     the loading screen — so they are replaced rather than added to: the file
+     keeps its name and the new picture takes its place. */
+  const HERO_ART_PATH = 'assets/hero-art.png';
+  const PORTRAIT = 'assets/naguib-portrait.png';
 
-  /* Both films hold their whole link, because a whole link is the only thing
-     anybody ever has in hand — and take a bare number too, for when you do. */
-  for (const [el, key] of [['#hero-id', 'hero'], ['#reel-id', 'showreel']]) {
-    const inp = $(el);
-    if (!inp) continue;
-    inp.addEventListener('input', () => inp.classList.toggle('bad', !vimeoId(inp.value)));
-    inp.addEventListener('change', () => {
-      const id = vimeoId(inp.value);
-      if (!id) {
-        inp.value = VIMEO_URL(D[key]);
-        inp.classList.remove('bad');
-        return say('that is not a Vimeo link — nothing changed', 'err');
-      }
-      D[key] = id;
-      drawStudio();
-      say((key === 'hero' ? 'hero film' : 'showreel') + ' → ' + VIMEO_URL(id), 'ok');
+  const wirePicture = (pickSel, clearSel, shotSel, path, box, note) => {
+    const shot = $(shotSel);
+    if ($(pickSel)) $(pickSel).addEventListener('click', async () => {
+      const f = await pickFile('image/*');
+      if (!f) return;
+      try {
+        /* PNG, because the whole point of both pictures is their
+           transparency — re-encoding either as JPEG would hand back the
+           rectangle the design exists to avoid. */
+        const { blob, w, h } = await shrink(f, box, box, 'image/png');
+        pending.set(path, { blob, w, h, name: f.name });
+        await paintPreview(shot, blob, { w: 112, h: 112 });
+        drawStudio();
+        if (!/png/i.test(f.type))
+          say('note: that was not a PNG, so it has no transparency — it will show as a rectangle', 'err');
+        else say(note + ' ready · ' + w + '×' + h + ' · ' + kb(blob.size) + ' — publish to upload it', 'ok');
+      } catch (err) { alert(err.message); }
     });
-  }
-
-  const pShot = $('#portrait-shot');
-  if ($('#portrait-pick')) $('#portrait-pick').addEventListener('click', async () => {
-    const f = await pickFile('image/*');
-    if (!f) return;
-    try {
-      /* PNG, because the whole point of this picture is its transparency —
-         re-encoding it as JPEG would hand back the black square we spent
-         two rounds removing. */
-      const { blob, w, h } = await shrink(f, 720, 720, 'image/png');
-      pending.set(PORTRAIT, { blob, w, h, name: f.name });
-      await paintPreview(pShot, blob, { w: 112, h: 112 });
+    if ($(clearSel)) $(clearSel).addEventListener('click', () => {
+      pending.delete(path);
+      if (shot) shot.replaceChildren();
       drawStudio();
-      if (!/png/i.test(f.type))
-        say('note: that was not a PNG, so it has no transparency — it will show as a square', 'err');
-      else say('portrait ready \u00b7 ' + w + '\u00d7' + h + ' \u00b7 ' + kb(blob.size) + ' — publish to upload it', 'ok');
-    } catch (err) { alert(err.message); }
-  });
-  if ($('#portrait-clear')) $('#portrait-clear').addEventListener('click', () => {
-    pending.delete(PORTRAIT);
-    if (pShot) pShot.replaceChildren();
-    drawStudio();
-  });
+    });
+  };
+  wirePicture('#hero-pick', '#hero-clear', '#hero-shot', HERO_ART_PATH, 1000, 'hero render');
+  wirePicture('#portrait-pick', '#portrait-clear', '#portrait-shot', PORTRAIT, 720, 'portrait');
 
   /* ── tabs ──────────────────────────────────────────────────────────── */
   document.querySelectorAll('.ad-tab').forEach(b => b.addEventListener('click', () => {
@@ -1361,77 +1176,65 @@
      than after. An id in the wrong shape, the same video listed twice, a
      category nothing uses, a reel with no cover — each one is cheap to
      check here and expensive to notice live.                             */
-  const ID_OK = {
-    vimeo: /^\d{6,14}$/,
-    yt: /^[\w-]{11}$/,
-    ig: /^[\w-]{6,}$/,
-    x: /^\d{15,}$/,           /* a status id is far longer than a Vimeo one */
+  /* A name is a file name, and there is one rule for all three lists. */
+  const ID_OK = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+  /* A picture is missing only if the server said so AND nothing is queued to
+     put one there. Anything still being probed is not yet an answer. */
+  const missingPic = (p, dir) => {
+    const u = smUrl(p, dir);
+    return haveImage.get(u) === false && !pending.has(u);
   };
-  const kindOf = p => hostOf(p);
 
   function problems() {
     const out = [];
-    /* A video in both PROJECTS and the vault is not a mistake — VAULT is
-       ARCHIVE minus everything live, so the site already hides the vault
-       copy. Saying "error" there would be crying wolf, and a checker that
-       cries wolf gets ignored. Twice in the SAME list is a real duplicate. */
+    /* A piece in both grids is not a mistake — the second grid is ARCHIVE
+       minus everything live, so the site already hides the duplicate. Saying
+       "error" there would be crying wolf, and a checker that cries wolf gets
+       ignored. Twice in the SAME list is a real duplicate. */
     const seen = new Map();
     const note = (p, where) => {
-      const k = kindOf(p) + ':' + p.id;
-      const had = seen.get(k);
-      if (had === where) out.push(['dup', where + ' lists the same video twice — ' + q(p.title || p.id)]);
-      else if (had) out.push(['soft', q(p.title || p.id) + ' is in both PROJECTS and the vault — the vault copy hides itself, so only the live one shows']);
-      else seen.set(k, where);
+      const had = seen.get(p.id);
+      if (had === where) out.push(['dup', where + ' lists the same name twice — ' + q(p.title || p.id)]);
+      else if (had) out.push(['soft', q(p.title || p.id) + ' is in both grids — the second one hides itself, so only the selected copy shows']);
+      else seen.set(p.id, where);
+    };
+    const checkPic = (p, dir, where) => {
+      if (missingPic(p, dir))
+        out.push(['pic', where + q(p.title || p.id) + ' has no picture at ' + smUrl(p, dir)
+          + ' — that card is blank on the site']);
     };
     for (const p of D.projects) {
-      note(p, 'PROJECTS');
-      if (!ID_OK[kindOf(p)].test(p.id))
-        out.push(['id', q(p.title || '(untitled)') + ' has an id that is not a ' + kindOf(p) + ' id: ' + q(p.id)]);
-      if (!String(p.title || '').trim()) out.push(['blank', 'A project has no title (' + p.id + ')']);
+      note(p, 'The grid');
+      if (!ID_OK.test(p.id))
+        out.push(['id', q(p.title || '(untitled)') + ' has a name that is not a file name: ' + q(p.id)]);
+      if (!String(p.title || '').trim()) out.push(['blank', 'A piece has no title (' + p.id + ')']);
       if (!D.cat[p.cat]) out.push(['cat', q(p.title) + ' is in ' + q(p.cat) + ', which is not a category']);
+      checkPic(p, 'work', '');
     }
     for (const p of D.archive) {
-      note(p, 'the vault');
-      if (!ID_OK[kindOf(p)].test(p.id))
-        out.push(['id', 'Vault: ' + q(p.title || '(untitled)') + ' has an id that is not a ' + kindOf(p) + ' id']);
-      if (!D.acat[p.cat]) out.push(['cat', 'Vault: ' + q(p.title) + ' is in ' + q(p.cat) + ', which is not a vault category']);
+      note(p, 'The detail passes');
+      if (!ID_OK.test(p.id))
+        out.push(['id', 'Detail: ' + q(p.title || '(untitled)') + ' has a name that is not a file name']);
+      if (!D.acat[p.cat]) out.push(['cat', 'Detail: ' + q(p.title) + ' is in ' + q(p.cat) + ', which is not a category there']);
+      checkPic(p, 'work', 'Detail: ');
     }
-    const reelIds = new Set();
-    for (const r of D.reels) {
-      if (!ID_OK[kindOf(r)].test(r.id))
-        out.push(['id', 'AI: ' + q(r.id) + ' is not a ' + kindOf(r) + ' id']);
-      if (reelIds.has(r.id)) out.push(['dup', 'AI: ' + q(r.id) + ' is listed twice']);
-      reelIds.add(r.id);
+    const conIds = new Set();
+    for (const r of D.concepts) {
+      if (!ID_OK.test(r.id)) out.push(['id', 'Concept: ' + q(r.id) + ' is not a file name']);
+      if (conIds.has(r.id)) out.push(['dup', 'Concept: ' + q(r.id) + ' is listed twice']);
+      conIds.add(r.id);
+      if (!String(r.title || '').trim())
+        out.push(['soft', 'Concept: ' + q(r.id) + ' has no title — the card shows its number instead']);
+      checkPic(r, 'concept', 'Concept: ');
     }
-    /* ── behind the scenes ─────────────────────────────────────────────
-       These never appear in a grid, so nothing else in this list would ever
-       catch a bad one: a wrong id is a dead player on a project page and no
-       sign of it anywhere else. */
-    for (const p of D.projects) {
-      const kids = Array.isArray(p.bts) ? p.bts : [];
-      const ids = new Set();
-      for (const b of kids) {
-        const where = 'BTS on ' + q(p.title || p.id) + ': ';
-        if (!b || !b.id) { out.push(['id', where + 'an entry has no video']); continue; }
-        if (!ID_OK[kindOf(b)].test(b.id))
-          out.push(['id', where + q(b.id) + ' is not a ' + kindOf(b) + ' id']);
-        if (b.id === p.id)
-          out.push(['dup', where + 'the same video as the project itself']);
-        if (ids.has(b.id)) out.push(['dup', where + q(b.id) + ' is listed twice']);
-        ids.add(b.id);
-        if (!String(b.title || '').trim())
-          out.push(['soft', where + q(b.id) + ' has no title — the page will call it '
-            + '“Behind the scenes”']);
-      }
-    }
-    if (!/^\d{6,}$/.test(D.hero)) out.push(['id', 'The hero video id is not a Vimeo id: ' + q(D.hero)]);
-    if (!/^\d{6,}$/.test(D.showreel)) out.push(['id', 'The showreel id is not a Vimeo id: ' + q(D.showreel)]);
+    if (probing) out.push(['soft', 'still asking the server which pictures exist…']);
     /* How the grid actually comes out, from the site's own layout function.
        A hole mid-grid would be a bug in layout(), which is built to prevent
        one, so it is an error if it ever appears. A short last row is not a
        fault — fillLastRow() stretches a lone card wide on purpose — but it
        is the one thing about the grid worth knowing before you publish
-       rather than after, which is what the preview was for. */
+       rather than after. */
     const g = gridShape();
     if (g && g.holes)
       out.push(['grid', g.holes + ' empty cell' + (g.holes > 1 ? 's' : '') + ' mid-grid — a '
@@ -1446,11 +1249,10 @@
           : ' — one short, so the last two stretch to fill it.')]);
 
     /* soft notes, not errors */
-    const bare = D.reels.filter(r => (kindOf(r) === 'ig' || kindOf(r) === 'x')
-      && !r.cover && !pending.has('assets/reels/' + r.id + '.jpg')).length;
-    if (bare) out.push(['soft', bare + ' of ' + D.reels.length +
-      ' AI videos are on a host that publishes no thumbnail and have no cover — '
-      + 'those draw their own artwork instead']);
+    const nodesc = D.projects.filter(p => !String(p.desc || '').trim()).length;
+    if (nodesc) out.push(['soft', nodesc + ' of ' + D.projects.length + ' pieces have no '
+      + 'written brief — those pages compose a sentence from the fields instead, '
+      + 'which is the single biggest thing left to improve in search']);
     for (const k of Object.keys(D.cat))
       if (k !== 'all' && !D.projects.some(p => p.cat === k))
         out.push(['soft', 'Category ' + q(D.cat[k]) + ' has nothing in it']);
@@ -1472,7 +1274,7 @@
     return hard.length;
   }
 
-  /* ══ THE VAULT ════════════════════════════════════════════════════════ */
+  /* ══ THE DETAIL PASSES ════════════════════════════════════════════════ */
   function drawArchive() {
     const ol = $('#alist'); if (!ol) return;
     ol.innerHTML = '';
@@ -1481,12 +1283,15 @@
     markDirty();
   }
 
-  /* ══ THE REELS ════════════════════════════════════════════════════════ */
+  /* ══ THE CONCEPT SHEETS ═══════════════════════════════════════════════
+     A sheet is the simplest thing on the site: a title, a file name and a
+     picture. No category, no year, no page — so its row is the same three
+     controls and nothing else.                                            */
   function drawReels() {
     const ol = $('#rlist'); if (!ol) return;
     ol.innerHTML = '';
-    D.reels.forEach((r, i) => ol.appendChild(reelRow(r, i)));
-    $('#n-reels').textContent = D.reels.length;
+    D.concepts.forEach((r, i) => ol.appendChild(reelRow(r, i)));
+    $('#n-reels').textContent = D.concepts.length;
     markDirty();
   }
 
@@ -1503,150 +1308,103 @@
     const idx = document.createElement('span');
     idx.className = 'ad-idx'; idx.textContent = String(i + 1).padStart(2, '0');
 
-    /* the cover, or the reason there isn't one */
     const shot = document.createElement('span');
-    shot.className = 'ad-shot';
-    const path = 'assets/reels/' + r.id + '.jpg';
-    if (pending.has(path)) paintPreview(shot, pending.get(path).blob, { w: 54, h: 96 });
-    else if (r.cover) shot.classList.add('has');
-    else shot.classList.add('none');
+    shot.className = 'ad-thumb';
+    thumb(shot, r, 'concept');
 
     const fields = document.createElement('span');
     fields.className = 'ad-fields';
     const t = document.createElement('input');
-    /* `t` was this list's name for a title when it only held reels; both are
-       read so a half-migrated file still shows its titles, and only `title`
-       is written back. */
-    t.className = 'ad-title'; t.value = r.title || r.t || '';
-    t.placeholder = 'Title (optional)';
+    t.className = 'ad-title'; t.value = r.title || '';
+    t.placeholder = 'What the sheet is';
     t.setAttribute('aria-label', 'Title');
     t.classList.toggle('ar', isAR(t.value));
     t.addEventListener('input', () => {
-      r.title = t.value; delete r.t;
+      r.title = t.value;
       t.classList.toggle('ar', isAR(t.value));
       markDirty();
     });
 
-    /* ── the link IS the row ──────────────────────────────────────────
-       This field used to hold the bare code and reject anything else, which
-       meant it rejected every link Instagram's share button has ever
-       produced. It holds the whole URL now, and the code is read out of
-       whatever is dropped in. Paste a different reel's link over this one
-       and the row becomes that reel — that is how a reel is edited.
-
-       The cover is a file named after the code, so a new code means the
-       cover on screen belongs to the reel that just left. Carrying it over
-       would put the wrong frame on the new one, silently, and it would not
-       be found until it was live — so it is cleared, and said out loud. */
     const sub = document.createElement('span');
     sub.className = 'ad-sub';
 
-    /* where it lives — the same four the rest of the site knows */
-    const host = document.createElement('select');
-    host.className = 'ad-host';
-    host.setAttribute('aria-label', 'Where this video is hosted');
-    for (const [k, label] of HOSTS)
-      host.appendChild(new Option(label, k, false, k === hostOf(r)));
-    host.addEventListener('change', () => { setHost(r, host.value); drawReels(); });
-
-    const url = document.createElement('input');
-    url.className = 'ad-url';
-    url.value = watchUrl(r);
-    url.spellcheck = false;
-    url.placeholder = 'Vimeo, YouTube, Instagram or X link';
-    url.setAttribute('aria-label', 'Video link');
-    const flag = () => url.classList.toggle('bad', !videoFrom(url.value, hostOf(r)));
-    url.addEventListener('input', flag);
-    url.addEventListener('change', () => {
-      const got = videoFrom(url.value.trim(), hostOf(r));
-      url.classList.remove('bad');
-      if (!got) { url.value = watchUrl(r);
-        return say('that is not a video link — nothing changed', 'err'); }
-      if (got.id === r.id) { url.value = watchUrl(r); return; }
-      if (D.reels.some(x => x !== r && x.id === got.id)) { url.value = watchUrl(r);
-        return say('that video is already in this list — nothing changed', 'err'); }
-      /* The cover is a file named after the id, so a new id means the cover
-         on screen belongs to the video that just left. Carrying it over would
-         put the wrong frame on the new one, silently, and it would not be
-         found until it was live — so it is cleared, and said out loud. */
-      const had = r.cover || pending.has(path);
-      pending.delete(path);
-      delete r.cover;
-      r.id = got.id;
-      setHost(r, got.yt ? 'yt' : got.ig ? 'ig' : got.x ? 'x' : 'vimeo');
+    /* ── the name IS the row ─────────────────────────────────────────────
+       It names the picture and nothing else refers to it, so renaming one
+       is safe — but the file does not follow the name, so anything queued
+       for the old name comes with it and anything already uploaded does
+       not. The row says which of those has happened. */
+    const name = document.createElement('input');
+    name.className = 'ad-vid';
+    name.value = r.id;
+    name.spellcheck = false;
+    name.placeholder = 'file name';
+    name.setAttribute('aria-label', 'File name of the sheet');
+    name.addEventListener('change', () => {
+      const to = slugify(name.value);
+      if (!to) { name.value = r.id; return say(NOT_A_NAME, 'err'); }
+      if (to === r.id) { name.value = r.id; return; }
+      if (D.concepts.some(x => x !== r && x.id === to)) {
+        name.value = r.id;
+        return say('there is already a sheet called ' + q(to) + ' — nothing changed', 'err');
+      }
+      for (const suffix of ['.jpg', '-sm.jpg']) {
+        const from = 'assets/concept/' + r.id + suffix;
+        if (pending.has(from)) {
+          pending.set('assets/concept/' + to + suffix, pending.get(from));
+          pending.delete(from);
+        }
+      }
+      r.id = to;
       drawReels();
-      say('row ' + (i + 1) + ' is now ' + hostOf(r).toUpperCase() + ' ' + got.id
-        + (had ? ' — its old cover was cleared, upload a frame for the new one' : ''), 'ok');
+      probeImages();
+      say('row ' + (i + 1) + ' is now ' + q(to), 'ok');
     });
-    flag();
 
     const go = document.createElement('a');
     go.className = 'ad-go';
-    go.href = watchUrl(r);
+    go.href = lgUrl(r, 'concept');
     go.target = '_blank';
     go.rel = 'noopener noreferrer';
     go.textContent = 'OPEN ↗';
-    go.setAttribute('aria-label', 'Open this video where it lives');
+    go.setAttribute('aria-label', 'Open this sheet at full size');
 
     const state = document.createElement('span');
     state.className = 'ad-cover-state';
-    const selfPoster = hostOf(r) === 'yt' || hostOf(r) === 'vimeo';
-    state.textContent = pending.has(path) ? 'NEW COVER READY · UPLOADS WHEN YOU PUBLISH'
-      : r.cover ? 'COVER: ' + r.cover
-      : selfPoster ? 'NO COVER · ' + hostOf(r).toUpperCase() + ' PUBLISHES ITS OWN'
-      : 'NO COVER · DRAWS ITS OWN ARTWORK';
-    /* only worth a warning where the host has no poster to fall back on */
-    state.classList.toggle('warn', !selfPoster && !r.cover && !pending.has(path));
-    sub.append(host, url, go);
+    const queued = pending.has(smUrl(r, 'concept'));
+    const missing = missingPic(r, 'concept');
+    state.textContent = queued ? 'NEW SHEET READY · UPLOADS WHEN YOU PUBLISH'
+      : missing ? 'NO PICTURE AT ' + smUrl(r, 'concept').toUpperCase()
+      : smUrl(r, 'concept');
+    state.classList.toggle('warn', missing);
+    sub.append(name, go);
     fields.append(t, sub, state);
 
     const acts = document.createElement('span');
     acts.className = 'ad-shape';
     const up = document.createElement('button');
     up.type = 'button'; up.className = 'ad-seg';
-    up.textContent = pending.has(path) ? 'REPLACE' : 'UPLOAD COVER';
-    up.addEventListener('click', async () => {
-      const f = await pickFile('image/*');
-      if (!f) return;
-      try {
-        up.disabled = true; up.textContent = 'RESIZING…';
-        /* a reel is 9:16 and drawn a few hundred pixels tall at most */
-        const { blob, w, h } = await shrink(f, 720, 1280, 'image/jpeg', 0.82);
-        pending.set(path, { blob, w, h, name: f.name });
-        r.cover = r.id + '.jpg';
-        drawReels();
-        say('cover ready · ' + w + '×' + h + ' · ' + kb(blob.size) + ' — publish to upload it', 'ok');
-      } catch (err) { alert(err.message); }
-      finally { up.disabled = false; }
-    });
+    up.textContent = queued ? 'SHEET READY' : missing ? 'UPLOAD SHEET' : 'REPLACE SHEET';
+    up.addEventListener('click', () => uploadFrame(up, r, 'concept', drawReels));
     acts.appendChild(up);
-    if (r.cover || pending.has(path)) {
-      const clr = document.createElement('button');
-      clr.type = 'button'; clr.className = 'ad-seg';
-      clr.textContent = 'CLEAR';
-      clr.addEventListener('click', () => {
-        pending.delete(path); delete r.cover; drawReels();
-      });
-      acts.appendChild(clr);
-    }
 
     const del = document.createElement('button');
     del.type = 'button'; del.className = 'ad-del';
     del.textContent = 'REMOVE';
-    del.setAttribute('aria-label', 'Remove this reel');
+    del.setAttribute('aria-label', 'Remove this sheet');
     del.addEventListener('click', () => {
-      if (!confirm('Remove this reel from the AI section?\n\nIt stays on Instagram — this only takes it off the site.')) return;
-      pending.delete(path);
-      D.reels.splice(i, 1);
+      if (!confirm('Remove this sheet from the concept lab?\n\nThe picture stays in the repository — this only takes it off the page.')) return;
+      pending.delete(smUrl(r, 'concept'));
+      pending.delete(lgUrl(r, 'concept'));
+      D.concepts.splice(i, 1);
       drawReels();
-      say('reel removed — press DISCARD to bring it back', 'ok');
+      say('sheet removed — press DISCARD to bring it back', 'ok');
     });
 
     li.append(grip, idx, shot, fields, acts, del);
     wireDrag(li, (from, to) => {
       if (from === to) return;
-      const [m] = D.reels.splice(from, 1);
-      D.reels.splice(to, 0, m);
+      const [m] = D.concepts.splice(from, 1);
+      D.concepts.splice(to, 0, m);
       drawReels();
     });
     return li;
@@ -1713,19 +1471,19 @@
     /* the site does exactly this: VAULT = ARCHIVE minus everything live */
     const vaultShown = D.archive.filter(p => !liveIds.has(p.id)).length;
     const banners = D.projects.filter(p => p.hi).length;
-    const covered = D.reels.filter(r =>
-      r.cover || pending.has('assets/reels/' + r.id + '.jpg')).length;
+    const withPic = list => list.filter(p => !missingPic(p, 'work')).length;
+    const conPic = D.concepts.filter(r => !missingPic(r, 'concept')).length;
     const withDesc = D.projects.filter(p => String(p.desc || '').trim()).length;
 
     const box = $('#kpis');
     box.replaceChildren();
-    kpi(box, nfmt(live + vaultShown), 'FILMS ON THE SITE',
-      live + ' in the grid · ' + vaultShown + ' in the vault');
-    kpi(box, nfmt(live), 'IN THE LIVE GRID',
+    kpi(box, nfmt(live + vaultShown), 'PIECES ON THE SITE',
+      live + ' selected · ' + vaultShown + ' detail passes');
+    kpi(box, nfmt(live), 'IN THE SELECTED GRID',
       banners + ' full width · ' + (live - banners) + ' cards');
-    kpi(box, nfmt(D.reels.length), 'INSTAGRAM REELS',
-      covered + ' of ' + D.reels.length + ' have a cover',
-      covered === D.reels.length ? 'good' : 'warn');
+    kpi(box, nfmt(D.concepts.length), 'CONCEPT SHEETS',
+      conPic + ' of ' + D.concepts.length + ' have their picture',
+      conPic === D.concepts.length ? 'good' : 'warn');
     kpi(box, nfmt(Object.keys(D.cat).length - 1), 'CATEGORIES',
       Object.keys(D.cat).filter(k => k !== 'all' &&
         !D.projects.some(p => p.cat === k)).length + ' with nothing in them', 'cy');
@@ -1762,12 +1520,16 @@
     /* coverage — the gaps worth closing */
     const gbox = $('#d-cover');
     gbox.replaceChildren();
-    fact(gbox, 'Reels with an uploaded cover', covered + ' of ' + D.reels.length,
-      covered === D.reels.length ? 'good' : 'warn');
-    fact(gbox, 'Projects with a written description', withDesc + ' of ' + live,
+    fact(gbox, 'Selected pieces with their render', withPic(D.projects) + ' of ' + live,
+      withPic(D.projects) === live ? 'good' : 'warn');
+    fact(gbox, 'Detail passes with their render', withPic(D.archive) + ' of ' + D.archive.length,
+      withPic(D.archive) === D.archive.length ? 'good' : 'warn');
+    fact(gbox, 'Concept sheets with their picture', conPic + ' of ' + D.concepts.length,
+      conPic === D.concepts.length ? 'good' : 'warn');
+    fact(gbox, 'Pieces with a written brief', withDesc + ' of ' + live,
       withDesc === live ? 'good' : withDesc ? '' : 'warn');
-    fact(gbox, 'Projects marked full width', nfmt(banners));
-    fact(gbox, 'Films listed in both the grid and the vault',
+    fact(gbox, 'Pieces marked full width', nfmt(banners));
+    fact(gbox, 'Names listed in both grids',
       nfmt(D.archive.filter(p => liveIds.has(p.id)).length), 'dim');
     fact(gbox, 'Grid order', D.auto ? 'automatic' : 'set by hand');
 
@@ -1787,7 +1549,8 @@
     ['chrome.js', 'shared furniture'],
     ['motion.js', 'motion'],
     ['grid.js', 'the grid layout'],
-    ['assets/gonaim-portrait.png', 'your portrait'],
+    ['assets/hero-art.png', 'the hero render'],
+    ['assets/naguib-portrait.png', 'your portrait'],
     ['assets/favicon.ico', 'the favicon'],
   ];
   /* the promise is cached, not just its answer: markDirty can call this on
@@ -1933,7 +1696,7 @@
     const n = el('div', 'ad-fact note');
     n.innerHTML = 'Nothing on the site counts visits, so there is nothing to show '
       + 'and nothing worth guessing. Cloudflare will do it without adding a '
-      + 'cookie or a third party: <b>Workers &amp; Pages → gonaim → '
+      + 'cookie or a third party: <b>Workers &amp; Pages → naguib → '
       + 'Metrics → Web Analytics → Enable</b>. It injects its own '
       + 'beacon, so no change is needed here, and the site’s policy already '
       + 'allows it. The figures then live in the Cloudflare dashboard.';
@@ -1946,21 +1709,23 @@
     box.appendChild(w);
   }
 
-  /* ══ THE STUDIO TAB — the two films and the portrait ══════════════════ */
+  /* ══ THE STUDIO TAB — the hero render and the portrait ═══════════════ */
   function drawStudio() {
     const wrap = $('#pane-studio'); if (!wrap) return;
-    const hero = $('#hero-id'), reel = $('#reel-id');
-    hero.value = VIMEO_URL(D.hero); reel.value = VIMEO_URL(D.showreel);
-    hero.classList.remove('bad'); reel.classList.remove('bad');
-    $('#hero-link').href = VIMEO_URL(D.hero);
-    $('#reel-link').href = VIMEO_URL(D.showreel);
-    const p = pending.get(PORTRAIT);
-    $('#portrait-state').textContent = p
-      ? 'NEW PICTURE READY · ' + p.w + '×' + p.h + ' · ' + kb(p.blob.size)
-      : 'the picture currently on the site';
+    for (const [path, stateSel, what] of [
+      [HERO_ART_PATH, '#hero-state', 'the render currently on the site'],
+      [PORTRAIT, '#portrait-state', 'the picture currently on the site'],
+    ]) {
+      const el = $(stateSel);
+      if (!el) continue;
+      const p = pending.get(path);
+      el.textContent = p
+        ? 'NEW PICTURE READY · ' + p.w + '×' + p.h + ' · ' + kb(p.blob.size)
+        : what;
+      el.classList.toggle('warn', !!p);
+    }
     markDirty();
   }
-  const PORTRAIT = 'assets/gonaim-portrait.png';
 
   /* ── publishing ────────────────────────────────────────────────────────
      Saving used to mean four steps by hand: download the file, drop it in the
@@ -1976,11 +1741,11 @@
      nowhere else — never in the repository, never in a file that ships. It
      needs one repository and one permission, Contents: read and write, so the
      worst it can do is the thing it is for. DISCONNECT wipes it.           */
-  const REPO = 'PixlBit/Gonaim';
+  const REPO = 'PixlBit/naguib';
   const BRANCH = 'main';
   const FILE = 'studio.js';
-  const TOKEN_KEY = 'gonaim.publish.token';
-  const EXP_KEY = 'gonaim.publish.expires';
+  const TOKEN_KEY = 'naguib.publish.token';
+  const EXP_KEY = 'naguib.publish.expires';
   const NEW_TOKEN = 'https://github.com/settings/personal-access-tokens/new';
   const API = 'https://api.github.com/repos/' + REPO + '/contents/' + FILE;
 
@@ -2054,34 +1819,6 @@
     await gh(url, {
       method: 'PUT',
       body: JSON.stringify({ message, content: btoa(bin), branch: BRANCH, ...(sha ? { sha } : {}) }),
-    });
-  }
-
-  /* ── the hero film's line in index.html ────────────────────────────────
-     One iframe src, matched on the player URL rather than on the id, so it
-     finds the line whatever number is currently in it. `&amp;` is how the
-     separators are written in the markup and how they are written back. */
-  const HERO_IN_IDX = /(<iframe[^>]*id="h-iframe"[^>]*\ssrc=")https:\/\/player\.vimeo\.com\/video\/(\d+)([^"]*)(")/;
-  const heroInMarkup = () => {
-    const m = HERO_IN_IDX.exec(IDX);
-    return m ? m[2] : null;
-  };
-  const withHero = (html, id) =>
-    html.replace(HERO_IN_IDX, (_, a, was, tail, q) =>
-      a + 'https://player.vimeo.com/video/' + id + tail + q);
-
-  /* the same PUT as an image, with text instead of bytes */
-  async function putText(path, text, message) {
-    const url = 'https://api.github.com/repos/' + REPO + '/contents/' + path;
-    let sha = null;
-    try {
-      const head = await gh(url + '?ref=' + BRANCH);
-      sha = head.sha || null;
-    } catch (err) { if (err.status !== 404) throw err; }
-    await gh(url, {
-      method: 'PUT',
-      body: JSON.stringify({ message, content: b64(text), branch: BRANCH,
-                             ...(sha ? { sha } : {}) }),
     });
   }
 
@@ -2177,36 +1914,17 @@
           + 'loaded — somebody else has saved since. Discard, load it '
           + 'again, and redo these changes.');
 
-      /* Files before code, always. A cover has to exist before studio.js
-         names it, or the first visitor after the push sees a card pointing
-         at nothing. If any upload fails, studio.js is not touched at all. */
+      /* Files before code, always. A render has to exist before studio.js
+         names it, or the first visitor after the push sees a blank card. If
+         any upload fails, studio.js is not touched at all. */
       if (pending.size) {
         let n = 0;
         for (const [path, item] of pending) {
           n++;
           pubSay('uploading ' + path.split('/').pop() + ' (' + n + ' of ' + pending.size + ')…');
-          await putFile(path, item.blob, 'Add ' + path.split('/').pop() + ' from the console');
+          await putFile(path, item.blob, 'Add ' + path + ' from the console');
         }
       }
-      /* The hero film's src is in index.html so it plays without a script.
-         Keeping it there means keeping it correct, so a changed id is written
-         to both files. index.html goes first for the same reason the covers
-         do: whatever lands first must never be the thing that names something
-         not there yet. If the markup somehow does not contain the line, this
-         says so and stops rather than pushing an index.html it did not
-         actually edit — studio.js repoints the iframe at runtime anyway, so
-         the film still plays either way. */
-      if (D.hero !== heroInMarkup()) {
-        if (!IDX) throw new Error('The hero film changed, but index.html could not '
-          + 'be read, so it cannot be updated to match. Reload the console and try again.');
-        const next = withHero(IDX, D.hero);
-        if (next === IDX) throw new Error('The hero film changed, but the player URL '
-          + 'could not be found in index.html to update it.');
-        pubSay('writing index.html…');
-        await putText('index.html', next, 'Point the hero film at vimeo.com/' + D.hero);
-        IDX = next;
-      }
-
       pubSay('writing studio.js…');
       const list = changes();
       const msg = list.length === 1
@@ -2225,6 +1943,9 @@
       /* what is on GitHub is now what is on screen */
       pending.clear();
       SRC = file; ORIGINAL = snapshot(); D.renamed = {};
+      /* the pictures just uploaded exist now — ask again rather than keep
+         reporting them missing */
+      haveImage.clear(); probeImages();
       markDirty();
       if (lastExpiry) keep(EXP_KEY, lastExpiry);      /* the countdown, refreshed */
       drawConn();
@@ -2264,8 +1985,8 @@
     /* the figures follow the edits, but only while that tab is the one on
        screen — recomputing a pane nobody is looking at is work for nothing */
     if ($('#pane-data') && $('#pane-data').classList.contains('on')) drawData();
-    say('studio.js \u00b7 ' + D.projects.length + ' projects \u00b7 ' + D.archive.length +
-        ' in the vault \u00b7 ' + D.reels.length + ' in the AI section' +
+    say('studio.js \u00b7 ' + D.projects.length + ' pieces \u00b7 ' + D.archive.length +
+        ' in the detail passes \u00b7 ' + D.concepts.length + ' concept sheets' +
         (hard ? ' \u00b7 ' + hard + ' need fixing' : ''), d ? 'err' : 'ok');
   }
 
@@ -2287,10 +2008,11 @@
     }));
     const banners = D.projects.filter(p => p.hi).length;
     $('#diff').textContent = list.length + (list.length === 1 ? ' change' : ' changes') +
-      ' \u00b7 ' + D.projects.length + ' projects, ' + banners + ' full width, ' +
+      ' \u00b7 ' + D.projects.length + ' pieces, ' + banners + ' full width, ' +
       (Object.keys(D.cat).length - 1) + ' categories, order ' +
       (D.auto ? 'automatic' : 'by hand') + '. ' +
-      'Only PROJECTS, CAT, CAT_RANK and AUTO_ORDER are rewritten \u2014 the other ' +
+      'Only PROJECTS, CAT, CAT_RANK, AUTO_ORDER, ARCHIVE, ACAT, CONCEPTS and ' +
+      'HERO_ART are rewritten \u2014 the other ' +
       (SRC.split('\n').length - 1) + ' lines of studio.js are carried across untouched.';
     $('#sheet').hidden = false;
     pubSay(token()

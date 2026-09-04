@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
-   GONAIM STUDIO v2 — merged: organized structure × neon identity
-   palette: magenta #e0803c (accent) · lime #3ee0d0 (action) · cyan labels
+   NAGUIB STUDIO — a 3D portfolio on a film portfolio's instrument panel
+   palette: copper #e0803c (accent) · aqua #3ee0d0 (action) · ice labels
 ════════════════════════════════════════════════════ */
 :root{
   --bk:#04070a;--ch:#080d11;--dk:#060b0f;--pn:#0b1319;
@@ -941,8 +941,6 @@ footer{position:relative;background:var(--ch);border-top:1px solid var(--bd);z-i
 .exp-mobile .ab-quote{font-size:15px}
 
 /* ═══ DIRECT GROUP MARK ═══ */
-.dg-gif{height:18px;width:auto;mix-blend-mode:screen;display:inline-block;vertical-align:middle;margin:0 2px}
-.dg-gif-c{height:15px;margin:0 5px 0 2px;vertical-align:-3px}
 
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
 
@@ -1044,7 +1042,7 @@ footer{position:relative;background:var(--ch);border-top:1px solid var(--bd);z-i
 @keyframes nType{0%{max-width:0}100%{max-width:220px}}
 @keyframes nCaret{0%,49%{border-right-color:var(--lm)}50%,100%{border-right-color:transparent}}
 .n-logo{position:relative}
-.n-logo::before,.n-logo::after{content:'AHMED GONAIM';font-family:var(--fh);font-size:14.5px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:0;pointer-events:none;white-space:nowrap}
+.n-logo::before,.n-logo::after{content:'AHMED NAGUIB';font-family:var(--fh);font-size:14.5px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:0;pointer-events:none;white-space:nowrap}
 .n-logo::before{color:var(--yw);animation:gLoopA 7s steps(1) 4s infinite}
 .n-logo::after{color:var(--cy);animation:gLoopB 7s steps(1) 4.05s infinite}
 

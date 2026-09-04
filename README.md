@@ -1,25 +1,33 @@
-# GONAIM STUDIO — Portfolio Site
+# NAGUIB STUDIO — Portfolio Site
 
-Static portfolio site for **Ahmed Gonaim** — Post-Production Lead, Riyadh.
+Static portfolio site for **Ahmed Naguib** — 3D Artist, Marseille.
 No build step, no framework, no backend. Open `index.html` and it runs.
 
-Live domain: **https://gonaim.com** · Hosting: **Cloudflare Pages**
+Live domain: **https://naguib.art** · Hosting: **Cloudflare Pages**
+
+> The domain above is a placeholder until a real one is bought. It is written
+> into four places — see *[If the domain changes](#if-the-domain-changes)* —
+> and nothing else depends on it.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `index.html` | The whole page — loader, hero, about/CV, work grid, the vault/archive, services, pipeline, clients, contact, footer, video modal |
-| `studio.css` | All styling (neon cyberpunk design system: magenta `#ff2e97`, lime `#b9ff2e`, cyan `#2ff0ff` on `#060509`) |
-| `studio.js` | Engine: project data, Vimeo/YouTube thumbnails + players, live Riyadh clock, dust particles, grain, scroll choreography, custom cursor, timeline scrub |
-| `assets/` | Portrait (JPEG), favicons, and the `og.jpg` social share card |
+| `index.html` | The whole page — loader, hero, about/CV, work grid, the concept lab, the detail passes, skills, pipeline, toolkit, contact, footer, lightbox |
+| `studio.css` | All styling (copper `#e0803c`, aqua `#3ee0d0`, ice `#5fd4ff` on `#04070a`) |
+| `studio.js` | Engine: the work data, the card engine, the lightbox, the live Marseille clock, dust particles, scroll choreography, custom cursor, the pipeline timeline |
+| `assets/work/` | Every render, twice: `<id>.jpg` (1600×900) and `<id>-sm.jpg` (880×495) |
+| `assets/concept/` | The 2D sheets, same pair at 1400×1050 and 760×570 |
+| `assets/` | The hero cut-out, the portrait, the favicons, the `og.jpg` share card, the portfolio PDF |
 | `404.html` / `notfound.*` | The not-found page — a monitor that lost its feed |
-| `chrome.js` | Shared furniture: the Riyadh clock, the running timecode, the progress bar |
+| `chrome.js` | Shared furniture: the Marseille clock, the running timecode, the progress bar |
 | `motion.js` | The slice of GSAP the site used, written out longhand — see *Security* |
 | `grid.js` | How a row of work is arranged — shared by the site and the console |
-| `studio-admin.*` | The work console: arrange the grid, then export a new `studio.js` |
+| `mascot.js` | PIXL, the small CRT that wanders the page. Desktop only |
+| `sound.js` | The interface's voice, off until a visitor turns it on |
+| `studio-admin.*` | The work console: arrange the grid, upload renders, publish |
 | `functions/_middleware.js` | The edge lock on the console — username + password |
-| `work/<slug>/` | One generated page per project (`tools/build-project-pages.mjs`) |
+| `work/<slug>/` | One generated page per piece (`tools/build-project-pages.mjs`) |
 | `project.css` / `project.js` | Styling and behaviour for those pages |
 | `_headers` | Cloudflare Pages security + caching headers |
 | `robots.txt` / `sitemap.xml` | SEO — `sitemap.xml` is generated, don't hand-edit |
@@ -30,170 +38,183 @@ Live domain: **https://gonaim.com** · Hosting: **Cloudflare Pages**
 Hosted for free on **Cloudflare Pages**. Full step-by-step guide (Arabic):
 see **[`DEPLOY-CLOUDFLARE.md`](DEPLOY-CLOUDFLARE.md)**.
 
-Short version — any static host works, publish directory = repo root, build command = none.
+Short version — any static host works, publish directory = repo root, build
+command = none.
 
-## Editing content
+## The work is files, not links
 
-All projects live in one array at the top of `studio.js`:
+This is the one structural difference from a film portfolio, and everything
+else follows from it.
+
+A video site stores an id and asks a host for a poster: an oEmbed call per
+card, an iframe per play, and a Content-Security-Policy holding the door open
+for four third parties. **Nothing here is fetched from anybody.** Every render
+ships from `assets/work/` in two sizes — the grid loads the small one, the
+lightbox the large — so a card cannot go blank because somebody else's API
+throttled, `frame-src` is `'none'`, and the site makes exactly zero
+third-party requests for the work itself.
+
+All of it lives in one array at the top of `studio.js`:
 
 ```js
 const PROJECTS = [
-  {title:"Damascus Int'l Fair 62", id:"1133450361", cat:"events", year:"2025"},
-  {title:"Al Asima — Music Video", id:"0-qt2LptXHM", cat:"music", year:"", yt:true},
+  {title:"Mine Wagon", id:"mine-wagon", cat:"props", year:"2024",
+   prod:"Fantasy Racers", soft:"3ds Max · Substance Painter",
+   desc:"A hero prop for the mine track…"},
 ];
 ```
 
-- `id` = Vimeo numeric ID, or a YouTube ID with `yt:true`
+- `id` is the piece's whole identity: `assets/work/mine-wagon.jpg` is the full
+  frame, `…-sm.jpg` the one the grid loads, and `/work/mine-wagon/` is its page
 - **There is a UI for all of this** — `studio-admin.html`, see *The work
-  console* below. Editing the array by hand still works exactly as before
-- **Order is automatic** while `AUTO_ORDER` is `true`, driven by `CAT_RANK`: showreel, then commercials,
-  films, national, music, BTS, with events last — strongest work first. Inside
-  each group it's newest first, using the fact that Vimeo hands out IDs in
-  ascending upload order, so a descending numeric sort is Vimeo's own publish
-  order. `SHOWREEL_ID` is pinned to the very top; non-numeric (YouTube) IDs sort
-  last within their group. Paste a new project anywhere in the array; it lands
-  in the right place on load. Note `year` is the *production* year and can
-  differ from the upload date
-- **Phones use a two-column grid**, not a side-scrolling rail — a rail showed
-  roughly one card at a time and hid the rest off-screen. `layout()` switches to
-  2 columns there, banners still span the full width, and `fillLastRow()` widens
-  a card left alone on the final row
-- **Rows stay full.** A `hi` banner spans the whole row, so dropped in mid-row it
-  would leave empty cells. `layout()` — in `grid.js`, shared with the console —
-  holds each banner back until the row of normal cards is complete and releases
-  one per break. Row 1 is always reserved for whatever is first, because
-  `buildCards()` renders index 0 full-bleed whatever it is. For this to come out even,
-  keep the number of non-highlight projects a multiple of `GRID_COLS` (3) — it's
-  why two commercials were promoted out of the vault. A filtered view can still
-  end on a short row; that's just the end of a list, not a hole
-- `hi:true` promotes a project to a full-bleed 21:8 banner spanning the grid,
-  the same treatment the opening showreel gets. Currently on AlUla Main Film,
-  Glowhouse, The Conjuring Experience, Damascus, Sherlock, Alot Like Life and
-  the Ministry of Finance short film
-- `cat` must be one of the keys in `CAT` (showreel, films, national, commercials, events, music, bts)
-- Thumbnails are pulled automatically (Vimeo oEmbed / YouTube) — no manual images needed
+  console* below. It makes both sizes from one picture and uploads them.
+  Editing the array by hand still works exactly as before
+- `hi:true` promotes a piece to a full-bleed 21:8 banner spanning the grid.
+  Currently on the Hawaiian Alien Dancer, the Corporation Hangar Wall and the
+  Astranova Billboard
+- `cat` must be one of the keys in `CAT` (characters, environment, props,
+  hardsurface)
+- `prod` and `soft` show on the card and in the lightbox, and become the
+  PRODUCTION and SOFTWARE rows on the piece's own page
+- Ordering is by hand while `AUTO_ORDER` is `false`. Set it `true` and the
+  array sorts itself by `CAT_RANK` — characters, environments, props, then the
+  hard-surface studies. There is no upload date to sort within a group by (a
+  render has no upload date), so inside a category the file order stands
+- **Rows stay full.** A `hi` banner spans the whole row, so dropped in mid-row
+  it would leave empty cells. `layout()` — in `grid.js`, shared with the
+  console — holds each banner back until the row of normal cards is complete
+  and releases one per break. Row 1 is always reserved for whatever is first,
+  because `buildCards()` renders index 0 full-bleed whatever it is. For this to
+  come out even, keep the number of non-highlight pieces a multiple of
+  `GRID_COLS` (3) — twelve of them, today
+- **Phones use a two-column grid**, not a side-scrolling rail. `layout()`
+  switches to 2 columns there, banners still span the full width, and
+  `fillLastRow()` widens a card left alone on the final row
 - Arabic titles are auto-detected and switch to IBM Plex Sans Arabic
-- Hero background video + showreel: `SHOWREEL_ID` at the top of `studio.js`
 
-### Dream Engine (AI reels)
+### The lightbox
 
-The AI section ("DREAM ENGINE") sits between the work grid and the vault, and reads from
-`AI_REELS` in `studio.js` — just Instagram reel codes:
+Clicking a card opens the full frame. The small rendition — already decoded,
+it is what the card was showing — is painted underneath while the large one
+arrives, so the frame is never empty for a beat. `←` / `→` and the two buttons
+walk whichever list it was opened from without closing it, and a lime
+`PROJECT PAGE →` chip sits under the frame for anything in the selected grid.
+
+The panel beside the title says the production, the software and the year. It
+used to run a timecode, inherited from a site where the modal held a film — a
+clock counting up over a still photograph is a playhead pretending, so
+`chrome.js` no longer writes there at all.
+
+### Hovering a banner
+
+A film card previews by starting a player. A render has nothing to play, so
+hovering a banner quietly swaps its small rendition for the full one under the
+pointer — the same promise ("there is more here than the thumbnail") paid in
+the image the lightbox is about to want anyway, so opening it afterwards costs
+nothing.
+
+### The detail passes
+
+`THE OTHER ANGLES` is the second grid — turnarounds, back views and the
+studies that sit behind a hero render. Same card engine, same filters, same
+lightbox, its own `ARCHIVE` array and `ACAT` categories. Anything whose `id`
+already appears in `PROJECTS` is dropped automatically, so promoting a study
+into the selected grid needs no edit here. These have no page of their own:
+eight more thin pages would hurt more than help.
+
+### The concept lab
+
+`THE 2D BEFORE THE 3D` reads from `CONCEPTS` — a title and a file name, and
+nothing else, because that is all a sheet is:
 
 ```js
-const AI_REELS = [
-  {id:"DbyEq2GNEyR", t:"SAND TO GLASS"},   // cover: just drop assets/reels/DbyEq2GNEyR.jpg
-  {id:"DbqHBi7ON7q", t:""},                            // no title yet → card shows GEN / 002
+const CONCEPTS = [
+  {title:"Cockpit & Helm Layout", id:"cockpit-helm-layout"},
 ];
 ```
 
-- `t` is the card title. Left empty the card falls back to its `GEN / NNN`
-  number, so titles can be filled in one at a time
-- Covers are picked up automatically: drop `assets/reels/<id>.jpg` and that card
-  uses it — no code edit. See `assets/reels/README.md` for the filenames
+They come from `assets/concept/` and get **4:3 cards** rather than 16:9: a
+drawing cropped into a film frame loses the half with the annotations on it.
+The card's caption sits on its own scrim, because these sheets are on white
+paper and white type on white paper is not a caption. `PROMPTS` feeds the
+self-typing brief line above the grid — it only runs while the section is on
+screen.
 
-Reels are 9:16, so they get a portrait grid rather than the 16:9 one, and
-clicking one opens it in the portrait modal (on phones it hands off to the
-Instagram app instead). `fillTrailingRow()` widens the last card when a row
-comes up one short.
+### Section counts
 
-Instagram publishes no poster/thumbnail API, so rather than leave the cards
-blank each one **generates its own still from the reel code**: a hash seeds an
-xorshift RNG that dimensions a graded sky, a low sun and its rays, a ridge line
-and a constellation — a composed frame, different for every reel and identical
-on every load. Hues come from `LATENT_HUES`, inside the studio's palette. A turbulence grain sits on top and clears
-on hover — the diffusion idea made literal. `PROMPTS` feeds the self-typing
-prompt line above the rail (it only runs while the section is on screen).
+`15 ASSETS · 4 CATEGORIES`, `8 DETAIL PASSES` and the rest are computed at
+runtime. Never hand-edit them.
 
-Posters resolve in order: `assets/reels/<code>.jpg` first, then Instagram's
-legacy `/p/<code>/media/` endpoint, then nothing — leaving the generated
-artwork. When a real frame loads the card adds `.has-cover` and the artwork and
-grain pull back so the photograph reads.
+### The toolkit
 
-Instagram's endpoint is alive but refuses a burst — eleven requests at once and
-only the first comes back. Requests to it therefore run through one global chain
-with a ~700ms gap, so every card gets its turn; local files skip the queue.
-
-Embedding the reel as a poster was tried and reverted: the embed's layout varies
-per post — some render the full post UI with likes and a comment box, others a
-play button and a "Watch on Instagram" overlay — so no fixed crop works.
-
-Exported frames in `assets/reels/` remain the dependable route and always win.
-
-### The Vault (archived work)
-
-`FROM THE VAULT` is the second grid — the projects carried over from the
-2016–2023 PDF portfolio. It lives in the `ARCHIVE` array in `studio.js` and uses
-the exact same card engine, filters and modal as the live grid.
+The two counter-scrolling rows under *Software I Live In* come from the
+`CLIENTS` array in `studio.js` — the software the work is actually made in.
 
 ```js
-const ARCHIVE = [
-  {title:"Sabic — Summer Program", id:"GM-tpuWiAK0", cat:"films", yt:true},  // YouTube
-  {title:"G-Colors",               id:"515703200",   cat:"motion"},          // Vimeo
-  {title:"AI Power",               id:"CoFIAwMDn7c", cat:"lab", ig:true},    // Instagram reel
-];
+{n:"Autodesk 3ds Max", m:"3DS"}   // m = the plate mark
+{n:"ZBrush"}                       // omit m and it derives one
 ```
 
-- `cat` must be a key of `ACAT` (films, commercials, motion, mapping, events, showreel, post, lab)
-- Anything whose `id` already appears in `PROJECTS` is dropped automatically, so
-  moving a project up into the live grid needs no edit here
-- Instagram reels have no public poster image, so those cards show the generated
-  line-art background and open the official reel embed
-- Section counts (`36 PROJECTS · 7 CATEGORIES`, `51 ARCHIVED`) are computed at
-  runtime — never hand-edit them
-
-### Clients
-
-The two counter-scrolling rows under *Selected Clients* come from the `CLIENTS`
-array in `studio.js` — the roster merged from the live grid and the archived
-portfolio (which carried the client list on its first page).
-
-```js
-{n:"Saudi Food & Drug Authority", m:"SFDA"}   // m = the plate mark
-{n:"MCIT"}                                    // omit m and it derives one
-```
-
-`m` is optional: a single-word name is used as-is, multi-word names fall back to
-their initials. These marks are typographic stand-ins — the old portfolio PDF
-contained no logo artwork, so if real client logos are ever licensed, drop the
-SVGs in and swap `.cc-m` for an `<img>`.
+`m` is optional: a single-word name is used as-is, multi-word names fall back
+to their initials. These marks are typographic stand-ins — no vendor logo
+artwork ships here, so if any is ever licensed, drop the SVGs in and swap
+`.cc-m` for an `<img>`.
 
 ## The work console
 
-`studio-admin.html` — arrange the work grid without touching code.
+`studio-admin.html` — arrange the grid and upload renders without touching
+code.
 
-- **Grid preview** at the top: the actual row map in real thumbnails — banners
-  full width, cards in threes — with each title *under* its tile so nothing is
-  ever printed over the frame. It runs `grid.js`, the same `makeLayout()` the
-  site builds with, so it is not an approximation. It also reports what the
-  last row will come out at. One oEmbed lookup per video feeds both the map and
-  the row below it
+- **The pictures are the point.** Every row has **UPLOAD RENDER**: choose one
+  picture and the console decodes it, scales it to the two sizes the site
+  actually draws (1600×900 and 880×495; concept sheets 1400×1050 and 760×570)
+  and queues both. A 4K render straight out of Marmoset is not what should
+  land in a repository, and asking somebody to export two sizes by hand is
+  asking them to forget one
+- **It knows what is missing.** On load it asks the server, once per name,
+  whether each picture is actually there. A row that names a file nobody
+  uploaded turns amber and CHECK says so — which is the one fault a wall of
+  thumbnails cannot show you, because a blank card looks like a slow one
 - **Drag to reorder.** Doing so sets `AUTO_ORDER = false`, and from then on the
   array is used exactly as listed. *Sort automatically* puts it back
-- **CARD / FULL WIDTH** per project — that's the `hi` flag
-- **Category, year and title** inline; **+ Add project** takes a Vimeo or
-  YouTube link and works out the id
+- **CARD / FULL WIDTH** per piece — that's the `hi` flag
+- **The file name is a field.** Rename it and the row keeps its title,
+  category, year and place in the grid; anything queued for the old name comes
+  with it, and anything already uploaded does not — so the row says its render
+  is missing until one is uploaded under the new name. That is the honest thing
+  for it to say, and it is said the moment it becomes true rather than after a
+  publish
+- **DETAILS** opens what the *page* needs, as against what the grid needs: the
+  brief, the production, the software, the role, the web address and any extra
+  facts. Every one of them is optional — each field shows the automatic answer
+  as its placeholder, so you are never guessing what you are overriding
 - **Categories tab**: rename the **label** a visitor sees, or the **key** a
-  project stores — renaming a key carries every project using it across, so
-  nothing is left pointing at a category that no longer exists. Drag to set
-  which group leads the grid (`CAT_RANK`), add one, or delete one — refused
-  while any project still uses it, with the count shown
-- Every editable field is drawn as a field. They were styled as bare text at
-  first and read as labels, which made a console for editing look like a report
+  piece stores — renaming a key carries every piece using it across. Drag to
+  set which group leads the grid (`CAT_RANK`), add one, or delete one — refused
+  while anything still uses it, with the count shown
+- **Studio tab**: the hero cut-out and the portrait, the two pictures the
+  markup names directly. Both are re-encoded as **PNG**, because the whole
+  point of both is their transparency
+- **CHECK** runs `makeLayout()` from `grid.js` — the very function the site
+  builds its grid with, not a copy — so what it says about the last row is
+  what the site will actually do
+- **DATA** measures rather than estimates: the pieces by category and year from
+  the file being edited, the bytes the site actually serves, the repository's
+  own commit history as a publish log, and an honest gap where visitor numbers
+  would be if anything counted them
 
-It wears the site's own nav, phone dock and footer, with its own toolbar
-sticky underneath — so it is recognisably part of the studio rather than a
-loose tool.
+It wears the site's own nav, phone dock and footer, with its own toolbar sticky
+underneath — so it is recognisably part of the studio rather than a loose tool.
 
 **It is behind a password.** `functions/_middleware.js` runs on Cloudflare's
 edge and checks HTTP Basic auth before any file is served, so an
 unauthenticated visitor never receives a byte of `studio-admin.*` — not the
 HTML, not the script. A password checked in the browser would be theatre: the
 page is a static file, so anyone could read the password out of it. Credentials
-come from the Pages project's `ADMIN_USER` / `ADMIN_PASS` environment
-variables and are never in this repository; until both are set the console
-answers 404 to everyone, including you, because forgetting to set them must
-leave the door shut rather than standing open. Setup steps are in
+come from the Pages project's `ADMIN_USER` / `ADMIN_PASS` environment variables
+and are never in this repository; until both are set the console answers 404 to
+everyone, including you, because forgetting to set them must leave the door
+shut rather than standing open. Setup steps are in
 [`DEPLOY-CLOUDFLARE.md`](DEPLOY-CLOUDFLARE.md); Cloudflare Access is the
 stronger option and is described there too.
 
@@ -203,26 +224,27 @@ to say "not the console, carry on".
 
 **Saving is a bar, not a hidden button.** It sits at the bottom of every tab
 and always says where you stand: *All changes saved*, or *N unsaved changes*
-with the bar lit. `Cmd/Ctrl+S` works. The save sheet then lists **what** changed
-in words — renamed, moved, added, removed, reordered — because a count is not
-an answer to "what am I about to publish". A renamed category key drags every
-project using it along, so those fold into the one rename line instead of
-repeating per project.
+with the bar lit. `Cmd/Ctrl+S` works. The save sheet then lists **what**
+changed in words — renamed, moved, added, removed, reordered, uploaded —
+because a count is not an answer to "what am I about to publish".
 
 Whichever way it is saved, the file the console writes has only `PROJECTS`,
-`CAT`, `CAT_RANK` and `AUTO_ORDER` rewritten — the other ~1200 lines come
-across byte for byte, and Arabic titles go back as `\uXXXX` escapes, keeping
-the file ASCII as it already was.
+`CAT`, `CAT_RANK`, `AUTO_ORDER`, `ARCHIVE`, `ACAT`, `CONCEPTS` and `HERO_ART`
+rewritten — the rest comes across byte for byte, and Arabic titles go back as
+`\uXXXX` escapes, keeping the file ASCII as it already was.
 
 ### Publishing
 
-**PUBLISH TO SITE** writes `studio.js` straight to the repository and that is
-the whole of it. The push does the rest on its own: Cloudflare Pages rebuilds
-the site, and the *Build project pages* workflow
+**PUBLISH TO SITE** writes to the repository and that is the whole of it. The
+push does the rest on its own: Cloudflare Pages rebuilds the site, and the
+*Build project pages* workflow
 ([`.github/workflows/build-pages.yml`](.github/workflows/build-pages.yml))
-regenerates `work/` and `sitemap.xml`. Saving used to be four steps by hand —
-download, drop in the repo, run the generator, commit and push — and three of
-those were a computer's work.
+regenerates `work/` and `sitemap.xml`.
+
+**Pictures go up before the code that names them.** Every queued file is
+written first, one at a time; only then is `studio.js` touched. The other way
+round would publish a card pointing at a file that is not there yet, and if any
+upload fails `studio.js` is not touched at all.
 
 It needs a key, once. In GitHub → *Settings → Developer settings →
 Fine-grained tokens*, make one scoped to **this repository only** with a single
@@ -247,17 +269,20 @@ other page keeps the strict policy from `_headers` untouched.
 **DOWNLOAD INSTEAD** is still there for when there is no key to hand, and it
 deliberately does *not* clear the unsaved-changes flag: a copy on your desktop
 is not a save, the live site still has the old file, and pretending otherwise
-is how work gets lost.
+is how work gets lost. Note that a download carries the *code* only — queued
+pictures are uploaded by publishing, so those have to be added to the
+repository by hand if you take this route.
 
 The console is `noindex` and disallowed in `robots.txt` regardless.
 
-It parses those blocks rather than `eval`-ing them — `new Function` is exactly
-what the CSP is there to stop, and the policy is worth more than the shortcut.
+It parses the data blocks rather than `eval`-ing them — `new Function` is
+exactly what the CSP is there to stop, and the policy is worth more than the
+shortcut.
 
 ## Project pages
 
-Every project in `PROJECTS` also gets its own page at `/work/<slug>/` — a real
-URL you can send a client, and the thing that gives the work a chance in search
+Every piece in `PROJECTS` also gets its own page at `/work/<slug>/` — a real
+URL you can send a studio, and the thing that gives the work a chance in search
 results. They're generated, never hand-written:
 
 ```
@@ -267,16 +292,19 @@ node tools/build-project-pages.mjs
 Nobody has to remember to: the *Build project pages* workflow runs it on any
 push that touches `studio.js` or the generator itself, and commits the result.
 Run it by hand only when you want the pages before the push. It **wipes and
-rewrites the whole `work/` directory** and regenerates `sitemap.xml`, so anything edited in there is lost —
-put changes in `studio.js` instead. Two optional fields per project:
+rewrites the whole `work/` directory** and regenerates `sitemap.xml`, so
+anything edited in there is lost — put changes in `studio.js` instead.
 
-- `slug:"alula-main-film"` — fixes the URL. Required for Arabic-only titles,
-  which otherwise fall back to `project-<id>`; the five that needed one have it
+The optional fields per piece:
+
+- `slug:"alien-dancer"` — fixes the URL, when the one derived from the title is
+  wrong
 - `desc:"…"` — real copy for the page body, its `<meta description>` and its
   structured data. Without it the page composes an honest line from the fields
-  it already has. **Writing these is the single biggest SEO win left** — a
+  it already has. **Writing these is the single biggest SEO win there is** — a
   generated sentence ranks nothing; two sentences about the brief, the problem
-  and what you did will
+  and what you did will. All fifteen have one
+- `prod` / `soft` / `role` / `facts` — the list beside the brief
 
 The URL a grid card links to comes from `slugOf()` in `studio.js`, and the
 generator lifts that same function out of the file rather than copying it, so
@@ -285,47 +313,50 @@ the two cannot drift apart.
 Every generated page carries the site's real `<nav>`, phone dock and footer,
 emitted by `siteNav()` / `siteFooter()` in the generator with the hash links
 pointed back up two levels. The clock and timecode in them are live, from
-`chrome.js`, which is where `pad()`, `initClock()` and the 24fps ticker moved
-so the home page, the project pages and the 404 share one implementation
-rather than three.
+`chrome.js`, which is where `pad()`, `initClock()` and the 24fps ticker live so
+the home page, the project pages and the 404 share one implementation rather
+than three.
 
-Each page loads nothing from Vimeo or YouTube until the visitor presses play —
-the poster is a still and the player is built on click. ESC returns to the grid;
-← / → step through projects while the player is still a facade.
+The page's own frame is a picture, in the markup, at the top — there is no
+facade and no player, so the fastest thing the page can do is the only thing it
+does. Pressing it puts the same file on the whole screen; Escape puts it back.
+`←` / `→` step between pieces.
 
-Under prev/next sits **MORE WORK** — six other projects with posters. They're
-chosen at build time, not shuffled on load: a JS shuffle would hide those links
-from a crawler, and reachable work is the entire point of the pages. The
-shuffle is seeded with the project's own id, so each page's six differ from its
-neighbours' and stay identical on every visit. Prev and next are excluded, being
-linked directly above. Their posters wait for the viewport, so a page nobody
-scrolls costs one thumbnail lookup instead of seven.
+Under prev/next sits **MORE WORK** — six other pieces with their frames.
+They're chosen at build time, not shuffled on load: a JS shuffle would hide
+those links from a crawler, and reachable work is the entire point of the
+pages. The shuffle is seeded with the piece's own id, so each page's six differ
+from its neighbours' and stay identical on every visit. Prev and next are
+excluded, being linked directly above. Their pictures wait for the viewport, so
+a page nobody scrolls costs one image instead of seven.
 
 There are three ways in, because one of them had to work on a phone:
 
-- **The modal.** Click a card, the video plays, and a lime `PROJECT PAGE →` chip
-  sits under the frame next to the title. This is the discoverable route and the
-  only one that works by touch. It appears only for the live grid — `BY_ID` maps
-  an id back to its project, so a vault card or a reel simply doesn't show it
+- **The lightbox.** Click a card, the frame opens, and a lime `PROJECT PAGE →`
+  chip sits under it next to the title. This is the discoverable route and the
+  only one that works by touch. It appears only for the selected grid — `BY_ID`
+  maps a name back to its piece, so a detail pass or a concept sheet simply
+  doesn't show it
 - **The title.** It's a real `<a>`, so clicking the words goes to the page while
-  clicking the poster still plays. At rest it reads as the plain text it
-  replaced; it only lights lime when the pointer is on the words themselves, so
-  the card's own hover state is untouched
+  clicking the frame still opens the lightbox
 - **cmd/ctrl/middle-click** anywhere on the title, for a new tab
 
-That the title is a genuine anchor is also what lets a crawler reach all 35.
+That the title is a genuine anchor is also what lets a crawler reach all
+fifteen.
 
-The vault has no pages: those are archive entries, and 49 more thin pages would
-hurt more than help.
+Structured data is an **ImageObject** per page — `contentUrl`, `thumbnailUrl`,
+`dateCreated`, the software and production as `keywords` — with the same
+`@id` for the Person as the home page, so fifteen pages reinforce one entity
+rather than describing fifteen strangers who happen to share a name.
 
 ## The 404
 
-`404.html` is a monitor that lost its feed: colour bars in the studio's palette
-that tear on a beat, framing brackets, a running REC timecode, and a 404 split
-into magenta and cyan channels that slices apart every few seconds. Under it a
-deck readout reports the status, the path that failed and the studio — and the
-path is written with `textContent`, never as markup, because it is whatever a
-stranger put in the address bar.
+`404.html` is a monitor that lost its feed: colour bars in the studio's
+palette that tear on a beat, framing brackets, a running REC timecode, and a
+404 split into copper and ice channels that slices apart every few seconds.
+Under it a deck readout reports the status, the path that failed and the
+studio — and the path is written with `textContent`, never as markup, because
+it is whatever a stranger put in the address bar.
 
 It wears the same nav, dock and footer as everything else, so a visitor who
 lands there is one click from anywhere. Styling is `notfound.css` on top of
@@ -333,112 +364,116 @@ lands there is one click from anywhere. Styling is `notfound.css` on top of
 
 ## Security
 
-`_headers` carries a **Content-Security-Policy** built on `default-src 'none'` —
-the page may only reach the handful of origins it actually uses, and nothing
-else.
+`_headers` carries a **Content-Security-Policy** built on `default-src 'none'`
+— the page may only reach the handful of origins it actually uses, and nothing
+else. Because the work is local files, that list is now: this origin, Google
+Fonts, and Cloudflare's analytics beacon. `frame-src` is `'none'`; there is
+nothing left to frame.
+
 Practical consequences when editing:
 
-- **No inline `<script>` and no `onclick=` / `onerror=` attributes.** `script-src`
-  is `'self'` plus Cloudflare's analytics beacon. Put JS in a `.js` file and
-  attach listeners (this is why the Direct Group mark hides itself from `studio.js`
-  instead of an inline `onerror`, and why the probe page's code lives in
-  `reel-check.js`)
-- **Inline `style="…"` is fine**, `style-src` keeps `'unsafe-inline'` — the card
-  engine writes `el.style.*` constantly
-- **A new external host needs a new entry.** Adding, say, a Cloudflare Stream
-  embed means adding it to `frame-src`, or the browser silently refuses it.
-  Check the console for `Refused to…` after any such change
-- `base-uri 'none'`, `form-action 'none'`, `object-src 'none'`, `frame-ancestors
-  'self'` — the page cannot be reframed, cannot be made to submit anywhere, and
-  a stray `<base>` tag cannot re-point its relative URLs
-- Every `target="_blank"` carries `rel="noopener"`; the Vimeo/YouTube embeds use
-  `dnt=1` and `youtube-nocookie.com` so visitors aren't tracked by third parties
+- **No inline `<script>` and no `onclick=` / `onerror=` attributes.**
+  `script-src` is `'self'` plus Cloudflare's analytics beacon. Put JS in a
+  `.js` file and attach listeners
+- **Inline `style="…"` is fine**, `style-src` keeps `'unsafe-inline'` — the
+  card engine writes `el.style.*` constantly
+- **A new external host needs a new entry.** Check the console for
+  `Refused to…` after any such change
+- `base-uri 'none'`, `form-action 'none'`, `object-src 'none'`,
+  `frame-ancestors 'self'` — the page cannot be reframed, cannot be made to
+  submit anywhere, and a stray `<base>` tag cannot re-point its relative URLs
+- Every `target="_blank"` carries `rel="noopener"`
 - **JSON-LD is exempt.** `<script type="application/ld+json">` is a data block,
   not code, so the structured data in `index.html` and on every project page
-  runs clean under the policy — verified, not assumed
+  runs clean under the policy
 - **The private paths are not in `robots.txt`.** A `Disallow` line is public,
   so listing them would advertise exactly where they are. The console answers
-  401 without the password, and both it and the probe page carry
-  `X-Robots-Tag: noindex` — which keeps a URL out of the index even when a
-  crawler finds it another way, something `robots.txt` cannot do
-- **Cloudflare Web Analytics is pre-cleared** (`static.cloudflareinsights.com` in
-  `script-src`, `cloudflareinsights.com` in `connect-src`). Turn it on in the
-  dashboard and it works; without those two entries the CSP would have killed it
-  silently
+  401 without the password and carries `X-Robots-Tag: noindex` — which keeps a
+  URL out of the index even when a crawler finds it another way, something
+  `robots.txt` cannot do
+- **Cloudflare Web Analytics is pre-cleared** (`static.cloudflareinsights.com`
+  in `script-src`, `cloudflareinsights.com` in `connect-src`). Turn it on in
+  the dashboard and it works
 
-> **There is no third-party JavaScript left to trust.** GSAP used to come from
+> **There is no third-party JavaScript to trust.** GSAP used to come from
 > cdnjs — 110KB of someone else's script, unpinned, running with full rights on
 > the page. The site used four things from it: fade/slide entrances, the section
 > title wipe, the magnetic button, and two scroll callbacks. `motion.js` is that
 > arithmetic written out (4KB gzipped), using GSAP's own easing formulas so the
-> motion is unchanged, under the same `gsap` / `ScrollTrigger` names so
-> `initChoreo()` did not have to change. `script-src` is now `'self'` plus
-> Cloudflare's analytics beacon, and SRI is moot.
+> motion is unchanged, under the same `gsap` / `ScrollTrigger` names.
 >
 > One subtlety worth keeping in mind if you extend it: `.h-l1`, `.s-title`,
 > `.btn-y` and friends all run infinite CSS keyframes on `transform`, and a CSS
 > animation outranks an inline style. So on those elements the x/y half of a
 > tween never rendered — only opacity did. `motion.js` writes the same inline
-> styles GSAP did, which reproduces that faithfully. Switch it to the `translate`
-> property or the Web Animations API and motion appears that was never there.
+> styles GSAP did, which reproduces that faithfully. Switch it to the
+> `translate` property or the Web Animations API and motion appears that was
+> never there.
 
 ## Performance
 
-Everything below is invisible — the design is untouched.
-
-- **Posters load as cards approach the viewport.** Both grids used to resolve all
-  84 thumbnails the moment the loader lifted: ~84 oEmbed calls plus ~84 image
-  downloads, nearly all of them screens below the fold, which was enough for
-  Vimeo to throttle and starve the cards actually on screen. An
-  IntersectionObserver with a 400px margin now drives it — third-party requests
-  at load went from **87 to 5**, and no card is ever on screen without its poster
+- **Frames load as cards approach the viewport.** An IntersectionObserver with
+  a 400–900px margin drives both grids, and the card stays observed rather than
+  being unobserved once painted: a decoded bitmap costs width × height × 4
+  bytes for as long as it is referenced, and a grid of them left decoded is
+  what gets a phone tab discarded and silently reloaded underneath you. Leaving
+  the band drops the reference; the bytes stay in the HTTP cache, so coming
+  back costs a decode and nothing else
+- **Two sizes, not one.** The grid never loads a 1600px frame for a card a few
+  hundred pixels wide. The lightbox and the project page do
 - **The grain canvas is gone.** It repainted forever whether anyone was looking
-  or not, and read as a permanent haze. In its place is a four-layer glitch
-  system in `chrome.js` + `studio.css`, all transform and opacity, costing
-  nothing between events:
-  - `#roll` — a soft band drifting down the screen continuously, head-switching
-    noise on a VHS deck. This is what keeps the page alive when nobody is
-    touching it
-  - `#tear` — RGB tearing whose strength follows **scroll velocity** through one
-    custom property, `--gi`. A scroll frame writes a number; the compositor does
-    the rest. The easing is scaled by real elapsed time, not per frame — without
-    that the tear lingers on a slow machine and snaps on a fast one, a five-fold
-    difference measured between two boxes here
+  or not. In its place is a four-layer glitch system in `chrome.js` +
+  `studio.css`, all transform and opacity, costing nothing between events:
+  - `#roll` — a soft band drifting down the screen continuously. This is what
+    keeps the page alive when nobody is touching it
+  - `#tear` — RGB tearing whose strength follows **scroll velocity** through
+    one custom property, `--gi`. A scroll frame writes a number; the compositor
+    does the rest. The easing is scaled by real elapsed time, not per frame —
+    without that the tear lingers on a slow machine and snaps on a fast one
   - `#glx` — the hard hit, fired at random and when a new section arrives:
     coloured tears plus two blocks that shift sideways and lift the interface
     behind them. `hue-rotate` alone was invisible on a near-black page, so the
     blocks raise brightness first — that is what makes them read as signal
     damage rather than an overlay
-  - `#scan` — the standing scanlines, now drifting, and opening up as you move
+  - `#scan` — the standing scanlines, drifting, and opening up as you move
     faster
+
   The scroll loop stops itself once the value settles, so an idle page runs no
   JavaScript at all
 - **The dust particles use pre-rendered glow sprites** instead of setting
   `shadowBlur` per particle per frame — the single most expensive canvas
   operation there is
 - Both canvases **stop when the tab is hidden** and restart on return
-- **GSAP is gone**, replaced by `motion.js` — 110KB of CDN JavaScript and two
-  network round-trips traded for 4KB gzipped served from the same origin
-- `defer` on the scripts, so the parser no longer waits on them at all.
-  `DOMContentLoaded` went **1050ms → ~90ms**, third-party requests **87 → 3**
-- Project pages load nothing from Vimeo or YouTube until the visitor presses play
-- The portrait was a 1254px JPEG for a slot that is never wider than 230 CSS px.
-  It's now 640px (155KB → 74KB), still over 2× the pixels a retina screen can
-  show there. If you ever re-export it, 640px is the number
+- `defer` on the scripts, so the parser never waits on them
+- The hero cut-out is a quantised PNG: 178KB for a picture that is the first
+  thing anyone sees, and the loader waits for its `decode()` so the screen
+  never lifts onto an empty hero
 
 ## If the domain changes
 
-The domain `gonaim.com` is referenced in: `index.html` (canonical + Open Graph +
-Twitter tags), `robots.txt`, and `sitemap.xml`. Find-and-replace `gonaim.com`
-across those three files if you switch domains.
+`naguib.art` is referenced in: `index.html` (canonical + Open Graph + Twitter
+tags + the JSON-LD block), `robots.txt`, `sitemap.xml`, and `SITE` at the top
+of `tools/build-project-pages.mjs`. Change it in those four and re-run the
+generator.
 
 ## External dependencies
 
-No package manager, no build step, no third-party JavaScript.
+No package manager, no build step, no third-party JavaScript, and no
+third-party images.
 
 - Google Fonts: Bebas Neue, Oswald, JetBrains Mono, IBM Plex Sans Arabic
-- Vimeo player + oEmbed thumbnails · YouTube nocookie embed · Instagram reel embeds
-- The Direct Group mark is hotlinked from `directgroup.sa` and hides itself if it 404s
 
-> **Vimeo privacy:** every embedded video must have `gonaim.com` whitelisted in
-> the Vimeo video's privacy settings, otherwise the player shows "not authorized".
+That is the whole list.
+
+## Where the pictures came from
+
+Every render on the site was cut out of *Portfolio 2026* — the InDesign PDF —
+at full resolution with its alpha channel intact, then composed onto the
+studio's own ground: a vertical gradient, a soft radial glow behind the
+subject, and a contact shadow beneath it. The gradient is the same near-black
+teal the page is built on, which is why the cut-outs sit in the page rather
+than on it.
+
+If a render is ever replaced, the console does this part for you. By hand, the
+rule is only that both sizes exist and share a name:
+`assets/work/<id>.jpg` at 1600×900 and `assets/work/<id>-sm.jpg` at 880×495.
