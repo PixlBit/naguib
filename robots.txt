@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# The console and the probe page are deliberately NOT listed here. A Disallow
+# line is public, so naming them would advertise exactly where they are. The
+# console answers 401 to anyone without the password and the probe page is
+# served with X-Robots-Tag: noindex — which keeps a URL out of the index even
+# when a crawler finds it another way, something robots.txt cannot do.
+
+Sitemap: https://naguib.art/sitemap.xml

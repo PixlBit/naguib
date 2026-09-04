@@ -1,0 +1,1315 @@
+/* ════════════════════════════════════════════════════
+   GONAIM STUDIO v2 — merged: organized structure × neon identity
+   palette: magenta #e0803c (accent) · lime #3ee0d0 (action) · cyan labels
+════════════════════════════════════════════════════ */
+:root{
+  --bk:#04070a;--ch:#080d11;--dk:#060b0f;--pn:#0b1319;
+  --bd:#152128;--gr:#1c2b33;--md:#2e4450;--mt:#4a6470;--sv:#7e97a1;--nv:#a3bac3;
+  --wh:#eef6f8;
+  --yw:#e0803c;          /* primary accent (magenta) */
+  --lm:#3ee0d0;          /* action (lime) */
+  --cy:#5fd4ff;          /* label cyan */
+  --yd:rgba(224,128,60,.1);--yg:rgba(224,128,60,.05);
+  --ld:rgba(62,224,208,.1);--lg:rgba(62,224,208,.05);
+  --fd:'Bebas Neue','IBM Plex Sans Arabic',sans-serif;--fn:'JetBrains Mono','IBM Plex Sans Arabic',monospace;--fh:'Oswald','IBM Plex Sans Arabic',sans-serif;--fa:'IBM Plex Sans Arabic',sans-serif;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* overflow-y:scroll keeps the strip on screen even where the page is
+   short enough not to need one — a 404, a project page on a tall monitor —
+   so the right-hand edge of the site never changes width between pages. */
+html{scroll-behavior:auto;-webkit-text-size-adjust:100%;overflow-y:scroll}
+body{background:var(--bk);color:var(--wh);font-family:var(--fn);overflow-x:hidden}
+body.exp-desktop{cursor:none}
+img,iframe{max-width:100%}
+::selection{background:var(--yw);color:#fff}
+
+/* core loops */
+@keyframes floatUD{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes floatUDsm{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes floatLR{0%,100%{transform:translateX(0)}50%{transform:translateX(-6px)}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.018)}}
+@keyframes opacPulse{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes loopL{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes loopR{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
+@keyframes pip{0%,100%{opacity:1;box-shadow:0 0 6px var(--yw)}50%{opacity:.15;box-shadow:none}}
+/* chrome.js hangs this on any section or footer that is out of view.
+   Descendants only, and !important so a per-element animation shorthand
+   set inline — the footer bars each carry their own — cannot outrank it. */
+.anim-off *{animation-play-state:paused !important}
+
+/* ═══ GLITCH TITLE REVEAL ═══ */
+@keyframes glSplit{
+  0%{text-shadow:none;transform:none}
+  12%{text-shadow:-4px 0 var(--yw),4px 0 var(--cy);transform:translateX(3px) skewX(-3deg)}
+  24%{text-shadow:4px 0 var(--yw),-4px 0 var(--cy);transform:translateX(-3px)}
+  36%{text-shadow:-3px 0 var(--lm),3px 0 var(--yw);transform:translateX(2px) skewX(2deg)}
+  48%{text-shadow:3px 0 var(--cy),-3px 0 var(--yw);transform:translateX(-1px)}
+  62%{text-shadow:-2px 0 var(--yw),2px 0 var(--lm);transform:none}
+  78%{text-shadow:1px 0 var(--cy);transform:translateX(1px)}
+  100%{text-shadow:none;transform:none}
+}
+@keyframes glSlice{
+  0%{clip-path:inset(0 0 0 0)}
+  15%{clip-path:inset(12% 0 68% 0)}
+  18%{clip-path:inset(0 0 0 0)}
+  32%{clip-path:inset(58% 0 18% 0)}
+  35%{clip-path:inset(0 0 0 0)}
+  52%{clip-path:inset(30% 0 45% 0)}
+  55%,100%{clip-path:inset(0 0 0 0)}
+}
+.s-title.gl{animation:glSplit .7s steps(1) both,glSlice .7s steps(1) both,floatUD 6.5s ease-in-out .9s infinite}
+
+/* ═══ DUST PARTICLES ═══ */
+
+/* ═══ CURSOR ═══ */
+#cur,#tr{display:none}
+.exp-desktop #cur{display:block;position:fixed;width:10px;height:10px;background:var(--lm);border-radius:50%;pointer-events:none;z-index:9900;transform:translate(-50%,-50%);transition:width .18s,height .18s,background .18s,border-radius .18s;mix-blend-mode:difference}
+.exp-desktop #cur.h{width:34px;height:34px;background:transparent;border:1px solid var(--lm);border-radius:0;mix-blend-mode:normal}
+.exp-desktop #cur.p{width:52px;height:52px;background:rgba(62,224,208,.07);border:1px solid var(--lm);border-radius:50%;mix-blend-mode:normal}
+.exp-desktop #cur.p::after{content:'PLAY';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:8.5px;color:var(--lm);letter-spacing:.15em}
+.exp-desktop #tr{display:block;position:fixed;width:3px;height:3px;background:var(--yw);border-radius:50%;pointer-events:none;z-index:9899;transform:translate(-50%,-50%);opacity:.35;transition:left .07s linear,top .07s linear}
+
+#prog{position:fixed;top:0;left:0;right:0;height:1.5px;background:var(--yw);z-index:600;
+  box-shadow:0 0 6px var(--yw);transform:scaleX(0);transform-origin:left;will-change:transform}
+
+/* ═══ NOW PLAYING ═══ */
+#np{position:fixed;bottom:18px;left:18px;z-index:500;font-size:10.5px;letter-spacing:.16em;color:var(--mt);text-transform:uppercase;display:flex;align-items:center;gap:7px;background:rgba(4,7,10,.82);padding:6px 11px;border:1px solid var(--bd);backdrop-filter:blur(8px)}
+#np .np-dot{width:5px;height:5px;border-radius:50%;background:var(--yw);animation:pip 1.6s ease-in-out infinite;flex-shrink:0}
+#np b{color:var(--lm);font-weight:400}
+.exp-mobile #np{display:none}
+
+/* ═══ LOADER ═══ */
+#ldr{position:fixed;inset:0;background:var(--bk);z-index:8000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .7s,visibility .7s}
+#ldr.out{opacity:0;visibility:hidden}
+.l-logo{font-family:var(--fd);font-size:clamp(48px,9vw,100px);line-height:.88;text-align:center;letter-spacing:.04em}
+.l-logo b{color:var(--yw);font-weight:400;display:block;text-shadow:0 0 40px rgba(224,128,60,.4)}
+.l-tc{font-size:11px;color:var(--cy);letter-spacing:.2em}
+.l-wave{display:flex;align-items:center;gap:2px;height:20px}
+.l-wave span{display:block;width:2px;background:var(--lm);border-radius:1px;animation:lw .68s ease-in-out infinite}
+@keyframes lw{0%,100%{height:3px;opacity:.2}50%{height:17px;opacity:.75}}
+.l-bar{width:min(280px,70vw)}
+.l-rail{height:1px;background:var(--gr)}
+.l-fill{height:100%;background:var(--yw);width:0%;box-shadow:0 0 6px var(--yw);transition:width .04s linear}
+.l-foot{display:flex;justify-content:space-between;margin-top:5px}
+.l-foot span{font-size:9px;color:var(--mt);letter-spacing:.14em}
+#l-pct{color:var(--lm)}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:400;height:56px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 clamp(18px,4vw,52px);border-bottom:1px solid rgba(255,255,255,.05);background:rgba(4,7,10,.9);backdrop-filter:blur(16px)}
+/* The wordmark is the way home from every page and its box was 16px tall —
+   the text's own height, because nothing gave it any. The nav is 56px, so
+   the target can grow to fill it without a pixel of the design moving. */
+.n-logo{font-family:var(--fd);font-size:19px;letter-spacing:.08em;color:var(--wh);
+  text-decoration:none;display:flex;align-items:center;gap:8px;
+  padding:12px 10px 12px 0;margin:-12px 0}
+.n-logo b{color:var(--yw);font-weight:400}
+.n-pip{width:6px;height:6px;border-radius:50%;background:var(--yw);animation:pip 2s ease-in-out infinite;flex-shrink:0}
+.n-links{display:flex;gap:20px;list-style:none;justify-self:center}
+.n-links a{font-size:14px;letter-spacing:.18em;color:var(--nv);text-decoration:none;text-transform:uppercase;position:relative;transition:color .2s;min-width:56px;text-align:center}
+.n-links a::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:var(--yw);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.n-links a:hover,.n-links a.on{color:var(--wh)}
+.n-links a:hover::after,.n-links a.on::after{transform:scaleX(1)}
+.n-right{display:flex;align-items:center;gap:12px;justify-self:end}
+.n-tc{font-size:11.5px;color:var(--mt);letter-spacing:.1em}
+.n-tc b{color:var(--lm);font-weight:400}
+/* live clock cluster */
+.n-clock{display:flex;align-items:center;gap:8px;padding:5px 11px 5px 9px;border:1px solid var(--bd);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.3));position:relative;overflow:hidden;flex-shrink:0;white-space:nowrap}
+.n-clock>*{flex-shrink:0}
+.n-clock::after{content:'';position:absolute;top:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--cy),transparent);opacity:.5;animation:ncScan 5s linear infinite}
+@keyframes ncScan{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.nc-orb{width:17px;height:17px;flex-shrink:0}
+.nc-orb svg{width:100%;height:100%;fill:none;stroke-linecap:round;overflow:visible}
+.nc-orb svg{stroke:var(--lm);stroke-width:1.5}
+.nc-sun circle{fill:rgba(62,224,208,.16)}
+.nc-rays{transform-origin:12px 12px;animation:ncSpin 14s linear infinite}
+@keyframes ncSpin{to{transform:rotate(360deg)}}
+.nc-moon{stroke:var(--cy);fill:rgba(95,212,255,.12);animation:ncGlow 4s ease-in-out infinite}
+@keyframes ncGlow{0%,100%{opacity:.55}50%{opacity:1}}
+.nc-orb .nc-moon,.nc-orb.night .nc-sun{display:none}
+.nc-orb.night .nc-moon{display:block}
+.nc-face svg{stroke-width:1.3}
+.nc-dial{stroke:var(--md)}
+.nc-hr,.nc-mn{stroke:var(--wh);transform-origin:12px 12px}
+.nc-sc{stroke:var(--yw);stroke-width:1;transform-origin:12px 12px;transition:transform .42s cubic-bezier(.34,1.7,.5,1);filter:drop-shadow(0 0 3px rgba(224,128,60,.85))}
+.nc-pin{fill:var(--lm);stroke:none}
+.nc-stack{display:flex;flex-direction:column;line-height:1.25}
+.nc-day{font-size:9.5px;font-weight:400;letter-spacing:.22em;color:var(--cy)}
+.nc-date{font-size:9.5px;letter-spacing:.14em;color:var(--mt)}
+.nc-sep{width:1px;height:18px;background:var(--bd)}
+.nc-time{font-size:14px;letter-spacing:.06em;color:var(--lm);font-variant-numeric:tabular-nums;text-shadow:0 0 14px rgba(62,224,208,.35)}
+.nc-time em{font-style:normal;font-size:9.5px;letter-spacing:.14em;color:var(--wh);margin-left:5px;vertical-align:1px;opacity:.75}
+.nc-time i{font-style:normal;color:var(--mt);animation:ncBlink 1s steps(1) infinite}
+@keyframes ncBlink{0%,49%{opacity:1}50%,100%{opacity:.18}}
+.nc-zone{display:inline-flex;align-items:center;gap:4px;font-size:9px;letter-spacing:.16em;color:var(--mt)}
+.nc-zone::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--yw);box-shadow:0 0 7px var(--yw);animation:pip 2s ease-in-out infinite}
+.exp-mobile .nc-stack,.exp-mobile .nc-sep,.exp-mobile .nc-zone,.exp-mobile .nc-orb{display:none}
+.exp-mobile .n-clock{gap:7px;padding:4px 9px}
+.n-cta{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--bk);background:var(--lm);padding:8px 15px;text-decoration:none;transition:background .2s,box-shadow .2s;font-weight:700}
+.n-cta:hover{background:var(--wh);box-shadow:0 0 18px rgba(62,224,208,.35)}
+.exp-mobile .n-links,.exp-mobile .n-cta{display:none}
+/* six nav items now share the bar — shed the heaviest right-hand pieces first.
+   Placed after the base nav rules so these actually win. */
+@media (max-width:1500px){.n-links{gap:14px}.n-links a{font-size:13px;letter-spacing:.12em;min-width:0}}
+@media (max-width:1460px){.n-clock .nc-stack,.n-clock .nc-sep{display:none}}
+@media (max-width:1250px){.n-clock{display:none}}
+@media (max-width:1050px){.n-cta{display:none}}
+@media (max-width:920px){.n-links{gap:10px}.n-links a{font-size:11.5px;letter-spacing:.06em}.n-logo{font-size:16px}}
+
+/* mobile dock */
+#dock{display:none}
+.exp-mobile #dock{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:450;height:calc(54px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(4,7,10,.94);backdrop-filter:blur(18px);border-top:1px solid var(--bd)}
+#dock a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10.5px;letter-spacing:.14em;color:var(--nv);text-decoration:none;text-transform:uppercase;transition:color .2s}
+#dock a svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.5}
+#dock a.on{color:var(--lm)}
+
+/* ════ HERO — single screen, NO pin ════ */
+#hero{position:relative;min-height:100svh;overflow:hidden;display:flex;align-items:center;padding-top:56px}
+.exp-mobile #hero{align-items:flex-end;padding:72px 0 96px}
+.h-vbg{position:absolute;inset:0;z-index:0;overflow:hidden}
+.h-aurora{position:absolute;inset:-20%;z-index:3;pointer-events:none;mix-blend-mode:screen;
+  background:
+    radial-gradient(38% 42% at 22% 30%, rgba(224,128,60,.5), transparent 60%),
+    radial-gradient(34% 40% at 78% 28%, rgba(95,212,255,.32), transparent 60%),
+    radial-gradient(46% 50% at 60% 82%, rgba(62,224,208,.26), transparent 62%),
+    radial-gradient(40% 45% at 12% 78%, rgba(75,216,200,.34), transparent 60%);
+  filter:blur(36px);animation:auroraDrift 22s ease-in-out infinite}
+@keyframes auroraDrift{
+  0%,100%{transform:translate(0,0) scale(1)}
+  25%{transform:translate(3%,-2.5%) scale(1.08)}
+  50%{transform:translate(-2.5%,2%) scale(1.04)}
+  75%{transform:translate(2%,3%) scale(1.1)}
+}
+/* THE HERO PIECE — a cut-out render where a film site would run a loop.
+   It sits on the right of the headline on a wide screen and behind it on a
+   phone, where it drops to a quarter opacity so the type stays readable. */
+#h-art{position:absolute;right:-3vw;bottom:0;top:auto;z-index:2;height:min(88vh,840px);
+  display:flex;align-items:flex-end;pointer-events:none;
+  /* The headline runs across the left two-thirds of the hero, so the render
+     is faded out on that side rather than laid on top of the type. A picture
+     that swallows the sentence it is illustrating is a picture in the way. */
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.35) 18%,#000 46%);
+  mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.35) 18%,#000 46%)}
+#h-art img{height:100%;width:auto;object-fit:contain;opacity:0;transform:translateY(18px) scale(1.02);
+  transition:opacity 1.4s ease,transform 1.8s var(--ease-out);
+  filter:drop-shadow(0 30px 60px rgba(0,0,0,.65)) drop-shadow(0 0 90px rgba(62,224,208,.14))}
+#h-art img.rdy{opacity:.88;transform:none;animation:floatUD 9s ease-in-out 2s infinite}
+/* the type has to win: it sits above the render and carries its own scrim */
+#hero .h-inner{position:relative;z-index:5}
+#hero .h-h1{text-shadow:0 2px 34px rgba(4,7,10,.92),0 0 90px rgba(4,7,10,.8)}
+@media(max-width:1180px){#h-art{right:-16vw;height:min(70vh,640px)}#h-art img.rdy{opacity:.42}}
+.exp-mobile #h-art{right:-26vw;left:auto;height:min(56vh,500px)}
+.exp-mobile #h-art img.rdy{opacity:.3;animation:none}
+.h-vig{position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 200px 60px rgba(4,7,10,.9),inset 0 0 80px rgba(4,7,10,.6)}
+.h-ov{position:absolute;inset:0;z-index:1;background:linear-gradient(to right,rgba(4,7,10,.86) 36%,rgba(4,7,10,.5) 70%,rgba(4,7,10,.68) 100%),linear-gradient(to top,rgba(4,7,10,.8) 0%,transparent 35%);pointer-events:none}
+.exp-mobile .h-ov{background:linear-gradient(to top,rgba(4,7,10,.92) 0%,rgba(4,7,10,.45) 45%,rgba(4,7,10,.6) 100%)}
+.h-bg-loop{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:center;overflow:hidden;pointer-events:none}
+.h-bl-row{display:flex;white-space:nowrap;line-height:.82;will-change:transform}
+.h-bl-row:nth-child(odd){animation:loopL 26s linear infinite}
+.h-bl-row:nth-child(even){animation:loopR 22s linear infinite}
+.h-bl-t{font-family:var(--fd);font-size:clamp(72px,11vw,150px);letter-spacing:.02em;color:rgba(255,255,255,.028);padding-right:48px;flex-shrink:0}
+.h-bl-t.y{color:rgba(224,128,60,.045)}
+.exp-mobile .h-bl-t{font-size:clamp(56px,16vw,90px)}
+.h-grid{position:absolute;inset:0;z-index:3;background-image:linear-gradient(rgba(224,128,60,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(224,128,60,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 60% 60% at 55% 50%,black,transparent 80%);pointer-events:none}
+.cx{position:absolute;z-index:5;font-size:11px;color:rgba(224,128,60,.32);letter-spacing:.08em;pointer-events:none}
+.cx.tl{top:64px;left:16px;animation:opacPulse 3.5s ease-in-out infinite}
+.cx.tr{top:64px;right:16px;animation:opacPulse 3.5s ease-in-out .9s infinite}
+.cx.bl{bottom:10px;left:16px;animation:opacPulse 3.5s ease-in-out 1.8s infinite}
+.cx.br{bottom:10px;right:16px;animation:opacPulse 3.5s ease-in-out 2.7s infinite}
+.exp-mobile .cx.bl,.exp-mobile .cx.br{bottom:64px}
+.h-deco{position:absolute;z-index:5;font-size:9px;color:rgba(255,255,255,.14);letter-spacing:.16em;text-transform:uppercase;pointer-events:none;line-height:2.1;text-align:right}
+.h-deco-1{top:20%;right:clamp(18px,5vw,60px);animation:floatUD 6s ease-in-out infinite}
+.h-deco-2{bottom:18%;right:clamp(18px,5vw,60px);animation:floatUD 6s ease-in-out 1.2s infinite}
+.exp-mobile .h-deco{display:none}
+.h-inner{position:relative;z-index:10;max-width:1360px;margin:0 auto;padding:60px clamp(18px,5vw,60px);width:100%}
+.exp-mobile .h-inner{padding:0 20px}
+.h-pre{font-size:12px;letter-spacing:.26em;color:var(--cy);text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:18px;animation:floatUD 5s ease-in-out infinite}
+.h-pre b{color:var(--lm);font-weight:700}
+.h-pre-line{width:26px;height:1px;background:var(--cy);opacity:.5}
+.h-h1{font-family:var(--fd);font-size:clamp(60px,11vw,168px);line-height:.84;letter-spacing:-.01em}
+.exp-mobile .h-h1{font-size:clamp(58px,17vw,96px);line-height:.86}
+/* ── hero glitch: slow loop, hard RGB burst. uses `translate` (not transform)
+   so it layers on top of the float transform instead of overriding it ── */
+@keyframes hGlA{
+  0%,77%,86%,100%{text-shadow:none;translate:0 0;clip-path:inset(-20% -10% -20% -10%)}
+  78%{text-shadow:-7px 0 var(--cy),7px 0 var(--yw);translate:5px 0;clip-path:inset(8% -10% 55% -10%)}
+  80%{text-shadow:7px 0 var(--cy),-7px 0 var(--yw);translate:-6px 0;clip-path:inset(48% -10% 6% -10%)}
+  82%{text-shadow:-4px 0 var(--lm),4px 0 var(--yw);translate:4px 0;clip-path:inset(24% -10% 28% -10%)}
+  84%{text-shadow:3px 0 var(--cy),-3px 0 #fff;translate:-2px 0;clip-path:inset(-20% -10% -20% -10%)}
+}
+@keyframes hGlB{
+  0%,68%,82%,100%{text-shadow:0 0 60px rgba(224,128,60,.3);translate:0 0;clip-path:inset(-20% -10% -20% -10%)}
+  70%{text-shadow:-9px 0 var(--cy),9px 0 #fff;translate:-8px 0;clip-path:inset(5% -10% 60% -10%)}
+  73%{text-shadow:9px 0 var(--cy),-9px 0 var(--lm);translate:8px 0;clip-path:inset(52% -10% 4% -10%)}
+  76%{text-shadow:-6px 0 var(--lm),6px 0 var(--cy);translate:-5px 0;clip-path:inset(28% -10% 30% -10%)}
+  79%{text-shadow:5px 0 #fff,-5px 0 var(--yw);translate:3px 0;clip-path:inset(14% -10% 44% -10%)}
+  80.5%{text-shadow:0 0 60px rgba(224,128,60,.55);translate:-1px 0;clip-path:inset(-20% -10% -20% -10%)}
+}
+.h-l1{display:block;color:var(--wh);animation:floatUD 6s ease-in-out 0s infinite,hGlA 5.5s steps(1) 2.4s infinite;will-change:transform,translate}
+.h-l2{display:block;color:var(--yw);animation:floatUD 6s ease-in-out .6s infinite,hGlB 5.5s steps(1) .5s infinite;text-shadow:0 0 60px rgba(224,128,60,.3);will-change:transform,translate}
+.h-l3{display:block;color:var(--wh);animation:floatUD 6s ease-in-out 1.2s infinite,hGlA 6.5s steps(1) 4.2s infinite;will-change:transform,translate}
+.h-sub{font-size:15px;color:var(--sv);letter-spacing:.07em;line-height:1.9;margin-top:24px;max-width:380px;animation:floatLR 8s ease-in-out infinite}
+.h-sub strong{color:var(--wh);font-weight:400}
+.h-ctas{display:flex;gap:9px;margin-top:28px;flex-wrap:wrap}
+.exp-mobile .h-ctas{flex-direction:column}
+.exp-mobile .h-ctas a{justify-content:center;min-height:46px}
+.btn-y{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--bk);background:var(--lm);padding:13px 22px;text-decoration:none;position:relative;overflow:hidden;transition:box-shadow .3s;display:inline-flex;align-items:center;gap:7px;font-weight:700;animation:floatUD 4.2s ease-in-out infinite}
+.btn-y::before{content:'';position:absolute;top:0;left:-120%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);transform:skewX(-18deg);transition:left .45s}
+.btn-y:hover::before{left:150%}
+.btn-y:hover{box-shadow:0 0 26px rgba(62,224,208,.4)}
+.btn-o{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--yw);border:1px solid rgba(224,128,60,.45);padding:12px 22px;text-decoration:none;transition:background .2s,box-shadow .2s;display:inline-flex;align-items:center;gap:7px;animation:floatUD 4.2s ease-in-out .5s infinite}
+.btn-o:hover{background:var(--yd);box-shadow:0 0 20px rgba(224,128,60,.25)}
+/* hero quick stats (replaces old pin side panels) */
+.h-stats{display:flex;gap:28px;margin-top:34px;flex-wrap:wrap}
+.h-stat .n{font-family:var(--fd);font-size:clamp(26px,3vw,40px);color:var(--lm);line-height:1;text-shadow:0 0 24px rgba(62,224,208,.3)}
+.h-stat .k{font-size:11.5px;color:var(--mt);letter-spacing:.18em;text-transform:uppercase;margin-top:3px}
+.h-hud{position:absolute;bottom:22px;left:clamp(18px,4vw,60px);z-index:10;display:flex;gap:16px;flex-wrap:wrap}
+.h-hud-i{font-size:9px;color:rgba(255,255,255,.18);letter-spacing:.13em;display:flex;align-items:center;gap:4px}
+.h-hud-d{width:3px;height:3px;border-radius:50%;background:var(--yw);opacity:.6}
+.h-hud-r{position:absolute;bottom:22px;right:clamp(18px,4vw,60px);z-index:10;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.h-hud-r span{font-size:9px;color:rgba(255,255,255,.15);letter-spacing:.13em}
+.h-hud-r span.on{color:var(--yw);animation:opacPulse 1.6s ease-in-out infinite}
+.exp-mobile .h-hud,.exp-mobile .h-hud-r{display:none}
+.m-scroll-hint{display:none}
+.exp-mobile .m-scroll-hint{display:flex;position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:10;flex-direction:column;align-items:center;gap:5px}
+.m-sh-line{width:1px;height:26px;background:linear-gradient(to bottom,var(--lm),transparent);animation:shLine 1.8s ease-in-out infinite}
+@keyframes shLine{0%,100%{opacity:.3;transform:scaleY(.5);transform-origin:top}50%{opacity:1;transform:scaleY(1)}}
+.m-sh-t{font-size:8px;letter-spacing:.2em;color:rgba(255,255,255,.22);text-transform:uppercase}
+
+/* ═══ FILM STRIP + TICKER ═══ */
+.filmstrip{height:26px;background:#080e12;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);overflow:hidden;position:relative;z-index:5;display:flex;align-items:center}
+.fs-track{display:flex;animation:loopL 14s linear infinite;flex-shrink:0;will-change:transform}
+.fs-hole{width:9px;height:11px;background:var(--bk);border:1px solid #1e2e36;border-radius:1.5px;margin:0 7px;flex-shrink:0}
+.ticker{height:34px;background:var(--lm);display:flex;align-items:center;overflow:hidden;position:relative;z-index:6}
+.t-track{display:flex;animation:loopL 24s linear infinite;white-space:nowrap;will-change:transform}
+.t-item{font-size:13.5px;letter-spacing:.18em;font-weight:700;text-transform:uppercase;color:#04070a;padding:0 24px;display:flex;align-items:center;gap:8px}
+.t-gem{width:4px;height:4px;background:rgba(0,0,0,.25);transform:rotate(45deg);flex-shrink:0}
+
+/* ═══ SECTION COMMONS ═══ */
+.sec{position:relative;z-index:5;border-top:1px solid var(--bd);background:var(--bk)}
+.exp-desktop .sec.rise{margin-top:-26px;border-radius:26px 26px 0 0;border-top:1px solid rgba(224,128,60,.16);box-shadow:0 -30px 60px rgba(0,0,0,.55)}
+.sp{padding:84px clamp(18px,5vw,60px);max-width:1360px;margin:0 auto;position:relative;z-index:2}
+.exp-mobile .sp{padding:60px 20px}
+.s-pre{font-size:13.5px;color:var(--cy);letter-spacing:.26em;text-transform:uppercase;margin-bottom:12px;opacity:.7;animation:floatUD 5.5s ease-in-out infinite}
+.s-title{font-family:var(--fd);font-size:clamp(42px,7vw,88px);line-height:.88;color:var(--wh);animation:floatUD 6.5s ease-in-out .3s infinite,hGlA 8s steps(1) 4s infinite}
+.s-title b{color:var(--yw);font-weight:400;text-shadow:0 0 40px rgba(224,128,60,.3)}
+.exp-mobile .s-title{font-size:clamp(40px,12vw,60px)}
+.sec-bg{position:absolute;inset:0;z-index:0;display:flex;flex-direction:column;justify-content:center;overflow:hidden;pointer-events:none}
+.sec-bg-row{display:flex;white-space:nowrap;line-height:.84;will-change:transform}
+.sec-bg-t{font-family:var(--fd);font-size:clamp(80px,14vw,190px);letter-spacing:.02em;padding-right:40px;flex-shrink:0}
+.exp-mobile .sec-bg-t{font-size:clamp(60px,18vw,100px)}
+.bgc1{color:rgba(255,255,255,.02)}
+.bgc2{color:rgba(224,128,60,.03)}
+.bgr-l{animation:loopL 24s linear infinite}
+.bgr-r{animation:loopR 19s linear infinite}
+.bgr-l2{animation:loopL 28s linear infinite}
+
+/* ═══ WORK ═══ */
+.wf{display:flex;gap:2px;margin:28px 0 18px;flex-wrap:wrap;animation:floatUD 5.5s ease-in-out .7s infinite}
+.exp-mobile .wf{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:22px -20px 16px;padding:0 20px}
+.exp-mobile .wf::-webkit-scrollbar{display:none}
+.wf-btn{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--nv);padding:6px 12px;border:1px solid var(--md);background:none;cursor:pointer;transition:all .22s;flex-shrink:0;font-family:var(--fn)}
+.exp-desktop .wf-btn{cursor:none}
+.exp-mobile .wf-btn{padding:10px 14px;font-size:12px}
+.wf-btn:hover{color:var(--yw);border-color:rgba(224,128,60,.35);background:var(--yg)}
+.wf-btn.on{color:#04070a;border-color:var(--lm);background:var(--lm);font-weight:700;box-shadow:0 0 14px rgba(62,224,208,.3)}
+.exp-desktop .wg{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.exp-desktop .wg .feat{grid-column:1/-1}
+/* Phones get a real two-column grid, not a side-scrolling rail: a rail showed
+   about one card at a time and left the rest hidden off to the right, so most
+   of the work was never seen. Banners still span the full width, and a card
+   left alone on the final row widens to fill it. */
+.exp-mobile .wg{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;overflow:visible;margin:0;padding:0}
+.exp-mobile .wc{aspect-ratio:1/1}
+.exp-mobile .wc.feat,.exp-mobile .wc.wc-wide{grid-column:1/-1;aspect-ratio:16/9}
+.exp-mobile .wc-info{padding:11px 11px 12px}
+.exp-mobile .wc-num{font-size:8.5px;letter-spacing:.14em;margin-bottom:3px}
+.exp-mobile .wc-tc{top:10px;right:10px}
+/* half-width cards are tight: hold the title to two lines and lift the play
+   badge into the artwork so it never lands behind the type */
+.exp-mobile .wg .wc:not(.feat):not(.wc-wide) .wc-title{font-size:12.5px;letter-spacing:.03em;line-height:1.2;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.exp-mobile .wg .wc .wc-play{align-items:flex-start;padding-top:14%}
+.exp-mobile .wg .wc:not(.feat):not(.wc-wide) .wc-play{padding-top:22%}
+.exp-mobile .wg .wc:not(.feat):not(.wc-wide) .wc-pb{transform:scale(.68)}
+.exp-mobile .wg .wc:not(.feat):not(.wc-wide) .wc-tag{font-size:8.5px;padding:2px 5px;letter-spacing:.08em}
+.exp-mobile .wg .wc.feat .wc-title,.exp-mobile .wg .wc.wc-wide .wc-title{font-size:15px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wc{position:relative;overflow:hidden;background:var(--pn);aspect-ratio:16/9}
+/* will-change lived here and promoted a layer on all 84 cards. The card
+   itself never transforms — the thumb inside it does — so it bought
+   nothing and cost 84 layers of GPU memory. It belongs on the element
+   that actually moves, and only while it is moving. */
+.wc:hover .wc-thumb{will-change:transform}
+.exp-desktop .wc{cursor:none}
+.exp-desktop .wc.feat{aspect-ratio:21/8}
+.wc[data-cat="showreel"]{background:linear-gradient(135deg,#080e12,#12210f)}
+.wc[data-cat="films"]{background:linear-gradient(135deg,#070d11,#0f1c14)}
+.wc[data-cat="national"]{background:linear-gradient(135deg,#070d10,#0b1519)}
+.wc[data-cat="commercials"]{background:linear-gradient(135deg,#070d11,#0d1810)}
+.wc[data-cat="events"]{background:linear-gradient(135deg,#060b0f,#081018)}
+.wc[data-cat="music"]{background:linear-gradient(135deg,#070d11,#0b1319)}
+.wc[data-cat="bts"]{background:linear-gradient(135deg,#080d10,#0d1418)}
+/* The breathing animation that used to be here ran on all 84 cards at once.
+   At 7% opacity nobody has ever seen it move — it is a background art
+   layer, not a light. Eighty-four infinite animations for a change of a
+   few thousandths of an alpha is the clearest case on the page. */
+.wc-art{position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;opacity:.07;pointer-events:none}
+.wc-art svg{width:48%;height:48%}
+.wc-vf{position:absolute;inset:0;z-index:1;overflow:hidden}
+.wc-vf iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200%;height:200%;pointer-events:none;border:none;opacity:0;transition:opacity .55s}
+.wc-vf iframe.rdy{opacity:1}
+.wc-thumb{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;opacity:.72;transition:opacity .4s,transform .8s var(--ease-out)}
+.wc:hover .wc-thumb{opacity:.95;transform:scale(1.04)}
+.wc-frame{position:absolute;inset:7px;z-index:3;border:1px solid rgba(224,128,60,.18);pointer-events:none;transition:border-color .3s}
+.wc:hover .wc-frame{border-color:rgba(224,128,60,.55)}
+.wc-frame::before{content:'\00d7 \00d7 \00d7';position:absolute;top:5px;left:7px;font-size:9px;color:rgba(224,128,60,.38);letter-spacing:.08em}
+.wc-frame::after{content:'\00d7 \00d7 \00d7';position:absolute;bottom:5px;right:7px;font-size:9px;color:rgba(224,128,60,.38);letter-spacing:.08em}
+.wc-ov{position:absolute;inset:0;z-index:2;background:linear-gradient(to top,rgba(4,7,10,.93) 0%,rgba(4,7,10,.1) 55%,transparent 100%);transition:background .4s}
+.wc:hover .wc-ov{background:linear-gradient(to top,rgba(4,7,10,.96) 0%,rgba(4,7,10,.3) 60%,rgba(4,7,10,.05) 100%)}
+.wc-play{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .22s}
+.wc:hover .wc-play{opacity:1}
+.exp-mobile .wc-play{opacity:1}
+.wc-pb{width:44px;height:44px;border:1px solid rgba(62,224,208,.7);border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(4,7,10,.66);transform:scale(.72);transition:transform .3s;box-shadow:0 0 18px rgba(62,224,208,.25)}
+.wc:hover .wc-pb{transform:scale(1)}
+.exp-mobile .wc-pb{transform:scale(.85)}
+.wc-pb svg{width:14px;height:14px;fill:none;stroke:var(--lm);stroke-width:1.8}
+.wc-info{position:absolute;bottom:0;left:0;right:0;z-index:5;padding:16px 18px}
+.wc-num{font-size:10.5px;color:var(--cy);letter-spacing:.2em;margin-bottom:4px;opacity:.8}
+.wc-title{font-family:var(--fh);font-size:clamp(13px,1.6vw,19px);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--wh);margin-bottom:6px;line-height:1.15}
+.wc-title.ar{font-family:var(--fa);font-weight:600;letter-spacing:-.005em;text-transform:none;line-height:1.25;direction:rtl;unicode-bidi:plaintext;text-align:left}
+/* The title is an <a> to the project's own page. At rest it must read as the
+   plain text it replaced; hovering the words themselves — not the card — is
+   the cue that it leads somewhere, so the card's own hover state is unchanged. */
+.wc-link{color:inherit;text-decoration:none;font:inherit;letter-spacing:inherit;
+  transition:color .22s,text-shadow .22s}
+.wc-link:hover{color:var(--lm);text-shadow:0 0 18px rgba(62,224,208,.4)}
+.wc-link:focus-visible{outline:1px solid var(--lm);outline-offset:3px}
+.exp-mobile .wc-title{font-size:15px}
+.wc-tags{display:flex;gap:4px;flex-wrap:wrap}
+.wc-tag{font-size:10px;letter-spacing:.11em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--gr);color:var(--mt)}
+.wc-tag.y{border-color:rgba(224,128,60,.4);color:var(--yw)}
+.wc-tag.ig{border-color:rgba(95,212,255,.4);color:var(--cy)}
+
+/* ════ DREAM ENGINE — the AI reel rail ════════════════════════════════════
+   Reels are 9:16, so they get their own portrait rail rather than the 16:9
+   grid. Instagram publishes no poster API: each card's artwork is generated
+   from the reel's own id, then "denoised" on hover — the noise clearing is
+   the diffusion idea made literal.                                          */
+#ai{position:relative;overflow:hidden}
+.ai-field{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 55% 45% at 18% 18%,rgba(95,212,255,.055),transparent 70%),
+             radial-gradient(ellipse 50% 45% at 82% 76%,rgba(224,128,60,.05),transparent 70%);
+  animation:breathe 13s ease-in-out infinite}
+.ai-lattice{position:absolute;inset:-40px;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(95,212,255,.05) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(95,212,255,.05) 1px,transparent 1px);
+  background-size:52px 52px;animation:aiDrift 26s linear infinite}
+.ai-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;position:relative}
+/* ════ SECTION GLYPHS — one animated mark per section, behind the heading
+   on the right. Shared vocabulary: dashed ring, pulsing nodes, breathing
+   core, so every section reads as part of the same instrument.          */
+.sec-glyph{position:absolute;z-index:0;pointer-events:none;
+  right:clamp(-18px,1.5vw,44px);top:clamp(44px,6vw,88px);
+  width:clamp(160px,20vw,300px);opacity:.22}
+.sec-glyph svg{width:100%;height:auto;overflow:visible;fill:none}
+.sec-glyph .g-ring circle{stroke:rgba(95,212,255,.32);stroke-width:1;stroke-dasharray:5 9;transform-origin:60px 60px;animation:gSpin 24s linear infinite}
+.sec-glyph .g-ring2 circle{stroke:rgba(224,128,60,.36);stroke-width:1;stroke-dasharray:3 7;transform-origin:60px 60px;animation:gSpin 15s linear reverse infinite}
+.sec-glyph .g-core{fill:var(--lm);opacity:.9;filter:drop-shadow(0 0 12px rgba(62,224,208,.6));animation:gBreathe 3.4s ease-in-out infinite}
+.sec-glyph .g-pulse{fill:none;stroke:var(--lm);stroke-width:1;transform-origin:60px 60px;animation:gPulse 3.4s ease-out infinite}
+.sec-glyph .g-nd circle{fill:var(--yw);animation:gNode 2.8s ease-in-out infinite}
+.sec-glyph .g-web line{stroke:rgba(95,212,255,.3);stroke-width:.9;animation:gBreathe 7s ease-in-out infinite}
+.sec-glyph .g-orb{transform-origin:60px 60px;animation:gSpin 6s linear infinite}
+.sec-glyph .g-orb circle{fill:var(--lm);filter:drop-shadow(0 0 5px rgba(62,224,208,.9))}
+.sec-glyph .g-box{stroke:rgba(224,128,60,.4);stroke-width:1.1}
+/* ABOUT — iris */
+.sec-glyph .g-iris polygon{stroke:rgba(224,128,60,.4);stroke-width:1.1;transform-origin:60px 60px;animation:gIris 7s ease-in-out infinite}
+.sec-glyph .g-spokes line{stroke:rgba(95,212,255,.3);stroke-width:.9;transform-origin:60px 60px;animation:gSpin 30s linear infinite}
+/* WORK — sprockets running */
+.sec-glyph .g-run rect{fill:rgba(95,212,255,.4);animation:gRun 2.4s linear infinite}
+.sec-glyph .g-play{fill:var(--lm);opacity:.85;animation:gBreathe 3s ease-in-out infinite}
+/* VAULT — the dial */
+.sec-glyph .g-dial{transform-origin:60px 60px;animation:gDial 9s ease-in-out infinite}
+.sec-glyph .g-tick line{stroke:rgba(95,212,255,.5);stroke-width:1.4}
+/* SERVICES — rosette */
+.sec-glyph .g-rose line{stroke:rgba(95,212,255,.38);stroke-width:1.2;transform-origin:60px 60px;animation:gSpin 40s linear infinite,gBreathe 4s ease-in-out infinite}
+/* PIPELINE — travelling keyframes */
+.sec-glyph .g-track line{stroke:rgba(255,255,255,.14);stroke-width:1}
+.sec-glyph .g-kf rect,.sec-glyph .g-kf2 rect,.sec-glyph .g-kf3 rect{fill:var(--yw)}
+.sec-glyph .g-kf{animation:gSlide 5s ease-in-out infinite}
+.sec-glyph .g-kf2{animation:gSlide 5s ease-in-out .6s infinite}
+.sec-glyph .g-kf3{animation:gSlide 5s ease-in-out 1.2s infinite}
+/* CONTACT — outgoing signal */
+.sec-glyph .g-wave{stroke:var(--cy);stroke-width:1;fill:none;transform-origin:60px 60px;animation:gWave 3.3s ease-out infinite}
+@keyframes gSpin{to{transform:rotate(1turn)}}
+@keyframes gNode{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes gBreathe{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes gPulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(3.4);opacity:0}}
+@keyframes gIris{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(30deg) scale(.72)}}
+@keyframes gRun{0%{transform:translateY(0);opacity:.2}50%{opacity:1}100%{transform:translateY(12px);opacity:.2}}
+@keyframes gDial{0%,100%{transform:rotate(0)}45%{transform:rotate(128deg)}55%{transform:rotate(128deg)}}
+@keyframes gSlide{0%,100%{transform:translateX(-14px);opacity:.35}50%{transform:translateX(14px);opacity:1}}
+@keyframes gWave{0%{transform:scale(.5);opacity:.9}100%{transform:scale(3);opacity:0}}
+.exp-mobile .sec-glyph{width:132px;opacity:.14;right:-16px;top:38px}
+.ai-tag{font-size:12px;letter-spacing:.2em;color:var(--mt);margin-top:14px;text-transform:uppercase}
+.ai-tag b{color:var(--cy);font-weight:400}
+.ai-meta{text-align:right}
+/* phones: the head stacks, so everything shares the left edge instead of
+   half the block hanging right */
+.exp-mobile .ai-head{flex-direction:column;align-items:flex-start;gap:12px}
+.exp-mobile .ai-meta{text-align:left}
+.exp-mobile .ai-tag{font-size:11px;letter-spacing:.14em;margin-top:12px}
+.exp-mobile .ai-chip{margin-bottom:6px}
+.ai-chip{display:inline-flex;align-items:center;gap:8px;padding:5px 11px;border:1px solid rgba(95,212,255,.25);
+  background:linear-gradient(180deg,rgba(95,212,255,.05),rgba(0,0,0,.3));margin-bottom:10px;
+  font-size:10px;letter-spacing:.2em;color:var(--mt);text-transform:uppercase}
+.ai-chip b{color:var(--cy);font-weight:400}
+.ai-dot{width:5px;height:5px;border-radius:50%;background:var(--cy);box-shadow:0 0 8px var(--cy);animation:pip 2s ease-in-out infinite;flex-shrink:0}
+/* the prompt line types itself */
+.ai-prompt{display:flex;align-items:center;gap:9px;margin:26px 0 18px;padding:11px 14px;
+  border:1px solid var(--bd);background:rgba(255,255,255,.018);position:relative;overflow:hidden}
+.ai-prompt::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cy),transparent);opacity:.45;animation:ncScan 6s linear infinite}
+.ai-caret{color:var(--lm);font-size:11px;flex-shrink:0}
+.ai-type{font-family:var(--fn);font-size:12px;letter-spacing:.06em;color:var(--sv);white-space:nowrap;overflow:hidden}
+.ai-cursor{width:7px;height:14px;background:var(--lm);flex-shrink:0;animation:pip 1s steps(1) infinite}
+/* rail */
+/* a grid, like the work section — a rail only ever showed a couple of reels */
+.ai-rail{display:grid;grid-template-columns:repeat(auto-fill,minmax(172px,1fr));gap:12px;padding:4px 0 0;position:relative}
+.ai-card{position:relative;aspect-ratio:9/16;overflow:hidden;
+  background:linear-gradient(165deg,#080f13,#081014);border:1px solid var(--bd);scroll-snap-align:center;
+  transition:border-color .3s,transform .5s var(--ease-out)}
+.exp-desktop .ai-card{cursor:none}
+.ai-card:hover{border-color:rgba(95,212,255,.45);transform:translateY(-4px)}
+.ai-art{position:absolute;inset:0;z-index:0;opacity:.92;transition:opacity .5s}
+.ai-art svg{width:100%;height:100%}
+.ai-art .ln line{stroke:rgba(95,212,255,.4);stroke-width:.32}
+.ai-art .nd circle{fill:var(--yw);animation:aiPulse 3.4s ease-in-out infinite}
+.ai-card:hover .ai-art{opacity:1}
+.ai-cover{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;opacity:.62;transition:opacity .4s}
+.ai-card:hover .ai-cover{opacity:.9}
+/* with a real poster the artwork and grain pull back so the frame reads */
+.ai-card.has-cover .ai-cover{opacity:.82}
+.ai-card.has-cover:hover .ai-cover{opacity:1}
+.ai-card.has-cover .ai-art{opacity:.22}
+.ai-card.has-cover .ai-noise{opacity:.2}
+.ai-card.has-cover:hover .ai-noise{opacity:.05}
+/* diffusion grain — clears as you hover, like a render resolving */
+.ai-noise{position:absolute;inset:-30%;z-index:2;opacity:.34;mix-blend-mode:screen;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  animation:aiGrain 1.1s steps(4) infinite;transition:opacity .55s var(--ease-out)}
+.ai-card:hover .ai-noise{opacity:.08}
+.ai-scanline{position:absolute;left:0;right:0;height:26%;z-index:3;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(95,212,255,.12),transparent);animation:aiScan 5s linear infinite}
+.ai-fr{position:absolute;inset:7px;z-index:4;border:1px solid rgba(95,212,255,.16);pointer-events:none;transition:border-color .3s}
+.ai-card:hover .ai-fr{border-color:rgba(95,212,255,.5)}
+.ai-play{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s}
+.ai-card:hover .ai-play{opacity:1}
+.exp-mobile .ai-play{opacity:1}
+.ai-play svg{width:13px;height:13px;fill:var(--lm);margin-left:3px}
+.ai-play::before{content:'';position:absolute;width:46px;height:46px;border:1px solid rgba(62,224,208,.7);border-radius:50%;
+  background:rgba(4,7,10,.66);box-shadow:0 0 18px rgba(62,224,208,.25)}
+.ai-badge{position:absolute;top:12px;right:12px;z-index:6;font-size:9px;letter-spacing:.16em;color:var(--cy);
+  border:1px solid rgba(95,212,255,.35);background:rgba(4,7,10,.55);padding:2px 7px}
+.ai-info{position:absolute;left:0;right:0;bottom:0;z-index:6;padding:14px;
+  background:linear-gradient(to top,rgba(4,7,10,.95),transparent)}
+.ai-n{font-size:10px;letter-spacing:.2em;color:var(--lm);margin-bottom:4px}
+.ai-t{font-family:var(--fh);font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--wh);line-height:1.15;margin-bottom:4px}
+.ai-seed{font-size:9px;letter-spacing:.1em;color:var(--mt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the rail scrolls on desktop too, so these dots stay visible there —
+   needs to outrank the base `.rail-dots{display:none}` further down */
+/* one card left alone on the last row stretches to close the gap */
+.ai-card.ai-wide{grid-column:span 2;aspect-ratio:9/8}
+.exp-mobile .ai-rail{grid-template-columns:repeat(2,1fr);gap:7px}
+.exp-mobile .ai-prompt{margin:20px 0 14px}
+.exp-mobile .ai-type{font-size:11px}
+@keyframes aiPulse{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes aiGrain{0%{transform:translate(0,0)}25%{transform:translate(-4%,3%)}50%{transform:translate(3%,-4%)}75%{transform:translate(-3%,-2%)}100%{transform:translate(0,0)}}
+@keyframes aiScan{0%{top:-30%}100%{top:104%}}
+@keyframes aiDrift{0%{background-position:0 0,0 0}100%{background-position:52px 52px,52px 52px}}
+
+/* ════ THE VAULT — same card engine, archival grade ════ */
+#archive{position:relative}
+.vault-glow{position:absolute;inset:0;background:radial-gradient(ellipse 55% 60% at 50% 42%,rgba(95,212,255,.035),transparent 72%);animation:breathe 12s ease-in-out infinite;pointer-events:none}
+.vault-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.vault-tag{font-size:12px;letter-spacing:.2em;color:var(--mt);margin-top:14px;text-transform:uppercase}
+.vault-tag b{color:var(--cy);font-weight:400}
+.vault-meta{text-align:right}
+.vault-reel{display:inline-flex;align-items:center;gap:8px;padding:5px 11px;border:1px solid var(--bd);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(0,0,0,.3));margin-bottom:10px}
+.vr-dot{width:5px;height:5px;border-radius:50%;background:var(--cy);box-shadow:0 0 8px var(--cy);animation:pip 2.2s ease-in-out infinite;flex-shrink:0}
+.vr-lbl{font-size:10px;letter-spacing:.22em;color:var(--cy);text-transform:uppercase}
+.vr-tc{font-size:10px;letter-spacing:.14em;color:var(--mt);padding-left:8px;border-left:1px solid var(--gr)}
+/* archive cards read as older stock until you hover them back to life */
+.wc.arch .wc-thumb{filter:saturate(.35) contrast(1.06) sepia(.16);opacity:.42;transition:filter .55s var(--ease-out),opacity .4s,transform .8s var(--ease-out)}
+.wc.arch:hover .wc-thumb{filter:saturate(1) contrast(1) sepia(0);opacity:.92}
+.wc.arch .wc-frame{border-color:rgba(95,212,255,.15)}
+.wc.arch:hover .wc-frame{border-color:rgba(95,212,255,.45)}
+.wc.arch .wc-frame::before,.wc.arch .wc-frame::after{color:rgba(95,212,255,.3)}
+.wc.arch .wc-num{color:var(--mt)}
+.wc.arch[data-cat="mapping"]{background:linear-gradient(135deg,#060b0f,#04121a)}
+.wc.arch[data-cat="motion"]{background:linear-gradient(135deg,#070d11,#091218)}
+.wc.arch[data-cat="post"]{background:linear-gradient(135deg,#080d10,#0c1216)}
+.wc.arch[data-cat="lab"]{background:linear-gradient(135deg,#070c10,#060d13)}
+/* portrait Instagram embeds get a centred column inside the 16:9 frame */
+/* An Instagram post is portrait and carries its own header and caption, so in
+   IG mode the modal becomes a tall narrow column and lets the whole embed
+   through instead of squeezing it into the 16:9 video frame. */
+#modal.ig .m-inner{width:min(94vw,440px)}
+#modal.ig .m-frame{padding-bottom:0;height:min(80vh,880px);background:#000}
+#modal.ig .m-frame iframe{inset:0;width:100%;height:100%}
+.m-ext{font-size:10.5px;letter-spacing:.18em;color:var(--cy);text-decoration:none;
+  border:1px solid rgba(95,212,255,.35);padding:6px 12px;transition:background .25s,color .25s;white-space:nowrap}
+.m-ext[hidden]{display:none}
+.m-ext:hover{background:var(--cy);color:var(--bk)}
+/* the way into the project's own page, once you're already watching it */
+.m-page{color:var(--lm);border-color:rgba(62,224,208,.38);margin-left:auto}
+.m-page:hover{background:var(--lm);color:var(--bk)}
+.exp-desktop .m-ext{cursor:none}
+.wc-tc{position:absolute;top:16px;right:16px;z-index:5;font-size:9px;color:rgba(255,255,255,.14);letter-spacing:.1em;background:rgba(0,0,0,.32);padding:1px 6px;transition:color .3s}
+.wc:hover .wc-tc{color:var(--lm)}
+.rail-dots{display:none}
+.exp-mobile .rail-dots{display:flex;justify-content:center;gap:5px;margin-top:14px}
+.rd{width:5px;height:5px;border-radius:50%;background:var(--gr);transition:background .25s,transform .25s}
+.rd.on{background:var(--lm);transform:scale(1.25)}
+
+/* ═══ SERVICES ═══ */
+#services{background:var(--ch)}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);margin-top:44px}
+.exp-mobile .sg{grid-template-columns:1fr 1fr;margin-top:32px}
+.sc-card{background:var(--bk);padding:34px 20px 28px;position:relative;overflow:hidden;transition:background .3s,box-shadow .35s;display:flex;flex-direction:column;align-items:center;text-align:center}
+.exp-desktop .sc-card{cursor:none}
+.exp-mobile .sc-card{padding:26px 14px 22px}
+.sc-card:nth-child(1){animation:floatUDsm 5.5s ease-in-out 0s infinite}
+.sc-card:nth-child(2){animation:floatUDsm 5.5s ease-in-out .45s infinite}
+.sc-card:nth-child(3){animation:floatUDsm 5.5s ease-in-out .9s infinite}
+.sc-card:nth-child(4){animation:floatUDsm 5.5s ease-in-out 1.35s infinite}
+.sc-card:nth-child(5){animation:floatUDsm 5.5s ease-in-out .25s infinite}
+.sc-card:nth-child(6){animation:floatUDsm 5.5s ease-in-out .7s infinite}
+.sc-card:nth-child(7){animation:floatUDsm 5.5s ease-in-out 1.15s infinite}
+.sc-card:nth-child(8){animation:floatUDsm 5.5s ease-in-out 1.6s infinite}
+.sc-card:hover{background:var(--ch);box-shadow:inset 0 0 0 1px rgba(224,128,60,.18)}
+.sc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,var(--yw),transparent);transform:scaleX(0);transform-origin:left;transition:transform .45s}
+.sc-card:hover::before{transform:scaleX(1)}
+.sc-num{position:absolute;top:12px;left:14px;font-size:9px;color:rgba(224,128,60,.4);letter-spacing:.22em}
+.sc-icon{width:64px;height:64px;margin-bottom:18px;display:flex;align-items:center;justify-content:center}
+.exp-mobile .sc-icon{width:54px;height:54px;margin-bottom:14px}
+.sc-icon svg{width:100%;height:100%;overflow:visible}
+.sc-name{font-family:var(--fh);font-size:15px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--wh)}
+.exp-mobile .sc-name{font-size:12.5px;letter-spacing:.12em}
+.sc-card:hover .sc-name{color:var(--lm);transition:color .3s}
+/* icon anims — magenta strokes, lime energy */
+.ic-edit .track{stroke:var(--md);fill:none;stroke-width:1.5}
+.ic-edit .clip{fill:var(--gr)}
+.ic-edit .clip1{animation:icClip 4s ease-in-out infinite}
+.ic-edit .clip2{animation:icClip 4s ease-in-out 1.1s infinite}
+.ic-edit .clip3{animation:icClip 4s ease-in-out 2.2s infinite}
+@keyframes icClip{0%,100%{fill:#1c2b33}12%,30%{fill:rgba(224,128,60,.55)}}
+.ic-edit .phg{animation:icPh 4s ease-in-out infinite}
+@keyframes icPh{0%,100%{transform:translateX(0)}50%{transform:translateX(30px)}}
+.ic-edit .ph{stroke:var(--lm);stroke-width:1.5;filter:drop-shadow(0 0 3px rgba(62,224,208,.5))}
+.ic-edit .ph-head{fill:var(--lm)}
+.ic-motion .bolt{fill:none;stroke:var(--yw);stroke-width:1.5;stroke-linejoin:round;animation:icBolt 2.6s cubic-bezier(.34,1.56,.64,1) infinite;transform-origin:center;filter:drop-shadow(0 0 4px rgba(224,128,60,.5))}
+@keyframes icBolt{0%,100%{transform:scale(1) rotate(0deg)}40%{transform:scale(1.14) rotate(4deg)}60%{transform:scale(.96) rotate(-2deg)}}
+.ic-motion .orbit{fill:none;stroke:var(--md);stroke-width:1;stroke-dasharray:3 5;animation:icOrbit 7s linear infinite;transform-origin:center}
+@keyframes icOrbit{to{transform:rotate(360deg)}}
+.ic-motion .spark{fill:var(--lm);animation:icSpark 2.6s ease-in-out infinite;transform-origin:center}
+@keyframes icSpark{0%,100%{opacity:0;transform:scale(.4)}45%,55%{opacity:1;transform:scale(1)}}
+.ic-vfx .layer{fill:none;stroke-width:1.5;transform-origin:center}
+.ic-vfx .l-top{stroke:var(--yw);animation:icLT 3.4s ease-in-out infinite;filter:drop-shadow(0 0 4px rgba(224,128,60,.4))}
+.ic-vfx .l-mid{stroke:var(--sv)}
+.ic-vfx .l-bot{stroke:var(--md);animation:icLB 3.4s ease-in-out infinite}
+@keyframes icLT{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes icLB{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
+.ic-color .wheel{transform-origin:center;animation:icWheel 9s linear infinite}
+@keyframes icWheel{to{transform:rotate(360deg)}}
+.ic-color .c1{fill:rgba(224,128,60,.45);mix-blend-mode:screen}
+.ic-color .c2{fill:rgba(62,224,208,.3);mix-blend-mode:screen}
+.ic-color .c3{fill:rgba(95,212,255,.3);mix-blend-mode:screen}
+.ic-color .center-dot{fill:var(--wh);animation:opacPulse 2.5s ease-in-out infinite}
+.ic-sound rect{fill:var(--lm);transform-origin:center bottom;filter:drop-shadow(0 0 3px rgba(62,224,208,.4))}
+.ic-sound .b1{animation:icBar .9s ease-in-out infinite}
+.ic-sound .b2{animation:icBar 1.1s ease-in-out .15s infinite}
+.ic-sound .b3{animation:icBar .8s ease-in-out .3s infinite}
+.ic-sound .b4{animation:icBar 1.2s ease-in-out .1s infinite}
+.ic-sound .b5{animation:icBar .95s ease-in-out .25s infinite}
+.ic-sound .b6{animation:icBar 1.05s ease-in-out .4s infinite}
+.ic-sound .b7{animation:icBar .85s ease-in-out .2s infinite}
+@keyframes icBar{0%,100%{transform:scaleY(.3);opacity:.5}50%{transform:scaleY(1);opacity:1}}
+.ic-dir .bracket{stroke:var(--yw);stroke-width:1.5;fill:none;animation:icBracket 3s ease-in-out infinite;transform-origin:center}
+@keyframes icBracket{0%,100%{transform:scale(1);opacity:.55}50%{transform:scale(.88);opacity:1}}
+.ic-dir .iris{fill:none;stroke:var(--sv);stroke-width:1.2;animation:icIris 3s ease-in-out infinite;transform-origin:center}
+@keyframes icIris{0%,100%{transform:scale(1)}50%{transform:scale(.7)}}
+.ic-dir .pupil{fill:var(--lm);animation:icIris 3s ease-in-out infinite;transform-origin:center}
+.ic-event .body{stroke:var(--sv);stroke-width:1.5;fill:none}
+.ic-event .lens-ring{stroke:var(--yw);stroke-width:1.3;fill:none;stroke-dasharray:4 4;animation:icLens 5s linear infinite;transform-origin:21px 26px}
+@keyframes icLens{to{transform:rotate(360deg)}}
+.ic-event .lens-core{fill:none;stroke:var(--md);stroke-width:1}
+.ic-event .rec{fill:var(--yw);animation:icRec 1.4s steps(1) infinite}
+@keyframes icRec{0%,60%{opacity:1}61%,100%{opacity:0}}
+.ic-ai .node{fill:var(--gr);stroke:var(--sv);stroke-width:1}
+.ic-ai .n1{animation:icNode 3.2s ease-in-out 0s infinite}
+.ic-ai .n2{animation:icNode 3.2s ease-in-out .5s infinite}
+.ic-ai .n3{animation:icNode 3.2s ease-in-out 1s infinite}
+.ic-ai .n4{animation:icNode 3.2s ease-in-out 1.5s infinite}
+.ic-ai .n5{animation:icNode 3.2s ease-in-out 2s infinite}
+@keyframes icNode{0%,100%{fill:#1c2b33;stroke:var(--sv)}12%,25%{fill:rgba(224,128,60,.6);stroke:var(--yw)}}
+.ic-ai .link{stroke:var(--md);stroke-width:1}
+.ic-ai .signal{fill:var(--lm);filter:drop-shadow(0 0 3px rgba(62,224,208,.6))}
+.ic-ai .s1{animation:icSig1 3.2s linear infinite}
+.ic-ai .s2{animation:icSig2 3.2s linear infinite}
+@keyframes icSig1{0%{transform:translate(0,0);opacity:0}5%{opacity:1}45%{transform:translate(20px,-12px);opacity:1}50%,100%{opacity:0}}
+@keyframes icSig2{0%,45%{opacity:0}50%{transform:translate(0,0);opacity:1}90%{transform:translate(18px,14px);opacity:1}95%,100%{opacity:0}}
+
+/* ═══ PIPELINE ═══ */
+#pipeline{background:var(--bk)}
+.pipe-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:38px;flex-wrap:wrap;gap:16px}
+.pipe-ind{font-size:10px;color:var(--lm);letter-spacing:.18em;text-transform:uppercase;display:flex;align-items:center;gap:9px;animation:floatUD 5s ease-in-out .5s infinite}
+.pipe-ind::before{content:'';width:6px;height:6px;background:var(--lm);border-radius:50%;animation:pip 1.3s ease-in-out infinite;flex-shrink:0;box-shadow:0 0 6px var(--lm)}
+#active-stage{color:var(--wh)}
+.tl-rule{display:flex;align-items:flex-end;padding-left:104px;border-bottom:1px solid var(--bd);padding-bottom:5px;margin-bottom:7px}
+.exp-mobile .tl-rule{padding-left:64px}
+.tl-tk{flex:1;position:relative;font-size:8px;color:var(--mt);padding-left:2px;letter-spacing:.05em}
+.tl-tk::before{content:'';position:absolute;bottom:-1px;left:0;width:1px;height:5px;background:var(--gr)}
+.tl-tk:nth-child(3n)::before{height:9px;background:var(--md)}
+.exp-mobile .tl-tk span{display:none}
+.tl-rows{display:flex;flex-direction:column;gap:4px}
+.tl-row{display:flex;align-items:center;height:27px}
+.tl-rl{width:120px;font-size:10.5px;color:var(--mt);letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:5px;flex-shrink:0}
+.exp-mobile .tl-rl{width:64px;font-size:9px}
+.tl-rl svg{width:8px;height:8px;stroke:var(--mt);fill:none;stroke-width:1.5;flex-shrink:0}
+.tl-bd{flex:1;height:100%;background:var(--pn);border:1px solid var(--bd);position:relative;overflow:hidden}
+.stg{position:absolute;top:3px;bottom:3px;border-left:2px solid rgba(224,128,60,.45);background:var(--gr);display:flex;align-items:center;padding:0 7px;font-size:10px;color:var(--sv);letter-spacing:.06em;white-space:nowrap;opacity:0;transform:translateX(-6px);transition:opacity .4s,transform .4s}
+.stg.hi{border-left-color:var(--yw);background:rgba(224,128,60,.12);color:var(--yw)}
+.stg.visible{opacity:1;transform:translateX(0)}
+.exp-mobile .stg{font-size:7.5px;padding:0 4px}
+.tl-f{position:absolute;top:0;bottom:0;left:0;width:0%;background:rgba(224,128,60,.08);border-right:1.5px solid var(--yw);box-shadow:2px 0 6px rgba(224,128,60,.25);transition:width 1.1s var(--ease-out)}
+.kf{position:absolute;top:50%;transform:translateY(-50%) rotate(45deg);width:5px;height:5px;background:var(--lm);opacity:0;z-index:2;transition:opacity .3s}
+.kf.visible{opacity:.7}
+.tl-ph{position:absolute;top:-20px;bottom:0;width:1.5px;background:var(--lm);left:104px;z-index:8;box-shadow:0 0 7px rgba(62,224,208,.6);pointer-events:none}
+.exp-mobile .tl-ph{left:64px}
+.tl-ph::before{content:'\25bc';position:absolute;top:0;left:-5px;font-size:11px;color:var(--lm)}
+.tl-ph-tc{position:absolute;top:-15px;left:5px;font-size:8.5px;color:var(--lm);white-space:nowrap;background:rgba(4,7,10,.9);padding:1px 4px;letter-spacing:.08em}
+.tl-wv{position:absolute;inset:2px;display:flex;align-items:center;gap:1px;overflow:hidden}
+.tl-wvb{flex-shrink:0;width:2px;border-radius:1px;background:var(--lm);opacity:.38;animation:wvDance 1.5s ease-in-out infinite;transform-origin:center}
+@keyframes wvDance{0%,100%{transform:scaleY(.7)}50%{transform:scaleY(1.15)}}
+.pipe-prog{display:flex;align-items:center;gap:10px;margin-top:14px}
+.pipe-prog span{font-size:9.5px;color:var(--mt);letter-spacing:.13em}
+.pipe-prog-bar{flex:1;height:1px;background:var(--gr);position:relative}
+.pp-fill{position:absolute;top:0;left:0;height:100%;background:var(--yw);width:0%;box-shadow:0 0 5px var(--yw)}
+#pipe-pct{color:var(--lm)}
+.pipe-dots{display:flex;gap:3px;margin-top:18px}
+.pd{flex:1;height:2px;background:var(--gr);position:relative;transition:background .3s,box-shadow .3s}
+.pd::after{content:attr(data-l);position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);font-size:7.5px;color:var(--mt);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.exp-mobile .pd::after{display:none}
+.pd.done{background:var(--yw)}
+.pd.act{background:var(--lm);box-shadow:0 0 5px var(--lm)}
+
+/* ═══ PHILOSOPHY / CLIENTS / CONTACT / FOOTER / MODAL ═══ */
+#philosophy{background:var(--dk);position:relative;overflow:hidden}
+.exp-mobile #philosophy .sp{padding-top:80px;padding-bottom:80px}
+.phi-glow{position:absolute;inset:0;background:radial-gradient(ellipse 48% 65% at 50% 50%,rgba(224,128,60,.04),transparent 70%);animation:breathe 11s ease-in-out infinite;pointer-events:none}
+#clients{border-top:1px solid var(--bd);background:var(--bk);overflow:hidden}
+.cb{overflow:hidden;margin-top:36px;position:relative}
+.cb::before,.cb::after{content:'';position:absolute;top:0;bottom:0;width:70px;z-index:2;pointer-events:none}
+.cb::before{left:0;background:linear-gradient(to right,var(--bk),transparent)}
+.cb::after{right:0;background:linear-gradient(to left,var(--bk),transparent)}
+.cl-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.ct{display:flex;animation:loopL 62s linear infinite;will-change:transform}
+.ct-r{animation:loopR 74s linear infinite}
+.cb-2{margin-top:3px}
+/* client plates — monogram mark + wordmark, sized to the name */
+.cc{flex-shrink:0;height:54px;display:flex;align-items:center;gap:11px;padding:0 22px;border-right:1px solid var(--bd);transition:background .25s}
+.cc:hover{background:var(--yg)}
+.cc-m{font-family:var(--fn);font-size:10px;font-weight:700;letter-spacing:.05em;color:var(--cy);border:1px solid rgba(95,212,255,.22);background:rgba(95,212,255,.04);padding:5px 6px;min-width:36px;text-align:center;line-height:1;transition:color .25s,border-color .25s,background .25s}
+.cc:hover .cc-m{color:var(--bk);background:var(--yw);border-color:var(--yw)}
+/* real client logos — any source colour is flattened to a white silhouette so the
+   wall stays monochrome and consistent. Needs transparent PNG/SVG artwork: an
+   opaque background would render as a solid white block. */
+.cc-logo{height:26px;width:auto;max-width:120px;object-fit:contain;flex-shrink:0;
+  filter:grayscale(1) brightness(0) invert(.76);opacity:.9;
+  transition:filter .25s,opacity .25s}
+.cc:hover .cc-logo{filter:grayscale(1) brightness(0) invert(1);opacity:1}
+.exp-mobile .cc-logo{height:22px;max-width:104px}
+.cc-n{font-family:var(--fh);font-size:14.5px;font-weight:300;letter-spacing:.2em;text-transform:uppercase;color:var(--sv);text-shadow:0 0 14px rgba(163,186,195,.25);transition:color .25s;white-space:nowrap}
+.cc:hover .cc-n{color:var(--yw)}
+.exp-mobile .cc{height:48px;gap:9px;padding:0 16px}
+.exp-mobile .cc-n{font-size:13px;letter-spacing:.14em}
+#contact{position:relative;overflow:hidden;border-top:1px solid var(--bd);background:var(--bk)}
+.c-bg-glow{position:absolute;bottom:-18%;left:50%;transform:translateX(-50%);width:500px;height:300px;background:radial-gradient(ellipse at bottom,rgba(224,128,60,.05),transparent 70%);pointer-events:none}
+.cg{max-width:1360px;margin:0 auto;padding:100px clamp(18px,5vw,60px);display:grid;grid-template-columns:1fr 1fr;column-gap:56px;row-gap:38px;align-items:start;position:relative;z-index:2}
+/* the headline runs the full width, both stacks begin under it */
+#c-head{grid-column:1/-1}
+.exp-mobile .cg{grid-template-columns:1fr;gap:36px;padding:72px 20px 110px}
+.c-pre{font-size:12px;color:var(--cy);letter-spacing:.28em;text-transform:uppercase;margin-bottom:16px;opacity:.7;animation:floatUD 5.5s ease-in-out infinite}
+.c-h2{font-family:var(--fd);font-size:clamp(34px,5vw,70px);line-height:.88;color:var(--wh);margin-bottom:24px;letter-spacing:.02em}
+.exp-mobile .c-h2{font-size:clamp(38px,11vw,52px)}
+.c-h2 .l1{display:block;animation:floatUD 6s ease-in-out 0s infinite}
+.c-h2 .l2{display:block;animation:floatLR 7s ease-in-out .35s infinite}
+.c-h2 .l3{display:block;animation:floatUD 5.5s ease-in-out .75s infinite}
+.c-h2 .l4{display:block;color:var(--yw);text-shadow:0 0 40px rgba(224,128,60,.3);animation:floatUD 5s ease-in-out 1.15s infinite}
+/* The contact block used to be three 14px rows with 23px icons, sitting
+   beside social cards four times their size — so the number you actually
+   want somebody to press was the smallest thing on the screen.
+
+   Both columns are the same component now. The rule is that size follows
+   function: WhatsApp, the phone and the email are things you press, so they
+   are cards at the same scale as the social links, and the two columns
+   mirror each other. Where he is and what he does are facts you read once,
+   so they drop to a line of meta under the heading. Making everything
+   equally large would have been the easy read of "same size"; making the
+   pressable things equal is the useful one. */
+.c-meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:30px;
+  font-size:11px;letter-spacing:.16em;color:var(--mt);text-transform:uppercase}
+.c-meta i{color:var(--md);font-style:normal}
+.c-meta b{color:var(--yw);font-weight:400}
+.exp-mobile .c-meta{margin-bottom:22px;font-size:10px;letter-spacing:.12em}
+
+/* WhatsApp is the one people actually use, so it is lit before you touch it
+   — and the palette's lime happens to be the green it wants anyway. */
+.cs2.wa .cs2-ic{color:var(--lm);border-color:rgba(62,224,208,.4)}
+/* On a social card the handle is a nicety and mobile drops it. On a reach
+   card it IS the point, so it stays, on its own line where it fits. */
+.cs2.reach .cs2-h{font-size:11.5px;color:var(--sv);letter-spacing:.1em}
+.cs2.reach:hover .cs2-h{color:var(--lm)}
+.exp-mobile .cs2.reach{flex-wrap:wrap;row-gap:6px}
+.exp-mobile .cs2.reach .cs2-h{display:block;order:4;width:100%;margin-left:52px;
+  font-size:11px}
+.exp-mobile .cs2.reach .cs2-a{margin-left:auto}
+.c-soc{display:flex;gap:5px;margin-bottom:26px}
+.c-sb{width:34px;height:34px;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--mt);text-decoration:none;letter-spacing:.1em;transition:all .25s var(--ease-out)}
+.c-sb:hover{border-color:var(--yw);color:var(--yw);background:var(--yg);transform:rotate(-5deg) scale(1.1)}
+.c-frame{position:relative;display:inline-block;padding:14px 22px;text-decoration:none}
+.c-ft,.c-fb{position:absolute;left:0;right:0;height:1px;background:var(--yw)}
+.c-ft{top:0;animation:cfh 2.8s ease-in-out infinite}
+.c-fb{bottom:0;animation:cfh 2.8s ease-in-out infinite reverse}
+.c-fl,.c-fr{position:absolute;top:0;bottom:0;width:1px;background:var(--yw)}
+.c-fl{left:0;animation:cfv 2.8s ease-in-out infinite 1.4s}
+.c-fr{right:0;animation:cfv 2.8s ease-in-out infinite .4s}
+@keyframes cfh{0%,100%{transform:scaleX(.15);transform-origin:left}50%{transform:scaleX(1)}}
+@keyframes cfv{0%,100%{transform:scaleY(.15);transform-origin:top}50%{transform:scaleY(1)}}
+.c-fi{font-size:10.5px;letter-spacing:.2em;color:var(--yw);text-decoration:none;text-transform:uppercase}
+.cf{display:flex;flex-direction:column;gap:2px}
+.cf-hd{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.cf-hd span{font-size:11px;color:var(--mt);letter-spacing:.18em;text-transform:uppercase}
+.cf-hd-l{flex:1;height:1px;background:var(--bd)}
+.cf-hd-a{width:15px;height:15px;border:1px solid var(--lm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cf-hd-a svg{width:8px;height:8px;stroke:var(--lm);fill:none;stroke-width:2}
+.cf-r2{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.cf-f{display:flex;flex-direction:column}
+.cf-f label{font-size:10px;color:var(--mt);letter-spacing:.18em;text-transform:uppercase;padding:6px 10px 0;background:var(--pn);border:1px solid var(--bd);border-bottom:none}
+.cf-f input,.cf-f select,.cf-f textarea{background:var(--pn);border:1px solid var(--bd);border-top:none;color:var(--wh);font-family:var(--fn);font-size:12px;padding:10px;outline:none;transition:border-color .2s;resize:none;-webkit-appearance:none;appearance:none;border-radius:0}
+.cf-f input:focus,.cf-f select:focus,.cf-f textarea:focus{border-color:rgba(224,128,60,.5)}
+.cf-f input::placeholder,.cf-f textarea::placeholder{color:var(--mt)}
+.cf-f select option{background:var(--pn)}
+.cf-sub{margin-top:2px;background:var(--lm);border:none;color:var(--bk);font-family:var(--fn);font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s,box-shadow .2s;width:100%;cursor:pointer}
+.exp-desktop .cf-sub{cursor:none}
+.cf-sub svg{width:11px;height:11px;stroke:var(--bk);fill:none;stroke-width:2}
+.cf-sub:hover{background:var(--wh);box-shadow:0 0 20px rgba(62,224,208,.3)}
+footer{position:relative;background:var(--ch);border-top:1px solid var(--bd);z-index:5;overflow:hidden}
+.exp-mobile footer .ft-main{padding-bottom:calc(86px + env(safe-area-inset-bottom))}
+/* ═══ CREATIVE FOOTER ═══ */
+/* Signal bars, not a level meter. They are thin and many, coloured from the
+   404 deck's test pattern, and they STEP between heights — a meter glides,
+   a torn signal jumps. chrome.js builds them so the count follows the width
+   and every page gets the same strip. */
+.ft-bars{display:flex;align-items:flex-end;justify-content:space-between;gap:0;
+  height:30px;padding:0 clamp(18px,4vw,40px);border-bottom:1px solid var(--bd);
+  overflow:hidden}
+.ft-bars i{flex:0 0 3px;height:14%;opacity:.34;animation-name:ftGl;
+  animation-timing-function:steps(1);animation-iteration-count:infinite}
+.ft-bars i.hot{opacity:.85;box-shadow:0 0 8px currentColor}
+@keyframes ftGl{
+  0%{height:12%}  9%{height:64%} 18%{height:22%} 27%{height:88%}
+ 36%{height:34%} 45%{height:16%} 54%{height:72%} 63%{height:28%}
+ 72%{height:96%} 81%{height:20%} 90%{height:48%} 100%{height:12%}
+}
+.ft-main{display:flex;flex-direction:column;align-items:center;text-align:center;padding:44px clamp(18px,4vw,40px) 36px;gap:14px}
+.ft-big{font-family:var(--fd);font-size:clamp(54px,9vw,120px);line-height:.9;color:var(--wh);letter-spacing:.04em}
+.ft-tag{font-size:10.5px;letter-spacing:.34em;color:var(--mt);text-transform:uppercase}
+.ft-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;font-size:10.5px;color:var(--mt);letter-spacing:.12em;margin-top:8px}
+.ft-meta b{color:var(--yw);font-weight:400}
+.ft-dot{font-size:6px;color:var(--md)}
+.ft-tc{color:var(--lm)}
+#modal{position:fixed;inset:0;z-index:9000;background:rgba(3,5,8,.96);backdrop-filter:blur(24px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .36s,visibility .36s}
+#modal.open{opacity:1;visibility:visible}
+.m-inner{width:min(92vw,1040px);position:relative}
+.m-close{position:absolute;top:-38px;right:0;font-size:11px;color:var(--mt);letter-spacing:.2em;display:flex;align-items:center;gap:6px;transition:color .2s;cursor:pointer;padding:10px 4px 10px 14px}
+.exp-desktop .m-close{cursor:none}
+.m-close:hover{color:var(--yw)}
+.m-frame{position:relative;padding-bottom:56.25%;background:#000;border:1px solid rgba(224,128,60,.4);box-shadow:0 0 40px rgba(224,128,60,.15)}
+.m-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.m-meta{display:flex;align-items:center;justify-content:space-between;
+  margin-top:10px;flex-wrap:wrap;gap:8px 10px}
+.m-title{font-family:var(--fh);font-size:15px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--wh)}
+.m-title.ar{font-family:var(--fa);letter-spacing:0;text-transform:none;direction:rtl}
+.m-tc{font-size:9.5px;color:var(--sv);letter-spacing:.11em;text-transform:uppercase}
+
+/* ═══ PORTRAIT MARK (black-bg art → screen blend) ═══ */
+/* The portrait carries its own transparency now, so all the machinery that
+   used to fake it is gone: no screen blend to drop a black square, no
+   contrast lift to crush the square to true black first, and no plate
+   painted underneath for the blend to reach. A cut-out simply sits on
+   whatever is behind it, which is what was wanted all along. */
+.l-face{width:clamp(130px,24vw,200px);height:auto;
+  animation:faceSlip 5.7s steps(1) infinite}
+
+/* ═══ ABOUT — CV SECTION ═══ */
+.ab-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.ab-tag{font-size:13px;letter-spacing:.2em;color:var(--cy);margin-top:16px;text-transform:uppercase}
+.ab-tag b{color:var(--yw);font-weight:700}
+/* the same line in Arabic. Arabic has no case and no letter-spacing worth
+   the name — tracking it out breaks the joins between letters — so it takes
+   its weight from size and colour instead, and sits at the type family the
+   page already loads for it. */
+.ab-exp{margin-top:22px;display:flex;align-items:center;gap:20px;border:1px solid var(--bd);background:var(--ch);padding:16px 22px;position:relative;overflow:hidden}
+.ab-exp::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yw),var(--lm));animation:scanX 3s linear infinite}
+@keyframes scanX{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.ab-exp-n{font-family:var(--fd);font-size:clamp(48px,5.5vw,76px);line-height:.9;color:var(--lm);text-shadow:0 0 30px rgba(62,224,208,.35);flex-shrink:0}
+.ab-exp-k{font-size:12px;letter-spacing:.26em;color:var(--wh)}
+.ab-exp-tc{font-size:10px;letter-spacing:.18em;color:var(--mt);margin-top:6px}
+.ab-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(24px,3.5vw,54px);margin-top:44px;align-items:start}
+.exp-mobile .ab-grid{grid-template-columns:1fr}
+.ab-body{font-size:clamp(14px,1.4vw,17px);line-height:1.8;color:var(--sv);max-width:54ch}
+.ab-body strong{color:var(--wh);font-weight:600}
+.ab-quote{font-family:var(--fh);font-size:clamp(17px,1.9vw,24px);font-weight:300;line-height:1.45;color:var(--wh);letter-spacing:.04em;text-transform:uppercase;border-left:2px solid var(--yw);padding:14px 0 14px 20px;margin:26px 0;position:relative}
+.ab-quote em{font-style:normal;color:var(--yw);text-shadow:0 0 22px rgba(224,128,60,.4)}
+.ab-quote em.l{color:var(--lm);text-shadow:0 0 22px rgba(62,224,208,.4)}
+.ab-q-mark{color:var(--md)}
+.ab-edu{display:flex;align-items:center;gap:14px;border:1px solid var(--bd);background:var(--ch);padding:14px 18px;margin-bottom:26px}
+.ab-edu-ic{width:34px;height:34px;border:1px solid var(--md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ab-edu-ic svg{width:18px;height:18px;fill:none;stroke:var(--cy);stroke-width:1.4}
+.ab-edu-t{font-size:12px;letter-spacing:.16em;color:var(--wh)}
+.ab-edu-y{font-size:10px;letter-spacing:.2em;color:var(--mt);margin-top:4px}
+/* toolkit rack — mixer channels */
+.ab-rack{border:1px solid var(--bd);background:var(--ch);padding:16px 18px 18px}
+.ab-rack-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ab-rack-t{font-size:13px;letter-spacing:.24em;color:var(--wh)}
+.ab-rack-t b{color:var(--mt);font-weight:400}
+.ab-rack-rec{font-size:11px;letter-spacing:.2em;color:var(--yw);animation:pip 1.6s ease-in-out infinite}
+.ab-ch{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid rgba(255,255,255,.04)}
+.ab-ch-chip{width:26px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;letter-spacing:.04em;flex-shrink:0;border:1px solid}
+.ab-ch-chip.m{color:var(--yw);border-color:rgba(224,128,60,.5);background:rgba(224,128,60,.08)}
+.ab-ch-chip.l{color:var(--lm);border-color:rgba(62,224,208,.5);background:rgba(62,224,208,.08)}
+.ab-ch-chip.c{color:var(--cy);border-color:rgba(95,212,255,.5);background:rgba(95,212,255,.08)}
+.ab-ch-n{font-size:12px;letter-spacing:.14em;color:var(--sv);width:162px;flex-shrink:0;white-space:nowrap}
+.ab-m{flex:1;height:8px;background:repeating-linear-gradient(90deg,var(--gr) 0 4px,transparent 4px 6px);position:relative;overflow:hidden}
+.ab-m-f{position:absolute;inset:0;transform-origin:left;background:repeating-linear-gradient(90deg,var(--lm) 0 4px,transparent 4px 6px);opacity:.9}
+.ab-m-f.m1{animation:meter 1.9s ease-in-out infinite}
+.ab-m-f.m2{animation:meter 2.3s ease-in-out .3s infinite}
+.ab-m-f.m3{animation:meter 1.7s ease-in-out .6s infinite}
+.ab-m-f.m4{animation:meter 2.6s ease-in-out .2s infinite;background:repeating-linear-gradient(90deg,var(--cy) 0 4px,transparent 4px 6px)}
+.ab-m-f.m5{animation:meter 2.1s ease-in-out .8s infinite;background:repeating-linear-gradient(90deg,var(--cy) 0 4px,transparent 4px 6px)}
+@keyframes meter{0%,100%{transform:scaleX(.62)}40%{transform:scaleX(.97)}65%{transform:scaleX(.78)}}
+/* career timeline — gantt */
+.ab-tl-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.ab-tl-t{font-family:var(--fh);font-size:15px;letter-spacing:.14em;color:var(--wh);text-transform:uppercase}
+.ab-tl-t b{color:var(--yw);font-weight:400}
+.ab-tl-now{font-size:11.5px;letter-spacing:.18em;color:var(--mt)}
+.ab-tl-now b{color:var(--lm);font-weight:400}
+.ab-tl{position:relative;border:1px solid var(--bd);background:var(--ch);padding:34px 16px 16px}
+.ab-rule{position:absolute;top:0;left:16px;right:16px;height:26px;border-bottom:1px solid var(--bd)}
+.ab-rule span{position:absolute;top:7px;transform:translateX(-50%);font-size:10.5px;letter-spacing:.14em;color:var(--mt)}
+.ab-rule span:first-child{transform:none}
+.ab-rule span.end{transform:translateX(-100%);color:var(--lm)}
+.ab-ph{position:absolute;top:0;bottom:0;left:16px;width:1px;background:var(--yw);z-index:5;pointer-events:none;animation:abScrub 9s linear infinite;box-shadow:0 0 10px rgba(224,128,60,.6)}
+.ab-ph-head{position:absolute;top:0;left:-4.5px;width:10px;height:10px;background:var(--yw);clip-path:polygon(0 0,100% 0,50% 100%)}
+@keyframes abScrub{0%{left:16px}100%{left:calc(100% - 16px)}}
+.ab-row{display:flex;align-items:center;gap:10px;padding:6px 0}
+.ab-rl{width:152px;flex-shrink:0;font-size:11px;letter-spacing:.14em;color:var(--sv);text-align:right}
+.ab-bd{flex:1;position:relative;height:26px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04)}
+.ab-clip{position:absolute;top:2px;bottom:2px;background:rgba(224,128,60,.13);border:1px solid rgba(224,128,60,.4);border-left:3px solid var(--yw);display:flex;align-items:center;padding:0 4px;overflow:hidden}
+.ab-clip i{font-style:normal;font-size:10.5px;letter-spacing:.02em;color:rgba(255,255,255,.75);white-space:nowrap}
+.ab-clip.hi{background:rgba(224,128,60,.22)}
+.ab-clip::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);transform:translateX(-100%);animation:clipSheen 3.4s ease-in-out infinite}
+@keyframes clipSheen{0%,55%{transform:translateX(-100%)}85%,100%{transform:translateX(100%)}}
+.ab-clip.live{background:rgba(62,224,208,.14);border-color:rgba(62,224,208,.5);border-left-color:var(--lm);justify-content:space-between}
+.ab-clip.live i{color:var(--lm)}
+.ab-live{font-size:9.5px;letter-spacing:.16em;color:var(--lm);animation:pip 1.4s ease-in-out infinite;white-space:nowrap}
+.ab-kf{position:absolute;top:50%;width:7px;height:7px;background:var(--cy);transform:translate(-50%,-50%) rotate(45deg);box-shadow:0 0 8px rgba(95,212,255,.7);animation:pip 2.2s ease-in-out infinite;z-index:3}
+.ab-tl-ft{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:10.5px;letter-spacing:.18em;color:var(--mt)}
+.ab-tl-ft-r{color:var(--md)}
+/* about responsive */
+@media(max-width:980px){
+  .ab-grid{grid-template-columns:1fr}
+  .ab-exp{text-align:left}
+}
+.exp-mobile .ab-rl{width:100px;font-size:9.5px}
+.exp-mobile .ab-clip i{display:none}
+.exp-mobile .ab-clip.live i{display:block}
+.exp-mobile .ab-ch-n{width:92px;font-size:10.5px}
+.exp-mobile .ab-quote{font-size:15px}
+
+/* ═══ DIRECT GROUP MARK ═══ */
+.dg-gif{height:18px;width:auto;mix-blend-mode:screen;display:inline-block;vertical-align:middle;margin:0 2px}
+.dg-gif-c{height:15px;margin:0 5px 0 2px;vertical-align:-3px}
+
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+
+
+/* ═══ CV PORTRAIT (entrance + glitch loop) ═══ */
+/* portrait + the follow card stack together on the right of the About header */
+/* mix-blend-mode blends an element with its backdrop, and "its backdrop"
+   stops at the nearest ancestor that forms a stacking context. That ancestor
+   here is .sp, which carries a z-index and NO background — so the portrait
+   was screening against nothing at all, staying an opaque black square, and
+   then that square composited over the section's navy as a black hole. The
+   section's colour is real but it lives two levels further up, out of reach.
+
+   Giving this box the section's own colour puts the right thing underneath
+   the image. It is exactly the size of the portrait and the same value the
+   section already paints, so nothing new is visible — it just gives screen
+   something true to work against. */
+.ab-face{position:relative;width:clamp(150px,16vw,230px);flex-shrink:0;
+  align-self:flex-end}
+/* Instagram follow — a light sweeps the border, the way a story ring reads,
+   but in the studio's own palette rather than Instagram's */
+.ab-ig{position:relative;display:block;margin-top:14px;padding:1px;text-decoration:none;overflow:hidden;background:var(--bd)}
+.exp-desktop .ab-ig{cursor:none}
+.ab-ig-sweep{position:absolute;inset:-70%;pointer-events:none;
+  background:conic-gradient(from 0turn,transparent 0 58%,var(--yw) 72%,var(--lm) 84%,var(--cy) 94%,transparent 100%);
+  animation:igSweep 4.5s linear infinite;opacity:.55;transition:opacity .35s}
+.ab-ig:hover .ab-ig-sweep{opacity:1;animation-duration:1.6s}
+.ab-ig-in{position:relative;z-index:1;display:flex;align-items:center;gap:18px;padding:20px 22px;background:#070c10;transition:background .3s}
+.ab-ig:hover .ab-ig-in{background:#091116}
+.ab-ig-ic{position:relative;flex-shrink:0;width:52px;height:52px;display:flex;align-items:center;justify-content:center;color:var(--wh);transition:color .3s}
+.ab-ig-ic svg{width:28px;height:28px}
+.ab-ig-ic::after{content:'';position:absolute;inset:0;border-radius:50%;border:1px solid rgba(224,128,60,.45);animation:igHalo 3.2s ease-out infinite}
+.ab-ig:hover .ab-ig-ic{color:var(--lm)}
+.ab-ig-txt{display:flex;flex-direction:column;gap:5px;min-width:0;line-height:1.15}
+.ab-ig-txt b{font-family:var(--fn);font-size:19px;font-weight:700;letter-spacing:.02em;color:var(--wh);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ab-ig-txt i{font-style:normal;font-size:11px;letter-spacing:.22em;color:var(--mt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp-mobile .ab-ig-in{padding:15px 16px;gap:13px}
+.exp-mobile .ab-ig-ic{width:42px;height:42px}
+.exp-mobile .ab-ig-ic svg{width:23px;height:23px}
+.exp-mobile .ab-ig-txt b{font-size:16px}
+.exp-mobile .ab-ig-txt i{font-size:10px;letter-spacing:.16em}
+.ab-ig:hover .ab-ig-txt i{color:var(--cy)}
+.ab-ig-go{margin-left:auto;font-size:20px;color:var(--mt);flex-shrink:0;transition:transform .3s,color .3s}
+.ab-ig:hover .ab-ig-go{color:var(--lm);transform:translate(2px,-2px)}
+@keyframes igSweep{to{transform:rotate(1turn)}}
+@keyframes igHalo{0%{transform:scale(.72);opacity:0}35%{opacity:.85}100%{transform:scale(1.25);opacity:0}}
+.ab-face img{width:100%;height:auto;display:block;
+  opacity:0;clip-path:inset(100% 0 0 0)}
+#philosophy .ab-face img{animation:abFaceIn 1.1s cubic-bezier(.22,1,.36,1) .35s forwards,
+  faceSlip 8.3s steps(1) 2.2s infinite, faceTint 13.1s steps(1) 3.7s infinite}
+@keyframes abFaceIn{0%{opacity:0;clip-path:inset(100% 0 0 0);transform:translateY(26px)}60%{opacity:1}100%{opacity:1;clip-path:inset(0 0 0 0);transform:none}}
+/* Small and rare. The old one threw the face four pixels sideways and
+   sheared it two degrees on a single seven-second loop — big enough to
+   read as a wobble and regular enough to learn. These shift one or two
+   pixels and slice a thin band, and the two loops have lengths sharing no
+   factor, so what they make together does not come back round for about
+   eighteen minutes. Displacement and tint are kept apart because two
+   animations touching filter would simply overwrite each other. */
+@keyframes faceSlip{
+  0%,95.2%{transform:none;clip-path:inset(0 0 0 0)}
+  95.4%{transform:translateX(-2px);clip-path:inset(34% 0 52% 0)}
+  95.7%{transform:translateX(2px);clip-path:inset(9% 0 76% 0)}
+  96%{transform:translateY(-1px);clip-path:inset(0 0 0 0)}
+  96.3%,100%{transform:none}
+}
+@keyframes faceTint{
+  0%,97%{filter:none}
+  97.3%{filter:saturate(2.4) hue-rotate(50deg)}
+  97.6%{filter:saturate(1.6) hue-rotate(-45deg)}
+  97.9%,100%{filter:none}
+}
+@media (prefers-reduced-motion:reduce){.l-face,.ab-face img{animation-name:abFaceIn}}
+.ab-face-tc{position:absolute;bottom:6px;left:0;font-size:9.5px;letter-spacing:.18em;color:var(--cy);opacity:0;text-shadow:0 0 10px rgba(95,212,255,.5)}
+#philosophy .ab-face-tc{animation:abTcIn .5s ease 1.3s forwards}
+@keyframes abTcIn{to{opacity:.85}}
+.exp-mobile .ab-face{align-self:center;width:170px}
+.ab-head{align-items:flex-end}
+
+/* ═══ 15+ YEARS waveform filler ═══ */
+.ab-exp-side{flex:1}
+.ab-exp-wave{display:flex;align-items:center;gap:4px;height:40px;flex-shrink:0}
+.ab-exp-wave i{width:4px;background:var(--yw);opacity:.65;animation:ftEq 1.4s ease-in-out infinite;border-radius:1px}
+.ab-exp-wave i:nth-child(2n){animation-delay:.25s;background:var(--lm)}
+.ab-exp-wave i:nth-child(3n){animation-delay:.5s}
+.ab-exp-wave i:nth-child(4n){animation-delay:.12s;background:var(--cy)}
+.exp-mobile .ab-exp-wave{display:none}
+
+/* ═══ GLITCH LOOP (shared — nav logo, footer, socials) ═══ */
+.g-loop{position:relative;display:inline-block}
+.g-loop::before,.g-loop::after{content:attr(data-txt);position:absolute;inset:0;opacity:0;pointer-events:none}
+.g-loop::before{color:var(--yw);animation:gLoopA 6s steps(1) infinite}
+.g-loop::after{color:var(--cy);animation:gLoopB 6s steps(1) .04s infinite}
+@keyframes gLoopA{0%,91%{opacity:0;transform:none;clip-path:inset(0 0 0 0)}92%{opacity:.9;transform:translate(-3px,1px);clip-path:inset(10% 0 55% 0)}93.2%{opacity:.9;transform:translate(2px,-1px);clip-path:inset(60% 0 8% 0)}94.4%{opacity:0}}
+@keyframes gLoopB{0%,91%{opacity:0;transform:none;clip-path:inset(0 0 0 0)}92%{opacity:.85;transform:translate(3px,-1px);clip-path:inset(45% 0 30% 0)}93.2%{opacity:.85;transform:translate(-2px,1px);clip-path:inset(5% 0 70% 0)}94.4%{opacity:0}}
+
+/* ═══ NAV LOGO — unified type + typing + glitch ═══ */
+.n-type{font-family:var(--fh);font-size:14.5px;font-weight:600;letter-spacing:.3em;color:var(--wh);text-transform:uppercase;white-space:nowrap;overflow:hidden;border-right:1.5px solid var(--lm);animation:nType 3.2s steps(13) .4s both, nCaret 1s steps(1) infinite;position:relative}
+.n-type b{color:var(--yw);font-weight:600}
+@keyframes nType{0%{max-width:0}100%{max-width:220px}}
+@keyframes nCaret{0%,49%{border-right-color:var(--lm)}50%,100%{border-right-color:transparent}}
+.n-logo{position:relative}
+.n-logo::before,.n-logo::after{content:'AHMED GONAIM';font-family:var(--fh);font-size:14.5px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:0;pointer-events:none;white-space:nowrap}
+.n-logo::before{color:var(--yw);animation:gLoopA 7s steps(1) 4s infinite}
+.n-logo::after{color:var(--cy);animation:gLoopB 7s steps(1) 4.05s infinite}
+
+/* ═══ SOCIAL LINKS (big, iconed, glitch) ═══ */
+/* pip carries a box-shadow, which is a glow on a round dot and a drawn
+   magenta rectangle around a run of text. This one only blinks. */
+.cs2-on{font-size:10px;letter-spacing:.2em;color:var(--lm);flex-shrink:0;
+  animation:pipTxt 1.6s ease-in-out infinite}
+@keyframes pipTxt{0%,100%{opacity:1}50%{opacity:.35}}
+.cs2-list{display:flex;flex-direction:column;gap:2px}
+.cs2{display:flex;align-items:center;gap:18px;padding:20px 22px;border:1px solid var(--bd);background:var(--pn);text-decoration:none;position:relative;overflow:hidden;transition:border-color .25s,background .25s}
+.cs2::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--yw);transform:scaleY(0);transition:transform .3s}
+.cs2:hover{border-color:rgba(224,128,60,.45);background:var(--gr)}
+.cs2:hover::before{transform:scaleY(1)}
+.cs2-ic{width:40px;height:40px;border:1px solid var(--md);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--sv);transition:all .25s}
+.cs2-ic svg{width:18px;height:18px;fill:currentColor}
+.cs2 .cs2-ic svg[fill="none"]{fill:none;stroke:currentColor}
+.cs2:hover .cs2-ic{color:var(--lm);border-color:rgba(62,224,208,.5);box-shadow:0 0 16px rgba(62,224,208,.18)}
+.cs2:hover .cs2-ic svg{animation:icGl .35s steps(2) 1}
+@keyframes icGl{0%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}100%{transform:none}}
+.cs2-t{font-family:var(--fh);font-size:clamp(17px,1.8vw,23px);font-weight:300;letter-spacing:.22em;color:var(--wh);text-transform:uppercase}
+.cs2:hover .cs2-t::before{animation-duration:.7s;animation-delay:0s}
+.cs2:hover .cs2-t::after{animation-duration:.7s;animation-delay:.04s}
+.cs2-h{font-size:10.5px;color:var(--mt);letter-spacing:.12em;margin-left:auto}
+.cs2-a{font-size:15px;color:var(--md);transition:all .25s;flex-shrink:0}
+.cs2:hover .cs2-a{color:var(--yw);transform:translate(3px,-3px)}
+.exp-mobile .cs2{padding:16px 16px;gap:12px}
+.exp-mobile .cs2-h{display:none}
+
+
+/* ── load more, phones only ─────────────────────────────────────────────
+   The grid is the heaviest thing on the page and a phone pays for all of it
+   at once, so it builds a screenful and a half and offers the rest. */
+.wg-more{display:flex;flex-direction:column;align-items:center;gap:9px;
+  padding:26px 20px 6px}
+.wg-more-btn{background:none;border:1px solid var(--bd);color:var(--wh);
+  font-family:var(--fn);font-size:11px;letter-spacing:.22em;padding:14px 26px;
+  cursor:pointer;transition:border-color .2s,color .2s,box-shadow .2s;
+  -webkit-tap-highlight-color:transparent}
+.wg-more-btn:active{border-color:var(--lm);color:var(--lm);
+  box-shadow:0 0 18px rgba(62,224,208,.2)}
+.wg-more-n{font-size:9.5px;letter-spacing:.2em;color:var(--mt)}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   THE PHONE BUILD
+
+   A phone is not a small desktop. It has a fraction of the memory and the
+   fill rate, and it is asked to composite all of this while the page is
+   being dragged under a thumb.
+
+   Measured, the ambient motion was not what made it stutter — the amount of
+   document was, which is why the grid now builds in pieces. But ambient
+   motion costs battery for as long as the page is open, and almost none of
+   it reads at this size anyway. So the phone keeps the colour, the type and
+   the structure, and gives up what only works at desk size.
+
+   Two things deliberately survive. mix-blend-mode on the portrait and the
+   mark, because there it is not decoration — it is what removes the black
+   plate behind them. And will-change on the progress bar, which is what
+   keeps it off the layout path.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* the full-screen overlays. chrome.js never builds the glitch layers on a
+   phone; this covers the scanlines, which live in the markup */
+/* Five labels across a 320px screen leaves each one exactly 64px, which is
+   precisely as wide as SERVICES needs and no wider. The smallest phones get
+   a smaller label so nothing sits against its own edge. */
+@media (max-width:360px){
+  #dock a{font-size:9px;letter-spacing:.06em;gap:3px}
+  #dock a svg{width:14px;height:14px}
+}
+
+/* every ambient loop stops */
+.exp-mobile *{animation:none!important}
+
+/* …except where the animation is not decoration but the only reason the
+   element is visible at all. These start at opacity 0 and are revealed by
+   a filling animation, so silencing it without this would simply delete
+   them from the page. */
+.exp-mobile .ab-face img,
+.exp-mobile .ab-face-tc{opacity:1!important;clip-path:none!important;transform:none!important}
+
+/* compositing work a phone should not be asked for */
+.exp-mobile nav,
+.exp-mobile #np,
+.exp-mobile .wc-pb,
+.exp-mobile #modal,
+.exp-mobile .ad-top,
+.exp-mobile .ad-sheet{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.exp-mobile .wc-thumb,
+.exp-mobile .wc.arch .wc-thumb,
+.exp-mobile .ai-cover{filter:none!important}
+.exp-mobile .ai-noise,
+.exp-mobile .ai-scanline,
+.exp-mobile .wc-art{display:none!important}
+
+/* a promoted layer is GPU memory held whether or not anything moves */
+.exp-mobile *:not(#prog){will-change:auto!important}
+
+/* ══ PIXL — the little screen that lives here ═════════════════════════
+   Fixed to the bottom of the window and moved with a transform, so it
+   never touches layout and never causes one. The wrapper takes no
+   pointer events; only the character itself does, or a mascot would be
+   an invisible wall across the bottom of every page. */
+#pixl{position:fixed;left:0;top:0;z-index:7000;pointer-events:none;
+  will-change:transform;transition:opacity .3s,visibility .3s}
+#pixl.away{opacity:0;visibility:hidden}
+.pixl-cv{display:block;pointer-events:auto;cursor:grab;touch-action:none;
+  image-rendering:pixelated;image-rendering:crisp-edges;
+  filter:drop-shadow(0 6px 18px rgba(0,0,0,.55));
+  transform-origin:50% 100%;transition:filter .25s}
+.pixl-cv:hover{filter:drop-shadow(0 0 16px rgba(95,212,255,.4))
+  drop-shadow(0 6px 18px rgba(0,0,0,.55))}
+/* held: it lifts off the page and the cursor says so */
+#pixl.held .pixl-cv{cursor:grabbing;
+  filter:drop-shadow(0 0 26px rgba(95,212,255,.5)) drop-shadow(0 18px 26px rgba(0,0,0,.6))}
+
+/* The bubble is the site's own furniture: mono, uppercase, a hard edge
+   and a square tail — no rounded cartoon balloon, because nothing else
+   here is rounded. */
+.pixl-bub{position:absolute;left:50%;bottom:calc(100% + 12px);
+  transform-origin:0 100%;translate:-50% 0;
+  background:var(--pn);border:1px solid var(--cy);padding:8px 12px;
+  white-space:nowrap;opacity:0;visibility:hidden;
+  transition:opacity .22s var(--ease-out),visibility .22s;
+  box-shadow:0 0 22px rgba(95,212,255,.18)}
+.pixl-bub b{font-family:var(--fn);font-size:11px;font-weight:400;
+  letter-spacing:.16em;color:var(--cy);text-transform:uppercase}
+/* the tail: two squares, stepped — a pixel tail for a pixel character */
+.pixl-bub::after{content:'';position:absolute;left:22px;top:100%;
+  width:6px;height:6px;background:var(--pn);
+  border-right:1px solid var(--cy);border-bottom:1px solid var(--cy)}
+.pixl-bub.on{opacity:1;visibility:visible;animation:pixlPop .26s var(--ease-out)}
+@keyframes pixlPop{
+  0%{opacity:0;transform:translateY(6px) scale(.9)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+/* never on a phone, and never over the console */
+.exp-mobile #pixl{display:none}
+@media (prefers-reduced-motion:reduce){
+  .pixl-bub.on{animation:none}
+}
+
+/* ══ THE SCROLLBAR ═══════════════════════════════════════════════════════
+   The one piece of this site the browser was still drawing in its own
+   colours — a grey slab down the right-hand edge of a page that has no
+   grey slabs in it. It is a filmstrip now: the same language as the
+   perforated strips in the pipeline section and the sprocket holes on the
+   loader, running the full height of the window.
+
+     the track   near-black, a hairline down its left edge, and sprocket
+                 ticks repeating every 12px
+     the thumb   magenta — the same accent as the progress bar across the
+                 top, so the two ends of the same measurement match — with
+                 a three-bar grip cut into the middle of it, however tall
+                 it happens to be
+     hovering    it lights, the way everything here lights
+     dragging    lime, because lime is what this site uses for "you are
+                 doing something"
+
+   Nothing is rounded, because nothing on this site is rounded.
+
+   Firefox draws none of the above — it allows two colours and a width and
+   nothing else — so it gets the two colours and the width, and the strip
+   degrades to a magenta thumb on a black track, which is still the site.
+
+   BUT THAT LINE HAS TO BE KEPT AWAY FROM CHROME. Since Chrome 121 the
+   standard scrollbar-color and scrollbar-width TURN OFF ::-webkit-scrollbar
+   for that scroller — set both and the browser quietly ignores everything
+   above, which is exactly what happened here: the strip came out fifteen
+   pixels of plain magenta on black, with none of the texture and none of
+   the states, and nothing in the stylesheet looked wrong. So the standard
+   properties go behind a gate only Firefox opens: it is the one browser
+   that has -moz-appearance, and the one browser that cannot draw the rest
+   of this.
+
+   `color-scheme: dark` stays out here for everybody — it does not disable
+   anything, and it fixes the native controls nobody styles: the caret,
+   form widgets, and the scrollbars inside anything we have not reached. */
+:root{ color-scheme: dark; }
+@supports (-moz-appearance: none){
+  :root{ scrollbar-color: var(--yw) var(--dk); scrollbar-width: thin; }
+}
+
+::-webkit-scrollbar{width:13px;height:13px}
+::-webkit-scrollbar-track{
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 10px,
+      rgba(238,246,248,.05) 10px 12px),
+    var(--dk);
+  border-left:1px solid var(--bd)}
+::-webkit-scrollbar-thumb{
+  background-color:var(--yw);
+  /* THE HOME PAGE IS FORTY-FIVE THOUSAND PIXELS LONG. Left to the
+     browser's own arithmetic that makes a thumb fourteen pixels tall — a
+     sliver you cannot reliably catch with a mouse, and far too small to
+     show the grip. A floor of forty-four keeps it a handle. */
+  min-height:44px;
+  /* the grip: three bars, centred, whatever height the thumb is */
+  background-image:linear-gradient(to bottom,
+    var(--bk) 0 1px, transparent 1px 4px,
+    var(--bk) 4px 5px, transparent 5px 8px,
+    var(--bk) 8px 9px);
+  background-size:7px 9px;
+  background-position:center;
+  background-repeat:no-repeat;
+  border:2px solid var(--dk);          /* the inset that makes it a slider */
+  transition:background-color .2s}
+::-webkit-scrollbar-thumb:hover{
+  background-color:#f0a05c;
+  box-shadow:inset 0 0 12px rgba(255,255,255,.35)}
+::-webkit-scrollbar-thumb:active{background-color:var(--lm)}
+/* no arrows: they are two grey boxes from another operating system */
+::-webkit-scrollbar-button{display:none}
+::-webkit-scrollbar-thumb:horizontal{min-width:44px;min-height:0}
+::-webkit-scrollbar-corner{background:var(--dk)}
+
+/* The insides — a sheet in the console, a long list, the modal — get the
+   same strip at half the width: a 13px bar inside a panel is furniture
+   competing with the panel. */
+.ad-sheet ::-webkit-scrollbar,.ad-changes::-webkit-scrollbar,
+.ad-code::-webkit-scrollbar,.m-wrap::-webkit-scrollbar,
+.pj-body ::-webkit-scrollbar{width:8px;height:8px}
+.ad-sheet ::-webkit-scrollbar-thumb,.ad-changes::-webkit-scrollbar-thumb,
+.ad-code::-webkit-scrollbar-thumb{background-image:none;border-width:1px}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   STILLS, NOT FILM — what a 3D portfolio needs that a film one did not
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* the production a piece was made for, on its card */
+.wc-tag.pr{border-color:rgba(95,212,255,.32);color:var(--cy);opacity:.82}
+
+/* THE CONCEPT LAB — a drawing is not a render and should not be cropped
+   into a film frame, so those cards are 4:3 and the sheet is contained
+   rather than covering. */
+.exp-desktop .wg-sq{grid-template-columns:repeat(3,1fr)}
+.wc.sq{aspect-ratio:4/3}
+.exp-desktop .wc.sq{aspect-ratio:4/3}
+/* the sheet sits above its caption rather than under it — these drawings
+   are on white paper, and white type on white paper is not a caption */
+.wc.sq .wc-thumb{background-size:contain;background-repeat:no-repeat;background-position:center 34%;opacity:.86}
+.wc.sq:hover .wc-thumb{opacity:1;transform:scale(1.02)}
+.wc.sq .wc-info{background:linear-gradient(to top,var(--bk) 46%,rgba(4,7,10,.86) 72%,transparent);padding-top:34px}
+.wc.sq .wc-art{opacity:.25}
+.exp-mobile .wg-sq{grid-template-columns:repeat(2,1fr)}
+
+/* THE LIGHTBOX — the full render, with the small one standing in behind it
+   until it decodes so the frame is never empty. */
+.m-stage{position:absolute;inset:0;background-size:contain;background-repeat:no-repeat;background-position:center;
+  display:flex;align-items:center;justify-content:center;filter:blur(6px) saturate(.9);transform:scale(1.01)}
+.m-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .45s ease}
+.m-img.rdy{opacity:1}
+.m-stage:has(.m-img.rdy){filter:none;transform:none}
+#modal.sq .m-frame{padding-bottom:75%}
+#modal .m-frame{background:#04070a}
+
+/* ← / → under the frame. They do what the arrow keys do, for the pointer
+   and for touch, where there is no keyboard to press. */
+.m-nav{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+.m-arrow{pointer-events:auto;width:46px;height:46px;margin:0 -58px;background:rgba(4,7,10,.72);border:1px solid var(--gr);
+  color:var(--sv);font-size:17px;line-height:1;cursor:none;transition:border-color .25s,color .25s,background .25s;
+  backdrop-filter:blur(6px);font-family:var(--fn)}
+.m-arrow:hover{border-color:var(--lm);color:var(--lm);background:rgba(62,224,208,.1)}
+@media(max-width:1180px){.m-arrow{margin:0 6px}}
+.exp-mobile .m-arrow{cursor:pointer}

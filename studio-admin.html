@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Work Console — GONAIM STUDIO</title>
+<meta name="theme-color" content="#04070a" />
+<link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;700&family=Oswald:wght@200;300;400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="studio.css?v=1" />
+<link rel="stylesheet" href="studio-admin.css?v=1" />
+<script defer src="chrome.js?v=1"></script>
+<script defer src="grid.js?v=1"></script>
+<script defer src="studio-admin.js?v=1"></script>
+</head>
+<body class="ad-body">
+
+<nav>
+  <a href="/" class="n-logo"><div class="n-pip"></div><span class="n-type">AHMED <b>GONAIM</b></span></a>
+  <ul class="n-links">
+    <li><a href="/#philosophy" data-txt="ABOUT">ABOUT</a></li>
+    <li><a href="/#work" data-txt="WORK">WORK</a></li>
+    <li><a href="/#ai" data-txt="AI">AI</a></li>
+    <li><a href="/#archive" data-txt="VAULT">VAULT</a></li>
+    <li><a href="/#services" data-txt="SERVICES">SERVICES</a></li>
+    <li><a href="/#pipeline" data-txt="PIPELINE">PIPELINE</a></li>
+    <li><a href="/#contact" data-txt="CONTACT">CONTACT</a></li>
+  </ul>
+  <div class="n-right">
+    <div class="n-clock" id="n-clock" aria-label="Riyadh local time">
+      <span class="nc-orb" id="nc-orb"><svg viewBox="0 0 24 24"><g class="nc-sun"><circle cx="12" cy="12" r="4"></circle><g class="nc-rays"><line x1="12" y1="1.5" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="22.5"></line><line x1="1.5" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="22.5" y2="12"></line><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"></line><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"></line><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"></line><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"></line></g></g><g class="nc-moon"><path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"></path></g></svg></span>
+      <span class="nc-stack"><b class="nc-day" id="nc-day">&#8212;</b><span class="nc-date" id="nc-date">&#8212;</span></span>
+      <span class="nc-sep"></span>
+      <span class="nc-time" id="nc-time">00<i>:</i>00<i>:</i>00</span>
+      <span class="nc-zone">RUH</span>
+    </div>
+    <a href="/" class="n-cta">VIEW SITE</a>
+  </div>
+</nav>
+
+<div id="dock">
+  <a href="/"><svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"></path><path d="M5 10v10h5v-6h4v6h5V10"></path></svg>HOME</a>
+  <a href="/#philosophy"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21v-1a7 7 0 0114 0v1"></path></svg>ABOUT</a>
+  <a href="/#work"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"></rect><polygon points="10,9 15,12 10,15"></polygon></svg>WORK</a>
+  <a href="/#services"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"></polygon></svg>SERVICES</a>
+  <a href="/#contact"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><polyline points="4,7 12,13 20,7"></polyline></svg>CONTACT</a>
+</div>
+
+<div class="ad-stick">
+<header class="ad-top">
+  <div class="ad-brand"><span class="ad-pip"></span>WORK <b>CONSOLE</b></div>
+  <div class="ad-state" id="state">reading studio.js…</div>
+</header>
+
+<nav class="ad-tabs">
+  <button class="ad-tab on" data-tab="projects" type="button">PROJECTS <i id="n-proj">0</i></button>
+  <button class="ad-tab" data-tab="arch" type="button">VAULT <i id="n-arch">0</i></button>
+  <button class="ad-tab" data-tab="reels" type="button">AI <i id="n-reels">0</i></button>
+  <button class="ad-tab" data-tab="cats" type="button">CATEGORIES <i id="n-cats">0</i></button>
+  <button class="ad-tab" data-tab="studio" type="button">STUDIO</button>
+  <button class="ad-tab" data-tab="data" type="button">DATA</button>
+  <button class="ad-tab" data-tab="check" type="button">CHECK <i id="n-issues">0</i></button>
+</nav>
+</div>
+
+<main class="ad-main">
+
+  <!-- ══ PROJECTS ══ -->
+  <section class="ad-pane on" id="pane-projects">
+
+    <div class="ad-head">
+      <h1 class="ad-h">PROJECTS <small>the live grid on the home page</small></h1>
+      <p class="ad-hint">Click any field and type. Drag <b>&#10247;</b> to move a
+        project, <b>FULL WIDTH</b> makes it a banner, <b>REMOVE</b> takes it off
+        the site. Nothing goes anywhere until you press the green button.</p>
+      <p class="ad-note">
+        The <b>link</b> box holds the video itself &mdash; paste a different one
+        over it and the row becomes that video. <b>DETAILS</b> opens everything
+        else about that project: the brief a visitor reads, the client, the
+        role, the studio, the web address, any extra facts you want listed, and
+        the behind-the-scenes films that appear on its page under the main one.
+        Every one of them is optional &mdash; left empty, the page reads exactly
+        as it does now.
+      </p>
+    </div>
+
+    <div class="ad-bar">
+      <div class="ad-order" id="order-state"></div>
+      <div class="ad-bar-r">
+        <button class="ad-btn ghost sm" id="auto" type="button">SORT AUTOMATICALLY</button>
+      </div>
+    </div>
+
+    <ol class="ad-list" id="plist"></ol>
+
+    <form class="ad-add" id="add-proj">
+      <span class="ad-add-l">// ADD A PROJECT</span>
+      <input name="link" autocomplete="off" spellcheck="false"
+             placeholder="Vimeo, YouTube, Instagram or X link" />
+      <input name="title" autocomplete="off" placeholder="Title" />
+      <select name="cat" id="add-cat" aria-label="Category"></select>
+      <input name="year" autocomplete="off" placeholder="Year" maxlength="4"
+             class="ad-year" />
+      <button class="ad-btn" type="submit">+ ADD</button>
+      <span class="ad-add-why" id="why-proj"></span>
+      <span class="ad-add-note">It lands at the top of the grid with its
+        details open, ready to write.</span>
+    </form>
+  </section>
+
+  <!-- ══ CATEGORIES ══ -->
+  <section class="ad-pane" id="pane-cats">
+    <div class="ad-head">
+      <h1 class="ad-h">CATEGORIES <small>the filter buttons above the grid</small></h1>
+      <p class="ad-hint">
+        Drag to set the order the grid groups them in — top of this list lands
+        first. The <b>key</b> is what a project stores; the <b>label</b> is what
+        a visitor reads. Renaming a key carries every project using it across.
+        A category still in use cannot be removed.
+      </p>
+    </div>
+    <ol class="ad-list cats" id="clist"></ol>
+    <form class="ad-add" id="newcat">
+      <span class="ad-add-l">// ADD A CATEGORY</span>
+      <input name="key" autocomplete="off" spellcheck="false"
+             placeholder="key &mdash; lowercase, no spaces (e.g. docs)" />
+      <input name="label" autocomplete="off" placeholder="LABEL &mdash; what visitors read (e.g. DOCUMENTARY)" />
+      <button class="ad-btn" type="submit">+ ADD</button>
+      <span class="ad-add-why" id="why-cat"></span>
+    </form>
+  </section>
+
+  <!-- ══ THE VAULT ══ -->
+  <section class="ad-pane" id="pane-arch">
+    <div class="ad-head">
+      <h1 class="ad-h">VAULT <small>the 2016&ndash;2023 archive strip</small></h1>
+      <p class="ad-hint">
+        Same fields as the live grid, same drag, and the order here is the order
+        on the page. Anything also in PROJECTS is hidden from the vault
+        automatically, so a piece is never shown twice.
+      </p>
+    </div>
+    <ol class="ad-list" id="alist"></ol>
+
+    <form class="ad-add" id="add-arch">
+      <span class="ad-add-l">// ADD TO THE VAULT</span>
+      <input name="link" autocomplete="off" spellcheck="false"
+             placeholder="Vimeo, YouTube, Instagram or X link" />
+      <input name="title" autocomplete="off" placeholder="Title" />
+      <button class="ad-btn" type="submit">+ ADD</button>
+      <span class="ad-add-why" id="why-arch"></span>
+    </form>
+  </section>
+
+  <!-- ══ THE REELS ══ -->
+  <section class="ad-pane" id="pane-reels">
+    <div class="ad-head">
+      <h1 class="ad-h">AI <small>the generated work on the home page</small></h1>
+      <p class="ad-hint">
+        The <b>link</b> is the row. Paste a different URL over it and that row
+        becomes that video &mdash; that is how you edit one. Vimeo, YouTube,
+        Instagram and X all work, and they are formatted identically.
+        <b>+ ADD</b> adds one, <b>REMOVE</b> takes one off.
+      </p>
+      <p class="ad-note">
+        A video may sit here <b>and</b> in PROJECTS at the same time &mdash;
+        nothing stops it, because being generated and being client work are not
+        exclusive. Instagram and X publish no thumbnail, so those cards draw
+        their own artwork unless you upload a frame; Vimeo and YouTube bring
+        their own. A cover is scaled to 720&#215;1280 in this browser before it
+        is sent.
+      </p>
+    </div>
+    <ol class="ad-list" id="rlist"></ol>
+
+    <form class="ad-add" id="add-reel">
+      <span class="ad-add-l">// ADD A VIDEO</span>
+      <input name="link" autocomplete="off" spellcheck="false"
+             placeholder="Vimeo, YouTube, Instagram or X link" />
+      <input name="title" autocomplete="off" placeholder="Title (optional)" />
+      <button class="ad-btn" type="submit">+ ADD</button>
+      <span class="ad-add-why" id="why-reel"></span>
+    </form>
+  </section>
+
+  <!-- ══ STUDIO — the two films and the portrait ══ -->
+  <section class="ad-pane" id="pane-studio">
+    <div class="ad-head">
+      <h1 class="ad-h">STUDIO <small>the two films and your portrait</small></h1>
+    </div>
+    <div class="ad-studio">
+      <div class="ad-card">
+        <span class="ad-lbl">// HERO &#183; THE FILM BEHIND THE TITLE</span>
+        <p class="ad-note">Loops muted behind &ldquo;WE SHAPE FRAMES&rdquo;. Paste a Vimeo link or just its number.</p>
+        <div class="ad-conn-row">
+          <input id="hero-id" class="ad-key wide" aria-label="Hero video"
+                 placeholder="https://vimeo.com/1174930627" />
+          <a class="ad-btn ghost sm" id="hero-link" target="_blank" rel="noopener noreferrer">OPEN &#8599;</a>
+        </div>
+      </div>
+
+      <div class="ad-card">
+        <span class="ad-lbl">// SHOWREEL &#183; THE PLAY BUTTON</span>
+        <p class="ad-note">What opens when someone presses PLAY SHOWREEL.</p>
+        <div class="ad-conn-row">
+          <input id="reel-id" class="ad-key wide" aria-label="Showreel video"
+                 placeholder="https://vimeo.com/1174930627" />
+          <a class="ad-btn ghost sm" id="reel-link" target="_blank" rel="noopener noreferrer">OPEN &#8599;</a>
+        </div>
+      </div>
+
+      <div class="ad-card">
+        <span class="ad-lbl">// PORTRAIT &#183; LOADING SCREEN AND ABOUT</span>
+        <p class="ad-note">
+          One picture, used in both places. A cut-out PNG with a transparent
+          background is what this design wants &mdash; anything else arrives with
+          a square behind it. Scaled to 720&#215;720 here before it is sent.
+        </p>
+        <div class="ad-portrait">
+          <span class="ad-shot square" id="portrait-shot"></span>
+          <div>
+            <div class="ad-cover-state" id="portrait-state">the picture currently on the site</div>
+            <div class="ad-conn-row" style="margin-top:10px">
+              <button class="ad-btn sm" id="portrait-pick" type="button">CHOOSE A PICTURE</button>
+              <button class="ad-btn ghost sm" id="portrait-clear" type="button">KEEP THE CURRENT ONE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DATA — what the site is made of ══ -->
+  <section class="ad-pane" id="pane-data">
+    <div class="ad-head">
+      <h1 class="ad-h">DATA <small>what the site is made of, measured</small></h1>
+      <p class="ad-hint">
+        Every number here is read from something real &mdash; the file you are
+        editing, the bytes the site actually serves, or the repository's own
+        history. Each panel says underneath it where its figures came from, so
+        none of it has to be taken on trust.
+      </p>
+    </div>
+
+    <div class="ad-kpis" id="kpis"></div>
+
+    <div class="ad-panels">
+      <section class="ad-panel">
+        <span class="ad-lbl">// THE WORK &#183; BY CATEGORY</span>
+        <div class="ad-bars" id="d-cats"></div>
+        <p class="ad-src">Counted from PROJECTS in the file open in this console.</p>
+      </section>
+
+      <section class="ad-panel">
+        <span class="ad-lbl">// THE WORK &#183; BY YEAR</span>
+        <div class="ad-bars" id="d-years"></div>
+        <p class="ad-src">Counted from the year on each project.</p>
+      </section>
+
+      <section class="ad-panel">
+        <span class="ad-lbl">// WHAT A VISITOR DOWNLOADS</span>
+        <div class="ad-bars weight" id="d-weight"></div>
+        <p class="ad-src" id="d-weight-src">Fetched from this site, measured byte
+          for byte. Video and posters stream from Vimeo and are not counted.</p>
+      </section>
+
+      <section class="ad-panel">
+        <span class="ad-lbl">// COVERAGE</span>
+        <div class="ad-rowsx" id="d-cover"></div>
+        <p class="ad-src">The gaps worth closing, from the same file.</p>
+      </section>
+
+      <section class="ad-panel wide">
+        <span class="ad-lbl">// PUBLISH HISTORY</span>
+        <div class="ad-spark" id="d-spark"></div>
+        <div class="ad-rowsx" id="d-hist"></div>
+        <p class="ad-src" id="d-hist-src">From the repository's commits to
+          studio.js. Needs the publishing key connected.</p>
+      </section>
+
+      <section class="ad-panel wide">
+        <span class="ad-lbl">// VISITORS</span>
+        <div class="ad-rowsx" id="d-visitors"></div>
+        <p class="ad-src">Nothing here is estimated. If a number cannot be
+          measured it is not shown.</p>
+      </section>
+    </div>
+  </section>
+
+  <!-- ══ CHECK ══ -->
+  <section class="ad-pane" id="pane-check">
+    <div class="ad-head">
+      <h1 class="ad-h">CHECK <small>everything wrong, found before it ships</small></h1>
+      <p class="ad-hint">
+        A <b>magenta</b> edge will break something on the site. The grey lines
+        are worth knowing and harmless. This re-runs on every keystroke, so the
+        count on the tab is always current.
+      </p>
+    </div>
+    <ul class="ad-issues" id="issues"></ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="ft-bars" aria-hidden="true"></div>
+  <div class="ft-main">
+    <a class="ft-big g-loop" href="/" data-txt="GONAIM">GONAIM</a>
+    <div class="ft-tag">EVERY FRAME ON PURPOSE &#183; CUT &#183; COLOR &#183; MOTION &#183; DELIVER</div>
+    <div class="ft-meta">
+      <span>&#169; 2026 AHMED GONAIM &#215; <img class="dg-gif dg-gif-c" src="https://www.directgroup.sa/images/preloader-new.gif" alt="" /><b>DIRECT GROUP</b></span>
+      <span class="ft-dot">&#9679;</span><span>RIYADH, KSA</span>
+      <span class="ft-dot">&#9679;</span><span class="ft-tc" id="ft-tc">TC 00:00:00:00</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ══ ALWAYS-ON SAVE BAR ══ -->
+<div class="ad-save" id="savebar">
+  <span class="ad-save-dot"></span>
+  <span class="ad-save-txt" id="save-txt">All changes saved</span>
+  <span class="ad-save-btns">
+    <button class="ad-btn ghost sm" id="revert" type="button">DISCARD</button>
+    <button class="ad-btn" id="export" type="button">SAVE CHANGES</button>
+  </span>
+</div>
+
+<!-- ══ EXPORT ══ -->
+<div class="ad-sheet" id="sheet" hidden>
+  <div class="ad-sheet-in">
+    <div class="ad-sheet-top">
+      <span class="ad-lbl">// SAVE</span>
+      <button class="ad-x" id="sheet-x" type="button">&#10005;</button>
+    </div>
+    <p class="ad-note" id="diff"></p>
+    <ul class="ad-changes" id="changes"></ul>
+    <div class="ad-sheet-acts">
+      <button class="ad-btn go" id="pub" type="button">PUBLISH TO SITE</button>
+      <button class="ad-btn ghost" id="dl" type="button">DOWNLOAD INSTEAD</button>
+      <button class="ad-btn ghost" id="copy" type="button">COPY THE BLOCK</button>
+    </div>
+    <p class="ad-pub-state" id="pub-state"></p>
+
+    <ol class="ad-steps">
+      <li>Writes <code>studio.js</code> to the repository &mdash; only these
+          blocks rewritten, everything else untouched.</li>
+      <li>Cloudflare sees the push and rebuilds the site.</li>
+      <li>The build workflow regenerates the project pages and the sitemap.</li>
+    </ol>
+
+    <!-- ══ one-time setup ══ -->
+    <div class="ad-conn" id="conn">
+      <div class="ad-conn-off">
+        <span class="ad-lbl">// ONE-TIME SETUP</span>
+        <p class="ad-note">
+          Publishing needs a key from GitHub. Make a
+          <a href="https://github.com/settings/personal-access-tokens/new"
+             target="_blank" rel="noopener noreferrer">fine-grained token</a>
+          with <b>only this repository</b> selected and one permission &mdash;
+          <b>Contents: read and write</b>. Give it an expiry. Paste it here
+          once; it stays in this browser and never touches the site's files.
+        </p>
+        <div class="ad-conn-row">
+          <input id="tok" type="password" autocomplete="off" spellcheck="false"
+                 placeholder="github_pat_&hellip;" aria-label="GitHub token" />
+          <button class="ad-btn sm" id="conn-go" type="button">CONNECT</button>
+        </div>
+      </div>
+      <div class="ad-conn-on">
+        <span class="ad-conn-dot" id="conn-dot"></span>
+        <span>Connected &mdash; this browser can publish.</span>
+        <span class="ad-conn-exp" id="conn-exp"></span>
+        <button class="ad-btn ghost sm" id="conn-off" type="button">DISCONNECT</button>
+      </div>
+    </div>
+
+    <pre class="ad-code" id="code"></pre>
+  </div>
+</div>
+
+<template id="row-tpl">
+  <li class="ad-row" draggable="true">
+    <span class="ad-grip" aria-hidden="true">⠿</span>
+    <span class="ad-idx"></span>
+    <span class="ad-thumb"></span>
+    <span class="ad-fields">
+      <input class="ad-title" aria-label="Title" />
+      <span class="ad-sub">
+        <select class="ad-cat" aria-label="Category"></select>
+        <input class="ad-year" aria-label="Year" placeholder="year" maxlength="4" />
+        <select class="ad-host" aria-label="Where this video is hosted"></select>
+        <input class="ad-vid" aria-label="Video link or id" spellcheck="false" />
+        <button class="ad-more" type="button" aria-expanded="false">DETAILS <i></i></button>
+      </span>
+    </span>
+    <span class="ad-shape">
+      <button class="ad-seg" data-shape="card" type="button">CARD</button>
+      <button class="ad-seg" data-shape="hi" type="button">FULL WIDTH</button>
+    </span>
+    <button class="ad-del" type="button">REMOVE</button>
+    <div class="ad-det" hidden></div>
+  </li>
+</template>
+
+</body>
+</html>

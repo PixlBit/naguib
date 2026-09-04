@@ -1,0 +1,51 @@
+# Regenerates the per-project pages and the sitemap whenever the project data
+# changes, so nobody has to remember to run the generator by hand — not after
+# editing studio.js directly, and not after the work console publishes to it.
+#
+# It only fires on the two files the pages are derived from, and it only
+# commits work/ and sitemap.xml, so it can never loop on its own output.
+name: Build project pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'studio.js'
+      - 'tools/build-project-pages.mjs'
+  workflow_dispatch:          # and a manual run, for when you want one
+
+permissions:
+  contents: write
+
+# A burst of saves queues rather than cancels: a cancel landing between the
+# commit and the push is the one way this could leave work/ behind studio.js,
+# and a spare twenty-second run is cheaper than that.
+concurrency:
+  group: build-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate
+        run: node tools/build-project-pages.mjs
+
+      - name: Commit if anything moved
+        run: |
+          git config user.name  'naguib-pages[bot]'
+          git config user.email 'naguib-pages[bot]@users.noreply.github.com'
+          git add work sitemap.xml
+          if git diff --staged --quiet; then
+            echo "Pages already match studio.js — nothing to commit."
+            exit 0
+          fi
+          git commit -m 'Rebuild project pages and sitemap from studio.js'
+          # explicit target: a manual run checks out whatever it was pointed at
+          git push origin HEAD:${{ github.ref_name }}
