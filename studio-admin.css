@@ -1,3 +1,31 @@
+/* ════════════════════════════════════════════════════════════════════════
+   THE CONSOLE'S OWN PALETTE BRIDGE
+
+   The site was rebuilt as a workshop — a warm charcoal bench, burnt clay,
+   bone type — and its tokens were renamed with it. The console is an
+   internal tool with two thousand lines of its own styling written against
+   the old names, and rewriting all of that to change nothing a visitor will
+   ever see is work for its own sake.
+
+   So the old names are declared here, in the one stylesheet only the console
+   loads, pointing at the new palette. The console looks like the site it
+   edits, and nothing in the site carries a compatibility shim it does not
+   need.
+   ════════════════════════════════════════════════════════════════════════ */
+:root{
+  --bk:#17140F;  --ch:#12100B;  --dk:#12100B;  --pn:#221D16;
+  --bd:#2B2419;  --gr:#3A3025;  --md:#4A3E2F;  --mt:#7D7263;
+  --sv:#B4A895;  --nv:#D8C4A8;  --wh:#EDE6DA;
+  --yw:#C8794A;  --lm:#E0925F;  --cy:#D8C4A8;
+  --yd:rgba(200,121,74,.1); --yg:rgba(200,121,74,.05);
+  --ld:rgba(224,146,95,.1); --lg:rgba(224,146,95,.05);
+  --fd:'Fraunces',Georgia,serif;
+  --fn:'Inter','IBM Plex Sans Arabic',system-ui,sans-serif;
+  --fh:'Inter','IBM Plex Sans Arabic',system-ui,sans-serif;
+  --fa:'IBM Plex Sans Arabic',sans-serif;
+  --ease-out:cubic-bezier(.22,1,.36,1);
+}
+
 /* ════════════════════════════════════════════════════
    studio-admin.css — the work console.
 

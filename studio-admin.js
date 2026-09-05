@@ -22,12 +22,10 @@
    every queued picture BEFORE it writes studio.js, so a card can never be
    published pointing at a file that is not there yet.
 
-   CHECK runs makeLayout() from grid.js — the very function the site builds
-   its grid with, not a copy — so what it says about the last row is what the
-   site will actually do, including the rule that a full-width banner waits
-   for the row of cards before it to finish. It also asks the server for every
-   picture the data names, so a missing render is found here rather than as a
-   black card on the live site.
+   CHECK asks the server for every picture the data names, so a missing
+   render is found here rather than as a black card on the live site, along
+   with names that are not file names, duplicates, and categories nothing
+   uses.
    ════════════════════════════════════════════════════════════════════════ */
 (() => {
   'use strict';
@@ -401,37 +399,15 @@
     })).then(() => { probing = null; drawProblems(); });
   }
 
-  /* ── how the grid will come out ────────────────────────────────────────
-     There used to be a picture here: three columns of 32px-tall thumbnails
-     standing in for the live grid. At that height a frame is a smear, and
-     every poster the browser could not fetch left a blank box next to the
-     ones it could — so it read as broken whether or not it was right, and a
-     preview you cannot trust is worse than none.
-
-     What it was genuinely for survives as a sentence in CHECK. This runs the
-     site's own makeLayout — grid.js, the same function index.html builds the
-     grid with, not a copy of it — and reports where the tiles land. Words
-     can say "one short" exactly; a smear could only hint at it.            */
-  let layout = null;
-  function gridShape() {
-    if (typeof makeLayout !== 'function') return null;
-    if (!layout) layout = makeLayout(() => 3);
-    const laid = layout(D.projects, { feat: true }, 'all');
-    /* buildCards() features index 0 of the unfiltered grid whatever it is,
-       plus every hi — mirror exactly that, not "is it the showreel" */
-    let open = false, col = 0, holes = 0;
-    laid.forEach((p, i) => {
-      if (i === 0 || p.hi) {                    /* a banner takes a row alone */
-        if (open && col) holes += 3 - col;
-        open = false; col = 0;
-        return;
-      }
-      if (!open || col === 3) { open = true; col = 0; }
-      col++;
-      if (col === 3) open = false;
-    });
-    return { holes, last: col === 0 ? 3 : col, tiles: laid.length };
-  }
+  /* THE GRID PREVIEW IS GONE, WITH THE GRID. The site used to lay the work
+     out in rows of three with full-width banners held back until a row
+     filled, and this ran makeLayout() from grid.js to say exactly where the
+     tiles would land. The work is presented as plates now — one piece per
+     row, alternating sides — so there is no row arithmetic left to get
+     wrong and nothing for a preview to warn about. What CHECK is for now is
+     the thing that can still be wrong: a name that is not a file name, the
+     same piece listed twice, a category nothing uses, and above all a row
+     that names a picture nobody has uploaded. */
 
   /* ── project rows ──────────────────────────────────────────────────── */
   const isAR = s => /[؀-ۿ]/.test(s);
@@ -1229,24 +1205,11 @@
       checkPic(r, 'concept', 'Concept: ');
     }
     if (probing) out.push(['soft', 'still asking the server which pictures exist…']);
-    /* How the grid actually comes out, from the site's own layout function.
-       A hole mid-grid would be a bug in layout(), which is built to prevent
-       one, so it is an error if it ever appears. A short last row is not a
-       fault — fillLastRow() stretches a lone card wide on purpose — but it
-       is the one thing about the grid worth knowing before you publish
-       rather than after. */
-    const g = gridShape();
-    if (g && g.holes)
-      out.push(['grid', g.holes + ' empty cell' + (g.holes > 1 ? 's' : '') + ' mid-grid — a '
-        + 'full-width banner is opening a row before the cards above it have filled theirs']);
-    /* Said every time, including when it is fine. "Nothing about the grid" and
-       "the grid is even" look identical in a list that only speaks up about
-       faults, and only one of them is worth publishing on. */
-    else if (g)
-      out.push(['soft', g.tiles + ' tiles · the grid ends on a row of ' + g.last + ' of 3'
-        + (g.last === 3 ? ' — even.'
-          : g.last === 1 ? ' — that last card stretches the full width.'
-          : ' — one short, so the last two stretch to fill it.')]);
+    /* Said every time, including when it is fine: "nothing about the work"
+       and "the work is all there" look identical in a list that only speaks
+       up about faults, and only one of them is worth publishing on. */
+    out.push(['soft', D.projects.length + ' plates \u00b7 ' + D.archive.length
+      + ' detail passes \u00b7 ' + D.concepts.length + ' sheets']);
 
     /* soft notes, not errors */
     const nodesc = D.projects.filter(p => !String(p.desc || '').trim()).length;
@@ -1547,8 +1510,6 @@
     ['studio.js', 'the site engine'],
     ['studio.css', 'the styling'],
     ['chrome.js', 'shared furniture'],
-    ['motion.js', 'motion'],
-    ['grid.js', 'the grid layout'],
     ['assets/hero-art.png', 'the hero render'],
     ['assets/naguib-portrait.png', 'your portrait'],
     ['assets/favicon.ico', 'the favicon'],
@@ -2068,8 +2029,6 @@
   async function boot() {
     try {
       await load();
-      layout = null;                 /* the column count never changes, but a
-                                        fresh file deserves a fresh layout */
       pending.clear();
       drawProjects();
       drawCats();

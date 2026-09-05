@@ -35,16 +35,7 @@
 /studio.js
   Cache-Control: public, max-age=0, must-revalidate
 
-/sound.js
-  Cache-Control: public, max-age=0, must-revalidate
-
-/motion.js
-  Cache-Control: public, max-age=0, must-revalidate
-
 /chrome.js
-  Cache-Control: public, max-age=0, must-revalidate
-
-/grid.js
   Cache-Control: public, max-age=0, must-revalidate
 
 /project.css

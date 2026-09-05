@@ -1,8 +1,8 @@
 /* ════════════════════════════════════════════════════════════════════════
-   build-project-pages.mjs — one shareable page per project.
+   build-project-pages.mjs — one shareable page per piece.
 
    Reads PROJECTS straight out of studio.js so the pages can never drift
-   from the grid, and writes /work/<slug>/index.html for each, plus a
+   from the site, and writes /work/<slug>/index.html for each, plus a
    refreshed sitemap.xml.
 
      node tools/build-project-pages.mjs
@@ -10,9 +10,8 @@
    Re-run it after editing PROJECTS. It rewrites the whole /work directory,
    so nothing hand-edited in there survives — put changes in studio.js.
 
-   Optional fields on a PROJECTS entry, every one of them picked up
-   automatically and every one of them written from the console:
-     slug:   "alien-dancer"       fixed URL, when the derived one is wrong
+   Optional fields on a PROJECTS entry:
+     slug:   "alien-dancer"       fixes the URL when the derived one is wrong
      desc:   "Two sentences…"     the brief; blank lines make paragraphs
      prod:   "Les Yeux du Large"  the production it was made for
      soft:   "ZBrush · 3ds Max"   the software it was built in
@@ -25,12 +24,11 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://naguib.art';
-const src = readFileSync(join(ROOT, 'studio.js'), 'utf8');
+const src  = readFileSync(join(ROOT, 'studio.js'), 'utf8');
 
 /* Asset URLs carry a version so a changed file can never be answered from a
-   stale cache — see tools/version-assets.mjs. A generated page has to be born
-   with the same version the rest of the site is on, which is whatever the home
-   page currently carries. */
+   stale cache. A generated page is born on whatever version the home page
+   currently carries. */
 const V = (() => {
   const seen = [...readFileSync(join(ROOT, 'index.html'), 'utf8')
     .matchAll(/\?v=(\d+)"/g)].map(m => +m[1]);
@@ -57,10 +55,7 @@ function grab(name, kind = 'const') {
 }
 
 const PROJECTS = grab('PROJECTS');
-const CAT = grab('CAT');
-/* same order the grid uses, so prev/next follows what the visitor just saw —
-   including AUTO_ORDER, which the console turns off when the array has been
-   arranged by hand */
+const CAT      = grab('CAT');
 const CAT_RANK = grab('CAT_RANK');
 const AUTO_ORDER = !/const AUTO_ORDER\s*=\s*false/.test(src);
 const list = !AUTO_ORDER ? [...PROJECTS] : [...PROJECTS]
@@ -69,40 +64,26 @@ const list = !AUTO_ORDER ? [...PROJECTS] : [...PROJECTS]
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
   .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const isAR = s => /[؀-ۿ]/.test(s);
+const pad  = n => String(n).padStart(2, '0');
 
-/* Use studio.js's own slugOf, lifted out of the file rather than copied, so
-   the href a grid card renders and the folder written here cannot disagree. */
+/* studio.js's own slugOf, lifted out of the file rather than copied, so the
+   href a link renders and the folder written here cannot disagree. */
 const slugify = (() => {
   const m = /^function slugOf\(p\)\{[\s\S]*?\n\}/m.exec(src);
   if (!m) throw new Error('slugOf not found in studio.js');
   return new Function(m[0] + '; return slugOf;')();
 })();
 
-/* the part before the dash is the client, when there is one */
-function client(title) {
-  const m = /^(.+?)\s*[—–-]\s*/.exec(title);
-  return m && m[1].length <= 34 ? m[1].trim() : null;
-}
-/* ── WHAT A PROJECT SAYS ABOUT ITSELF ──────────────────────────────────
-   Everything below is written by hand when it is worth writing, and worked
-   out from the fields when it is not. A piece with nothing filled in reads
-   exactly as it did before any of this existed.
-
-     desc     the paragraph under // BRIEF, and the meta description
-     prod     the PRODUCTION fact — otherwise the part before the dash
-     role     the ROLE fact       — otherwise 3D Artist
-     soft     the SOFTWARE fact
-     facts    any other rows for that list, [{k, v}, …]
-
-   The brief and the meta description are the same sentence today, but they
-   are not the same thing: a brief can be a paragraph, and Google shows
-   about 160 characters. So a hand-written brief is trimmed for the meta
-   tag — at a word, never mid-word — and left whole on the page.        */
+/* ── WHAT A PIECE SAYS ABOUT ITSELF ────────────────────────────────────
+   Written by hand where it is worth writing, worked out from the fields
+   where it is not. The brief and the meta description are the same
+   sentence today but they are not the same thing: a brief can be a
+   paragraph, and Google shows about 160 characters — so a hand-written
+   brief is trimmed for the meta tag, at a word, and left whole on the page. */
 const DEFAULTS = { role: '3D Artist' };
 const factsOf = p => Array.isArray(p.facts)
   ? p.facts.filter(f => f && String(f.k || '').trim() && String(f.v || '').trim())
   : [];
-const clientOf = p => (p.prod && String(p.prod).trim()) || client(p.title);
 function metaDesc(p) {
   const full = describe(p).replace(/\s+/g, ' ').trim();
   if (full.length <= 160) return full;
@@ -113,21 +94,15 @@ function metaDesc(p) {
 function describe(p) {
   if (p.desc) return String(p.desc).trim();
   const cat = (CAT[p.cat] || p.cat).toLowerCase().replace(/s$/, '');
-  /* Google shows about 160 characters and drops the rest. The Arabic name is
-     the whole reason this line exists, so it goes where it will survive that
-     cut, and the English is written tight enough to leave room for it. */
-  const ar = ' أحمد نجيب.';
+  const ar  = ' أحمد نجيب.';
   const head = `${p.title} — ${cat}${p.year ? `, ${p.year}` : ''}.`;
   const c = p.prod ? ` Made for ${p.prod}.` : '';
   const by = ' 3D modeling and texturing by Ahmed Naguib, Marseille.';
-  let out = `${head}${c}${by}${ar}`;
-  if (out.length > 158) out = `${head}${by}${ar}`;
-  return out;
+  const out = `${head}${c}${by}${ar}`;
+  return out.length > 158 ? `${head}${by}${ar}` : out;
 }
-/* A render is a file, not a stream. `frame` is the full one the page shows,
-   `small` the rendition the strip of other work uses — the same two files
-   the grid and the lightbox load, so a visitor arriving here has usually
-   got them already.                                                       */
+
+/* A render is a file, not a stream. */
 const frame = p => `../../assets/work/${p.id}.jpg`;
 const small = p => `../../assets/work/${p.id}-sm.jpg`;
 
@@ -136,66 +111,85 @@ const dupes = slugs.filter((s, i) => slugs.indexOf(s) !== i);
 if (dupes.length) throw new Error('duplicate slugs: ' + [...new Set(dupes)].join(', '));
 
 /* ── the "more work" strip ────────────────────────────────────────────────
-   Six other projects under each page. Picked at build time, not on load:
-   a JS shuffle would hide these links from a crawler, and the whole point
-   of the pages is that the work is reachable. Seeding the shuffle with the
-   project's own id makes each page's six different from its neighbours' and
+   Six other pieces under each page, picked at build time rather than on
+   load: a JS shuffle would hide these links from a crawler, and reachable
+   work is the whole point of the pages. The shuffle is seeded with the
+   piece's own id, so each page's six differ from its neighbours' and stay
    identical on every visit.                                               */
 const MORE = 6;
 function rngFrom(seed) {
-  let h = 2166136261;                                   /* FNV-1a, then xorshift */
+  let h = 2166136261;
   for (const ch of String(seed)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
   let s = h >>> 0 || 1;
   return () => { s ^= s << 13; s >>>= 0; s ^= s >> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
 }
 function moreWork(i) {
-  const skip = new Set([i, i - 1, i + 1]);        /* prev/next are linked already */
+  const skip = new Set([i, i - 1, i + 1]);
   const pool = list.map((_, n) => n).filter(n => !skip.has(n));
   const rnd = rngFrom(list[i].id);
-  for (let n = pool.length - 1; n > 0; n--) {     /* Fisher-Yates, seeded */
+  for (let n = pool.length - 1; n > 0; n--) {
     const j = Math.floor(rnd() * (n + 1));
     [pool[n], pool[j]] = [pool[j], pool[n]];
   }
   return pool.slice(0, MORE);
 }
 
+/* ── the icons a project page uses ─────────────────────────────────────
+   The same sprite the home page carries, cut down to what these pages
+   actually draw. Inline, so a page costs no extra request for its icons. */
+const SPRITE = `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4.6 12h14.8M13.4 6l6 6-6 6"/></symbol>
+<symbol id="i-prev" viewBox="0 0 24 24"><path d="M19.4 12H4.6M10.6 6l-6 6 6 6"/></symbol>
+<symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 3.6H3.6V9M15 20.4h5.4V15M3.6 3.6 10 10M20.4 20.4 14 14"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect x="2.6" y="4.8" width="18.8" height="14.4"/><path class="lift" d="M2.6 6 12 13.4 21.4 6"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3.4 11.6 12 3.4l8.6 8.2"/><path d="M5.6 10.4v10h12.8v-10"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.4" y="3.4" width="7" height="7"/><rect x="13.6" y="3.4" width="7" height="7"/><rect x="3.4" y="13.6" width="7" height="7"/><rect x="13.6" y="13.6" width="7" height="7"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8.4 6.4h12M8.4 12h12M8.4 17.6h12M3.6 6.4h.01M3.6 12h.01M3.6 17.6h.01"/></symbol>
+<symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.4 20.6v-1a7.6 7.6 0 0 1 15.2 0v1"/></symbol>
+</defs></svg>`;
+
 /* ── the site's own header and footer ────────────────────────────────────
    Lifted from index.html with the hash links pointed back up two levels, so
-   a project page carries the same chrome as everything else. The clock and
-   the timecode come from chrome.js, which both pages load. `up` is how far
-   the page sits from the root.                                            */
-function siteNav(up, active) {
-  const link = (href, label) =>
-    `<li><a href="${up}${href}" data-txt="${label}"${active === label ? ' class="on"' : ''}>${label}</a></li>`;
-  return `<nav>
-  <a href="${up}" class="n-logo"><div class="n-pip"></div><span class="n-type">AHMED <b>NAGUIB</b></span></a>
+   a project page wears the same chrome as everything else. */
+function siteNav(up) {
+  const link = (href, label) => `    <li><a href="${up}${href}">${label}</a></li>`;
+  return `<nav id="nav" class="stuck">
+  <a href="${up}" class="n-logo" aria-label="Ahmed Naguib — home">
+    <svg class="n-mark" viewBox="0 0 26 26" aria-hidden="true">
+      <circle class="r" cx="13" cy="14.5" r="9"/><circle class="d" cx="13" cy="3.4" r="2.1"/>
+    </svg>
+    <span class="n-name">AHMED <b>NAGUIB</b></span>
+  </a>
   <ul class="n-links">
-${['#work WORK', '#philosophy ABOUT', '#ai CONCEPT', '#archive DETAIL', '#services SKILLS',
-   '#pipeline PROCESS', '#contact CONTACT'].map(x => '    ' + link(...x.split(' '))).join('\n')}
+${['#work Work', '#index Index', '#about About', '#process Process',
+   '#sheets Sketchbook', '#contact Contact'].map(x => link(...x.split(' '))).join('\n')}
   </ul>
   <div class="n-right">
-    <span class="n-avail"><i></i>AVAILABLE FOR WORK</span>
-    <a href="${up}#contact" class="n-cta">GET IN TOUCH</a>
+    <span class="n-open"><i></i>Open for work</span>
+    <a href="${up}#contact" class="n-cta"><span>Get in touch</span></a>
   </div>
 </nav>
 
 <div id="dock">
-  <a href="${up}"><svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"></path><path d="M5 10v10h5v-6h4v6h5V10"></path></svg>HOME</a>
-  <a href="${up}#work"${active === 'WORK' ? ' class="on"' : ''}><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>WORK</a>
-  <a href="${up}#services"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"></polygon></svg>SKILLS</a>
-  <a href="${up}#contact"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><polyline points="4,7 12,13 20,7"></polyline></svg>CONTACT</a>
+  <a href="${up}"><svg class="ic"><use href="#i-home"/></svg>Home</a>
+  <a href="${up}#work" class="on"><svg class="ic"><use href="#i-grid"/></svg>Work</a>
+  <a href="${up}#index"><svg class="ic"><use href="#i-list"/></svg>Index</a>
+  <a href="${up}#about"><svg class="ic"><use href="#i-person"/></svg>About</a>
+  <a href="${up}#contact"><svg class="ic"><use href="#i-mail"/></svg>Contact</a>
 </div>`;
 }
 
 function siteFooter(up) {
   return `<footer>
-  <div class="ft-bars" aria-hidden="true"></div>
-  <div class="ft-main">
-    <a class="ft-big g-loop" href="${up}" data-txt="NAGUIB">NAGUIB</a>
-    <div class="ft-tag">MODEL &#183; SCULPT &#183; TEXTURE &#183; LIGHT &#183; RENDER</div>
+  <div class="wrap">
+    <a class="ft-mark" href="${up}">NAGUIB</a>
+    <div class="ft-tag">Sculpt &middot; Retopo &middot; Texture &middot; Light &middot; Render</div>
     <div class="ft-meta">
-      <span>&#169; 2026 AHMED NAGUIB</span>
-      <span class="ft-dot">&#9679;</span><span>MARSEILLE, FRANCE</span>
+      <span>&copy; 2026 Ahmed Naguib</span><i></i>
+      <span>Marseille, France</span><i></i>
+      <span class="ar">أحمد نجيب</span>
     </div>
   </div>
 </footer>`;
@@ -203,13 +197,13 @@ function siteFooter(up) {
 
 function page(p, i) {
   const slug = slugs[i];
-  const url = `${SITE}/work/${slug}/`;
+  const url  = `${SITE}/work/${slug}/`;
   const prev = i > 0 ? list[i - 1] : null;
   const next = i < list.length - 1 ? list[i + 1] : null;
-  const desc = describe(p);          /* the brief: whole, however long */
-  const meta = metaDesc(p);          /* the snippet: trimmed to fit */
-  const cat = CAT[p.cat] || p.cat.toUpperCase();
-  const c = clientOf(p);
+  const desc = describe(p);
+  const meta = metaDesc(p);
+  const cat  = CAT[p.cat] || p.cat;
+
   const ld = {
     '@context': 'https://schema.org',
     '@type': 'ImageObject',
@@ -222,8 +216,8 @@ function page(p, i) {
     genre: cat,
     keywords: [cat, p.prod, p.soft].filter(Boolean).join(', '),
     inLanguage: 'en',
-    /* Same @id as the Person on the home page, so every page reinforces one
-       entity instead of describing strangers who happen to share a name. */
+    /* the same @id as the Person on the home page, so every page reinforces
+       one entity rather than describing strangers who share a name */
     creator: {
       '@type': 'Person',
       '@id': SITE + '/#ahmed',
@@ -240,14 +234,13 @@ function page(p, i) {
       { '@type': 'ListItem', position: 2, name: p.title, item: url }
     ]
   };
-  const link = (q, label, arrow) => q
-    ? `<a class="pn-link${arrow === '←' ? '' : ' pn-next'}" href="../${slugs[list.indexOf(q)]}/">
-         <span class="pn-dir">${arrow} ${label}</span>
-         <span class="pn-name${isAR(q.title) ? ' ar' : ''}"${isAR(q.title) ? ' lang="ar" dir="rtl"' : ''}>${esc(q.title)}</span></a>`
+
+  const step = (q, label, icon, cls) => q
+    ? `<a class="pn ${cls}" href="../${slugs[list.indexOf(q)]}/">
+         <span class="pn-d"><svg class="ic"><use href="#${icon}"/></svg>${label}</span>
+         <span class="pn-t${isAR(q.title) ? ' ar' : ''}">${esc(q.title)}</span></a>`
     : '<span></span>';
 
-  /* the page furniture is English even when the film's title is Arabic, so
-     the document stays lang="en" and only the title itself is marked up */
   const ar = isAR(p.title) ? ' lang="ar" dir="rtl"' : '';
   return `<!DOCTYPE html>
 <html lang="en">
@@ -256,11 +249,11 @@ function page(p, i) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>${esc(p.title)} — Ahmed Naguib | أحمد نجيب</title>
 <meta name="description" content="${esc(meta)}" />
-<meta name="theme-color" content="#04070a" />
+<meta name="theme-color" content="#17140F" />
 <link rel="canonical" href="${url}" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="${url}" />
-<meta property="og:site_name" content="NAGUIB STUDIO" />
+<meta property="og:site_name" content="Ahmed Naguib" />
 <meta property="og:title" content="${esc(p.title)} — Ahmed Naguib" />
 <meta property="og:description" content="${esc(meta)}" />
 <meta property="og:image" content="${SITE}/assets/work/${p.id}.jpg" />
@@ -269,77 +262,80 @@ function page(p, i) {
 <meta name="twitter:image" content="${SITE}/assets/work/${p.id}.jpg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;700&family=Oswald:wght@200;300;400;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <link rel="icon" type="image/x-icon" href="../../assets/favicon.ico" />
 <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png" />
 <link rel="stylesheet" href="../../studio.css?v=${V}" />
 <link rel="stylesheet" href="../../project.css?v=${V}" />
 <script type="application/ld+json">${JSON.stringify(ld, null, 1)}</script>
 <script type="application/ld+json">${JSON.stringify(crumbs, null, 1)}</script>
-<script defer src="../../sound.js?v=${V}"></script>
 <script defer src="../../chrome.js?v=${V}"></script>
 <script defer src="../../project.js?v=${V}"></script>
 </head>
-<body class="pj-body">
+<body class="pj">
+${SPRITE}
+<div id="cur" data-t="Zoom"></div>
 <div id="prog"></div>
 
-${siteNav('../../', 'WORK')}
+${siteNav('../../')}
 
 <main class="pj-wrap">
-  <a href="../../#work" class="pj-back">&#8592; ALL WORK</a>
-  <div class="pj-kicker">// ${String(i + 1).padStart(3, '0')} &nbsp;·&nbsp; ${esc(cat)}${p.year ? ' &nbsp;·&nbsp; ' + p.year : ''}</div>
-  <h1 class="pj-title${isAR(p.title) ? ' ar' : ''}"${ar}>${esc(p.title)}</h1>
+  <div class="wrap">
+    <a href="../../#work" class="pj-back"><svg class="ic"><use href="#i-prev"/></svg>All work</a>
 
-  <figure class="pj-stage">
-    <img class="pj-img" src="${frame(p)}" alt="${esc(p.title)} — 3D render by Ahmed Naguib" />
-    <button class="pj-zoom" type="button" aria-label="View ${esc(p.title)} full size">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9,3 3,3 3,9"></polyline><polyline points="15,21 21,21 21,15"></polyline><line x1="3" y1="3" x2="10" y2="10"></line><line x1="21" y1="21" x2="14" y2="14"></line></svg>
-    </button>
-    <div class="pj-scan"></div>
-  </figure>
+    <header class="pj-head">
+      <p class="lbl">${esc(cat)}${p.year ? ' &middot; ' + p.year : ''} &middot; ${pad(i + 1)} of ${pad(list.length)}</p>
+      <h1 class="d2 pj-title${isAR(p.title) ? ' ar' : ''}"${ar}>${esc(p.title)}</h1>
+    </header>
 
-  <div class="pj-grid">
-    <div class="pj-copy">
-      <div class="pj-lbl">// BRIEF</div>
-${desc.split(/\n{2,}/).map(par => `      <p>${esc(par.trim())}</p>`).join('\n')}
-      <a class="btn-o pj-src" href="${frame(p)}" target="_blank" rel="noopener">
-        OPEN THE FULL FRAME ↗</a>
+    <figure class="pj-stage" data-cur="Zoom">
+      <img class="pj-img" src="${frame(p)}" alt="${esc(p.title)} — 3D render by Ahmed Naguib"
+           width="1600" height="900" fetchpriority="high" />
+      <button class="pj-zoom" type="button" aria-label="View ${esc(p.title)} full size">
+        <svg class="ic"><use href="#i-expand"/></svg>
+      </button>
+    </figure>
+
+    <div class="pj-grid">
+      <div class="pj-copy">
+        <p class="lbl">The brief</p>
+${desc.split(/\n{2,}/).map(par => `        <p>${esc(par.trim())}</p>`).join('\n')}
+        <a class="btn btn-b pj-src" href="${frame(p)}" target="_blank" rel="noopener">
+          <svg class="ic"><use href="#i-out"/></svg>Open the full frame</a>
+      </div>
+      <dl class="pj-facts">
+        ${p.prod ? `<div><dt>Production</dt><dd>${esc(p.prod)}</dd></div>` : ''}
+        <div><dt>Category</dt><dd>${esc(cat)}</dd></div>
+        ${p.year ? `<div><dt>Year</dt><dd>${p.year}</dd></div>` : ''}
+        <div><dt>Role</dt><dd>${esc(p.role || DEFAULTS.role)}</dd></div>
+        ${p.soft ? `<div><dt>Built in</dt><dd>${esc(p.soft)}</dd></div>` : ''}${factsOf(p).map(f => `\n        <div><dt>${esc(String(f.k))}</dt><dd${isAR(String(f.v)) ? ' lang="ar" dir="rtl"' : ''}>${esc(String(f.v))}</dd></div>`).join('')}
+      </dl>
     </div>
-    <dl class="pj-facts">
-      ${c ? `<div><dt>PRODUCTION</dt><dd>${esc(c)}</dd></div>` : ''}
-      <div><dt>CATEGORY</dt><dd>${esc(cat)}</dd></div>
-      ${p.year ? `<div><dt>YEAR</dt><dd>${p.year}</dd></div>` : ''}
-      <div><dt>ROLE</dt><dd>${esc(p.role || DEFAULTS.role)}</dd></div>
-      ${p.soft ? `<div><dt>SOFTWARE</dt><dd>${esc(p.soft)}</dd></div>` : ''}${factsOf(p).map(f => `\n      <div><dt>${esc(String(f.k).toUpperCase())}</dt><dd${isAR(String(f.v)) ? ' lang="ar" dir="rtl"' : ''}>${esc(String(f.v))}</dd></div>`).join('')}
-    </dl>
-  </div>
 
+    <nav class="pj-pn">
+      ${step(prev, 'Previous', 'i-prev', 'pn-prev')}
+      ${step(next, 'Next', 'i-arrow', 'pn-next')}
+    </nav>
 
-  <nav class="pj-pn">
-    ${link(prev, 'PREVIOUS', '←')}
-    ${link(next, 'NEXT', '→')}
-  </nav>
-
-  <section class="pj-more">
-    <div class="pj-lbl">// MORE WORK</div>
-    <div class="mw-grid">
+    <section class="pj-more">
+      <p class="lbl">More from the bench</p>
+      <div class="mw">
 ${moreWork(i).map(n => {
   const q = list[n];
-  return `      <a class="mw-card" href="../${slugs[n]}/">
-        <span class="mw-thumb" data-poster="${esc(small(q))}"></span>
-        <span class="mw-meta">
-          <span class="mw-cat">${esc(CAT[q.cat] || q.cat)}${q.year ? ' · ' + q.year : ''}</span>
-          <span class="mw-name${isAR(q.title) ? ' ar' : ''}"${isAR(q.title) ? ' lang="ar" dir="rtl"' : ''}>${esc(q.title)}</span>
-        </span></a>`;
+  return `        <a class="mw-c" href="../${slugs[n]}/">
+          <span class="mw-fr"><img src="${small(q)}" alt="${esc(q.title)}" loading="lazy" decoding="async" width="880" height="495" /></span>
+          <span class="mw-t${isAR(q.title) ? ' ar' : ''}">${esc(q.title)}</span>
+          <span class="mw-m">${esc(CAT[q.cat] || q.cat)}${q.year ? ' · ' + q.year : ''}</span></a>`;
 }).join('\n')}
-    </div>
-    <a class="mw-all" href="../../#work">SEE ALL ${list.length} ASSETS →</a>
-  </section>
-</main>
+      </div>
+      <a class="mw-all" href="../../#index">See all ${list.length} pieces <svg class="ic"><use href="#i-arrow"/></svg></a>
+    </section>
 
-<div class="pj-cta">
-  <a href="../../#contact" class="btn-y">WORK WITH ME</a>
-</div>
+    <div class="pj-cta">
+      <a href="../../#contact" class="btn btn-a"><svg class="ic"><use href="#i-mail"/></svg>Work with me</a>
+    </div>
+  </div>
+</main>
 
 ${siteFooter('../../')}
 

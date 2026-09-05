@@ -1,138 +1,75 @@
-/* ════════════════════════════════════════════════════
-   notfound.css — the 404, as a monitor that lost its feed.
+/* ════════════════════════════════════════════════════════════════════════
+   notfound.css — the empty plinth.
 
-   Rides on studio.css for the palette, nav, buttons and
-   footer. Everything here is the broken-signal set piece.
-════════════════════════════════════════════════════ */
+   The rest of the site puts an object on a lit bench. This page has the
+   bench and the lamp and nothing on it. The whole design is that absence,
+   so there is very little here: a pedestal, a shadow that has no object to
+   belong to, and four motes of dust still turning in the light.
+   ════════════════════════════════════════════════════════════════════════ */
 
-.nf-body{cursor:auto;min-height:100vh;display:flex;flex-direction:column;
-  background:
-    radial-gradient(1000px 560px at 50% -10%, rgba(224,128,60,.11), transparent 62%),
-    radial-gradient(720px 460px at 12% 90%, rgba(95,212,255,.06), transparent 60%),
-    var(--bk)}
-.nf-wrap{flex:1;display:flex;align-items:center;justify-content:center;
-  padding:calc(56px + clamp(26px,5vw,54px)) clamp(14px,4vw,44px) clamp(44px,7vw,80px)}
+.nf-body{min-height:100svh;display:flex;flex-direction:column}
+.nf{flex:1;display:flex;align-items:center;padding:120px 0 80px}
+.nf-in{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+  gap:clamp(30px,6vw,96px);align-items:center;width:100%}
 
-/* ── the deck ─────────────────────────────────────── */
-.nf-monitor{width:min(980px,100%);border:1px solid var(--bd);background:var(--dk);
-  box-shadow:0 40px 120px rgba(0,0,0,.6);overflow:hidden}
+/* ── the bench ─────────────────────────────────────────────────────────── */
+.nf-art{position:relative;aspect-ratio:1;max-width:460px;justify-self:center;width:100%}
+.nf-lamp{position:absolute;inset:-14% -10% 20% -10%;pointer-events:none;
+  background:radial-gradient(ellipse 52% 46% at 46% 30%,rgba(200,121,74,.20),transparent 68%);
+  animation:nfBreathe 9s var(--ease-soft) infinite}
+@keyframes nfBreathe{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
 
-/* colour bars — the studio's palette standing in for SMPTE's */
-.nf-bars{display:grid;grid-template-columns:repeat(7,1fr);height:clamp(8px,1.4vw,13px)}
-.nf-bars i{display:block;animation:nfTear 7s steps(1) infinite}
-.nf-bars i:nth-child(1){background:var(--wh)}
-.nf-bars i:nth-child(2){background:var(--lm);animation-delay:.4s}
-.nf-bars i:nth-child(3){background:var(--cy);animation-delay:.9s}
-.nf-bars i:nth-child(4){background:#8fd45c;animation-delay:1.5s}
-.nf-bars i:nth-child(5){background:var(--yw);animation-delay:2.1s}
-.nf-bars i:nth-child(6){background:#4bd8c8;animation-delay:2.8s}
-.nf-bars i:nth-child(7){background:#152128;animation-delay:3.4s}
-@keyframes nfTear{
-  0%,92%,100%{transform:none;filter:none}
-  93%{transform:translateX(-14%)}
-  95%{transform:translateX(9%);filter:brightness(1.6)}
-  97%{transform:translateX(-4%)}
+.nf-plinth{position:absolute;left:50%;bottom:14%;translate:-50% 0;
+  width:56%;aspect-ratio:2.6/1;
+  background:linear-gradient(175deg,var(--panel-2),var(--ground-2));
+  border:1px solid var(--line);
+  display:grid;place-items:center}
+/* the top face, catching the lamp */
+.nf-plinth::before{content:'';position:absolute;left:-6%;right:-6%;top:-9px;height:10px;
+  background:linear-gradient(180deg,var(--line),var(--panel-2));
+  border:1px solid var(--line);border-bottom:0}
+.nf-mark{font-family:var(--fd);font-weight:300;font-size:clamp(30px,5vw,54px);
+  letter-spacing:.06em;color:transparent;-webkit-text-stroke:1px var(--clay-deep);
+  animation:nfPulse 5.5s var(--ease-soft) infinite}
+@keyframes nfPulse{0%,100%{-webkit-text-stroke-color:var(--clay-deep);opacity:.75}
+  50%{-webkit-text-stroke-color:var(--clay);opacity:1}}
+/* a shadow with nothing to cast it */
+.nf-shadow{position:absolute;left:8%;right:8%;bottom:-16px;height:26px;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(0,0,0,.66),transparent 72%);
+  filter:blur(6px)}
+
+/* four motes, still turning in a light nobody is using */
+.nf-dust{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--clay-lit);
+  opacity:.5;animation:nfFloat 14s linear infinite}
+.nf-dust.d1{left:26%;top:34%;animation-duration:13s}
+.nf-dust.d2{left:64%;top:22%;animation-duration:17s;animation-delay:-4s;opacity:.35}
+.nf-dust.d3{left:44%;top:52%;animation-duration:19s;animation-delay:-9s;opacity:.28}
+.nf-dust.d4{left:73%;top:46%;animation-duration:15s;animation-delay:-6s;opacity:.4}
+@keyframes nfFloat{
+  0%{transform:translate3d(0,0,0)}
+  25%{transform:translate3d(9px,-14px,0)}
+  50%{transform:translate3d(-6px,-26px,0)}
+  75%{transform:translate3d(-13px,-11px,0)}
+  100%{transform:translate3d(0,0,0)}
 }
 
-/* ── screen ───────────────────────────────────────── */
-.nf-screen{position:relative;isolation:isolate;overflow:hidden;
-  padding:clamp(34px,6vw,70px) clamp(20px,5vw,58px) clamp(30px,5vw,54px);
-  background:linear-gradient(160deg,#091116,#060b0f 66%)}
-.nf-screen::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:6;
-  box-shadow:inset 0 0 150px rgba(4,7,10,.9)}
+/* ── what it says ──────────────────────────────────────────────────────── */
+.nf-copy .lbl{margin-bottom:20px}
+.nf-h{margin-bottom:22px}
+.nf-p{font-size:clamp(15px,1.2vw,17.5px);max-width:46ch;margin-bottom:32px}
+.nf-facts{border-top:1px solid var(--line-soft);margin-bottom:34px;max-width:520px}
+.nf-facts>div{display:grid;grid-template-columns:38% 1fr;gap:16px;padding:13px 0;
+  border-bottom:1px solid var(--line-soft)}
+.nf-facts dt{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-4)}
+.nf-facts dd{font-size:13.5px;color:var(--ink-2);overflow-wrap:anywhere}
+.nf-path{color:var(--clay-lit)}
+.nf-acts{display:flex;gap:12px;flex-wrap:wrap}
 
-.nf-bracket{position:absolute;width:20px;height:20px;z-index:5;
-  border:1px solid rgba(62,224,208,.5);animation:opacPulse 3.4s ease-in-out infinite}
-.nf-bracket.tl{top:14px;left:14px;border-right:0;border-bottom:0}
-.nf-bracket.tr{top:14px;right:14px;border-left:0;border-bottom:0;animation-delay:.4s}
-.nf-bracket.bl{bottom:14px;left:14px;border-right:0;border-top:0;animation-delay:.8s}
-.nf-bracket.br{bottom:14px;right:14px;border-left:0;border-top:0;animation-delay:1.2s}
-
-.nf-rec{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.26em;
-  color:var(--yw);margin-bottom:clamp(14px,2vw,22px);position:relative;z-index:4}
-.nf-rec .nf-dot{width:7px;height:7px;border-radius:50%;background:var(--yw);
-  box-shadow:0 0 10px var(--yw);animation:opacPulse 1.1s ease-in-out infinite}
-.nf-rec i{font-style:normal;color:var(--lm);letter-spacing:.2em}
-
-/* ── 404, torn into RGB ───────────────────────────── */
-/* This was a div, so the page had no heading at all — nothing for a screen
-   reader to land on and nothing for a crawler to read as the subject. It is
-   the largest thing on the page and it says what the page is, which is the
-   definition of an h1. Margin is zeroed because a heading brings its own. */
-.nf-code{position:relative;z-index:4;font-family:var(--fd);margin:0;font-weight:400;
-  font-size:clamp(96px,22vw,240px);line-height:.82;letter-spacing:.02em;color:var(--wh);
-  text-shadow:0 0 70px rgba(255,255,255,.12)}
-/* two clones sit behind, one per channel, and slice across on the same beat */
-.nf-code::before,.nf-code::after{content:attr(data-txt);position:absolute;inset:0;
-  pointer-events:none}
-.nf-code::before{color:var(--yw);z-index:-1;transform:translate(-3px,1px);
-  animation:nfSliceA 4.2s steps(1) infinite}
-.nf-code::after{color:var(--cy);z-index:-2;transform:translate(3px,-1px);
-  animation:nfSliceB 4.2s steps(1) infinite}
-@keyframes nfSliceA{
-  0%,88%,100%{transform:translate(-3px,1px);clip-path:none;opacity:.55}
-  89%{transform:translate(-9px,2px);clip-path:inset(12% 0 58% 0);opacity:1}
-  92%{transform:translate(7px,-3px);clip-path:inset(62% 0 14% 0);opacity:1}
-  95%{transform:translate(-4px,1px);clip-path:inset(38% 0 40% 0);opacity:1}
+@media(max-width:900px){
+  .nf-in{grid-template-columns:1fr}
+  .nf-art{grid-row:1;max-width:320px}
+  .nf{padding:110px 0 96px}
 }
-@keyframes nfSliceB{
-  0%,88%,100%{transform:translate(3px,-1px);clip-path:none;opacity:.45}
-  90%{transform:translate(8px,-2px);clip-path:inset(24% 0 46% 0);opacity:1}
-  93%{transform:translate(-6px,3px);clip-path:inset(56% 0 22% 0);opacity:1}
-  96%{transform:translate(3px,-1px);clip-path:inset(8% 0 74% 0);opacity:1}
-}
-
-.nf-msg{position:relative;z-index:4;margin:clamp(12px,2vw,20px) 0 clamp(24px,4vw,36px);
-  font-family:var(--fh);font-size:clamp(12px,2vw,17px);font-weight:300;
-  letter-spacing:.26em;color:var(--nv);text-transform:uppercase}
-.nf-msg b{color:var(--lm);font-weight:600}
-
-/* ── readout ──────────────────────────────────────── */
-.nf-read{position:relative;z-index:4;border-top:1px solid var(--bd);max-width:520px;
-  margin-bottom:clamp(26px,4vw,38px)}
-.nf-read>div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
-  padding:9px 2px;border-bottom:1px solid var(--bd)}
-.nf-read dt{font-size:9px;letter-spacing:.26em;color:var(--mt);flex-shrink:0}
-.nf-read dd{font-size:11px;letter-spacing:.1em;color:var(--sv);text-align:right;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nf-read dd.warn{color:var(--yw)}
-
-.nf-acts{position:relative;z-index:4;display:flex;gap:11px;flex-wrap:wrap}
-.nf-acts .btn-y,.nf-acts .btn-o{animation:none}
-
-/* ── the broken feed itself ───────────────────────── */
-.nf-scan{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.4;
-  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.04) 0 1px,transparent 1px 3px)}
-.nf-noise{position:absolute;inset:-30%;z-index:2;pointer-events:none;opacity:.055;
-  background-image:
-    repeating-linear-gradient(97deg,#fff 0 1px,transparent 1px 4px),
-    repeating-linear-gradient(3deg,#fff 0 1px,transparent 1px 5px);
-  animation:nfFlicker 5.5s steps(1) infinite}
-@keyframes nfFlicker{
-  0%,100%{transform:translate(0,0)}
-  20%{transform:translate(-2%,1%)}
-  40%{transform:translate(1%,-2%)}
-  60%{transform:translate(-1%,2%)}
-  80%{transform:translate(2%,-1%)}
-}
-
-/* ── the ticker along the bottom ──────────────────── */
-.nf-strip{overflow:hidden;padding:9px 0;border-top:1px solid var(--bd);
-  background:var(--ch);font-size:9px;letter-spacing:.28em;color:var(--mt);
-  white-space:nowrap}
-.nf-strip-run{display:inline-flex;align-items:center;gap:16px;padding-right:16px;
-  animation:loopL 30s linear infinite}
-.nf-strip-run span{flex-shrink:0}
-.nf-strip-run i{flex-shrink:0;font-style:normal;color:var(--yw);font-size:5px}
-
-@media (max-width:600px){
-  .nf-read dd{font-size:10px}
-  .nf-acts{flex-direction:column;align-items:stretch}
-  .nf-acts a{text-align:center;justify-content:center}
-  .exp-mobile footer{padding-bottom:calc(54px + env(safe-area-inset-bottom))}
-}
-@media (prefers-reduced-motion:reduce){
-  .nf-bars i,.nf-code::before,.nf-code::after,.nf-noise,.nf-strip-run,
-  .nf-bracket,.nf-rec .nf-dot{animation:none}
-  .nf-code::before,.nf-code::after{opacity:.4}
+@media(prefers-reduced-motion:reduce){
+  .nf-lamp,.nf-mark,.nf-dust{animation:none}
 }
