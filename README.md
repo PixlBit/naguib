@@ -1,4 +1,4 @@
-# AHMED NAGUIB — THE WORKSHOP
+# AHMED NAGUIB — THE WALL
 
 Portfolio site for **Ahmed Naguib** — 3D artist, Marseille.
 No build step, no framework, no backend, no third-party JavaScript.
@@ -15,26 +15,30 @@ Live domain: **https://naguib.art** · Hosting: **Cloudflare Pages**
 
 He began on walls in Giza with a brush and a can, taught calligraphy and
 street art in Cairo, painted murals for a living, and ended up in Marseille
-sculpting characters for animated film. The site is that room: **a bench
-under a warm lamp.**
+sculpting characters for animated film. So the site is not an interface. It
+is **a printed poster on a black wall** — and it is pasted up the way he
+would have pasted one up.
 
 Everything follows from it.
 
-- **The ground is warm charcoal**, not black — `#17140F`, with the light
-  falling from the upper left across every page. The accent is **burnt clay**,
-  the ink is **bone**. There is no neon anywhere.
+- **Black, one dark red, and bone.** The ground is `#080708`; the red
+  (`#B3122B`, and `#E11837` where the light hits it) is a **spot ink**, never
+  a surface: it marks, underlines, cuts and fills. That restraint is what
+  keeps a black-and-red page from reading as a warning sign.
+- **The type is signage.** [Big Shoulders Display](https://fonts.google.com/specimen/Big+Shoulders+Display)
+  was drawn for Chicago's street signs — condensed, heavy, made to be read
+  across a road — and carries every headline. **Archivo** carries what you
+  read rather than look at, **Cairo** carries the Arabic. Nothing is set in a
+  monospace.
+- **Halftone under, grain over.** Two fixed layers of static SVG — a dot
+  screen and one plate of fractal noise — painted once and never repainted.
+  Together they are what makes a flat black page read as printed rather than
+  rendered.
 - **Objects sit in their own pool of shade.** Every render was cut out of the
-  portfolio PDF with its alpha intact and re-composed onto that bench: a
-  vertical gradient, a lamp above and left, a real contact shadow beneath the
-  object, and a plaster tooth over the whole frame. A flat cut-out floating on
-  a gradient reads as a sticker; a shadow is what makes it an object.
-- **The page carries the same tooth** — one fixed layer of fractal noise as an
-  inline SVG, painted once, never repainted.
-- **The type is cut, not set.** [Fraunces](https://fonts.google.com/specimen/Fraunces)
-  is a variable serif with a `SOFT` axis — a face that can be modelled, which
-  is why it is here — for every name and heading. Inter carries what you read
-  rather than look at. Nothing is set in a monospace: a workshop is not a
-  terminal.
+  portfolio PDF with its alpha intact and re-composed on black under a red
+  light: a gradient, a lamp, a real contact shadow beneath the object, and a
+  print tooth over the whole frame. A flat cut-out on a gradient reads as a
+  sticker; a shadow is what makes it an object.
 - **His story is the design, not a section of it.** The rule under the hero
   runs 2015 → 2026 and draws itself once as the page arrives.
 
@@ -61,7 +65,7 @@ the headline. Everything after it answers a question the work has raised.
     SKILLS      eight things, with an icon each
     PROCESS     nine steps, clay to render, lighting as you read them
     SKETCHBOOK  the 2D that came before the 3D
-    THE RACK    what it is made in
+    THE RACK    what it is made in, one drawn mark per tool
     CONTACT     how to reach him, and what time it is where he is
 
 ### Plates, not tiles
@@ -112,14 +116,39 @@ or an opacity, each waits for one shared IntersectionObserver, and each takes
 its delay from a custom property so a group staggers without a line of
 JavaScript per child.
 
-    .rv      rises and fades in
-    .rv-cut  is uncovered from below, the way a form comes out of a block
-    .rv-w    grows from nothing along its own width
+    .rv       rises and fades in
+    .rv-cut   is uncovered from below, the way a stencil lifts
+    .rv-w     a rule drawn from its own left edge
+    .rv-wipe  a red sheet passes over it and leaves the thing behind
 
-Plus: the headline cut in line by line, the lamp sweeping across each plate as
-it arrives, the process steps lighting in sequence, the pointer-following
-preview in the index, and a cursor that opens into a ring over anything worth
-a closer look. All of it stops under `prefers-reduced-motion`.
+Plus: the headline slamming in line by line under a red masthead bar that
+draws itself across the hero, the lamp sweeping across each plate as it
+arrives, the process steps lighting in sequence, the pointer-following preview
+in the index, and a cursor that opens into a ring over anything worth a closer
+look. All of it stops under `prefers-reduced-motion`.
+
+### The icons
+
+One sprite at the top of `index.html`, drawn for this site — no icon library
+is fetched and no logo is copied. Every mark is a single-stroke line drawing
+on a 24 grid so it sits at the same optical weight as the type, and **each
+one carries its own moving part** rather than all of them doing the same
+thing: a chisel that bites, a drop that falls, a gizmo that turns. The class
+on that part is the whole animation API —
+
+    .lift  rises      .spin  turns 45°     .draw  draws itself
+    .glow  brightens  .drop  falls         .turn  turns 90°
+    .puls  swells     .slid  slides right
+
+— and CSS runs them from the hover state of whatever contains the icon, so a
+row, a button and a card each animate their own mark with no JavaScript.
+
+**The software marks are drawn from what the tool does**, not from its badge:
+a stylus in clay for ZBrush, a droplet over a sphere for Substance, keyframe
+diamonds for After Effects, an axis gizmo for 3ds Max. A portfolio may not
+reproduce another company's trademark, and a drawn mark is more his than a
+downloaded one would be. `TOOLKIT` in `studio.js` names the symbol each tool
+uses; the rack lights the whole row of them while the pointer is on it.
 
 > **An element hidden by `clip-path` cannot see itself arrive.** The browser
 > computes an intersection against the *clipped* box, and `.rv-cut` starts at
@@ -212,8 +241,8 @@ that browser's `localStorage` and nowhere else. Before writing it re-reads
 
 > The console keeps its own palette bridge at the top of `studio-admin.css`:
 > two thousand lines of internal tooling written against the old token names,
-> pointed at the new ones. The site carries no compatibility shim it does not
-> need.
+> pointed at the black-and-red ones. The site carries no compatibility shim it
+> does not need.
 
 ## Security
 
@@ -253,7 +282,7 @@ left to frame.
 
 ## External dependencies
 
-Google Fonts: **Fraunces**, **Inter**, **IBM Plex Sans Arabic**. That is the
+Google Fonts: **Big Shoulders Display**, **Archivo**, **Cairo**. That is the
 whole list.
 
 ## Where the pictures came from

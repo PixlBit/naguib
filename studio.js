@@ -132,7 +132,7 @@ const SKILLS = [
 ];
 
 const PROCESS = [
-  {i:'i-pencil', n:'Reference',  d:'Photographs, plans, and other people’s mistakes. The cheapest hour of the job.'},
+  {i:'i-eye',    n:'Reference',  d:'Photographs, plans, and other people’s mistakes. The cheapest hour of the job.'},
   {i:'i-pencil', n:'Concept',    d:'Sketch until the silhouette works on paper. Rarely the first drawing.'},
   {i:'i-cage',   n:'Blockout',   d:'Primitives at true scale, in the shot, before a single detail exists.'},
   {i:'i-clay',   n:'High-poly',  d:'Sculpt or bevel up to the detail the camera will actually resolve.'},
@@ -143,12 +143,24 @@ const PROCESS = [
   {i:'i-lamp',   n:'Light & render', d:'Key, rim and bounce. The frame that goes on the portfolio.'},
 ];
 
+/* Each tool carries the id of a mark in the sprite at the top of
+   index.html — drawn for this site from what the software does, never a
+   copy of anybody's logo — and the one word it is used for. */
 const TOOLKIT = [
-  {n:'ZBrush', m:'Zb'}, {n:'Autodesk 3ds Max', m:'3ds'}, {n:'Autodesk Maya', m:'Ma'},
-  {n:'Blender', m:'Bl'}, {n:'Substance Painter', m:'Sp'}, {n:'Marmoset Toolbag', m:'Mt'},
-  {n:'Unreal Engine', m:'Ue'}, {n:'Nomad Sculpt', m:'No'}, {n:'RizomUV', m:'Uv'},
-  {n:'Topogun', m:'Tp'}, {n:'Photoshop', m:'Ps'}, {n:'After Effects', m:'Ae'},
-  {n:'Procreate', m:'Pr'}, {n:'Quixel Bridge', m:'Qx'},
+  {n:'ZBrush',         i:'s-zbrush',    m:'Sculpting'},
+  {n:'3ds Max',        i:'s-max',       m:'Modeling'},
+  {n:'Maya',           i:'s-maya',      m:'Modeling'},
+  {n:'Blender',        i:'s-blender',   m:'Modeling'},
+  {n:'Substance',      i:'s-painter',   m:'Texturing'},
+  {n:'Marmoset',       i:'s-marmoset',  m:'Lookdev'},
+  {n:'Unreal',         i:'s-unreal',    m:'Real-time'},
+  {n:'Nomad Sculpt',   i:'s-nomad',     m:'Sculpting'},
+  {n:'RizomUV',        i:'s-rizom',     m:'Unwrapping'},
+  {n:'Topogun',        i:'s-topogun',   m:'Retopology'},
+  {n:'Photoshop',      i:'s-photoshop', m:'Retouching'},
+  {n:'After Effects',  i:'s-after',     m:'Compositing'},
+  {n:'Procreate',      i:'s-procreate', m:'Concept'},
+  {n:'Quixel Bridge',  i:'s-quixel',    m:'Scan library'},
 ];
 
 /* ════ THE PIECES, ADDRESSED ═════════════════════════════════════════════ */
@@ -316,7 +328,11 @@ function buildSheets(){
 
 function buildTools(){
   const box = document.getElementById('tool-rack'); if(!box) return;
-  box.innerHTML = TOOLKIT.map(t => `<span class="tool"><b>${t.m}</b>${t.n}</span>`).join('');
+  box.innerHTML = TOOLKIT.map((t,i) => `
+    <span class="tool" style="--i:${i * 90}ms">
+      <svg class="ic"><use href="#${t.i}"/></svg>
+      <span><b class="tool-n">${t.n}</b><span class="tool-m">${t.m}</span></span>
+    </span>`).join('');
 }
 
 /* ════ THE FRAME, FULL SIZE ══════════════════════════════════════════════

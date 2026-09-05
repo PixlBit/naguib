@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Ahmed Naguib | أحمد نجيب — 3D Artist, Marseille</title>
 <meta name="description" content="أحمد نجيب (Ahmed Naguib) — 3D artist in Marseille, France. Character modeling, digital sculpting, hard-surface and prop modeling, texturing and lookdev for animated film and games. Master's in Cinema Animation, École de Condé." />
-<meta name="theme-color" content="#17140F" />
+<meta name="theme-color" content="#080708" />
 <link rel="canonical" href="https://naguib.art/" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://naguib.art/" />
@@ -21,7 +21,7 @@
 <meta name="twitter:image" content="https://naguib.art/assets/og.jpg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700;800;900&family=Archivo:wght@300;400;500;600;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet" />
 <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
@@ -80,15 +80,24 @@
 <body>
 
 <!-- ══ THE TOOL RACK ═══════════════════════════════════════════════════
-     One sprite, drawn for this site. Every icon is a single-stroke line
+     One sprite, drawn for this site — nothing is fetched from an icon
+     library and no logo is copied. Every mark is a single-stroke line
      drawing on a 24 grid so it sits at the same optical weight as the
      type, and each carries its own moving part — a chisel that bites, a
-     lamp that lights, a net that unfolds — rather than all of them
-     spinning the same way.                                            -->
+     drop that falls, a gizmo that turns — rather than all of them doing
+     the same thing. The classes on those parts (lift, spin, draw, glow,
+     drop, turn, puls, slid) are what studio.css animates.
+
+     The `s-` marks are the software. They are drawn from what the tool
+     does — a stylus in clay for ZBrush, a droplet over a sphere for
+     Substance, keyframe diamonds for After Effects — because a portfolio
+     may not reproduce another company's trademark, and a drawn mark is
+     more his than a downloaded badge would be.                          -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
+    <!-- ── the craft ─────────────────────────────────────────────────── -->
     <symbol id="i-chisel" viewBox="0 0 24 24"><g class="lift"><path d="M15.5 3.2 20.8 8.5 10.4 18.9l-5.3-5.3z"/><path d="M8.2 16.7 5.4 19.5"/></g><path class="draw" d="M3 21h7"/></symbol>
-    <symbol id="i-clay" viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.6"/><path class="lift" d="M9 11.4c1.5-1.7 4.2-1.9 5.9-.4"/><path class="glow" d="M12 5.4V2.6"/></symbol>
+    <symbol id="i-clay" viewBox="0 0 24 24"><path d="M4.2 14.6c0-4.6 3.5-8 7.8-8s7.8 3.4 7.8 8c0 3.2-3.5 5.4-7.8 5.4s-7.8-2.2-7.8-5.4z"/><path class="lift" d="M8.8 12.6c1.6-1.9 4.6-2.1 6.4-.4"/><path class="glow" d="M9.6 16.6h4.8"/></symbol>
     <symbol id="i-cage" viewBox="0 0 24 24"><g class="spin"><path d="M12 2.6 21 7.4v9.2L12 21.4 3 16.6V7.4z"/><path d="M3 7.4l9 4.8 9-4.8M12 12.2v9.2"/></g></symbol>
     <symbol id="i-uv" viewBox="0 0 24 24"><path d="M3.2 8.6h6.2v6.2H3.2z"/><path class="draw" d="M9.4 8.6h5.4v6.2H9.4z"/><path d="M14.8 11.7h6v3.1h-6z"/><path class="lift" d="M9.4 8.6 12 4.2l2.8 4.4"/></symbol>
     <symbol id="i-brush" viewBox="0 0 24 24"><path d="M20.6 3.4c-3.4 1-8.3 4.4-11 8"/><path class="lift" d="M9.6 11.4a3.6 3.6 0 0 1 3 3C11.4 17 8 18.6 4 18.6c1.6-2 2-4.6 1.6-6.2 1.4-1.2 2.8-1.4 4-1z"/></symbol>
@@ -97,23 +106,50 @@
     <symbol id="i-pencil" viewBox="0 0 24 24"><g class="lift"><path d="M16.4 3.2 20.8 7.6 8.4 20H4v-4.4z"/><path d="M14.2 5.4l4.4 4.4"/></g></symbol>
     <symbol id="i-render" viewBox="0 0 24 24"><g class="spin"><rect x="3.6" y="3.6" width="16.8" height="16.8" rx="1"/></g><circle class="glow" cx="12" cy="12" r="3.6"/><path class="draw" d="M12 3.6v4.8M12 15.6v4.8M3.6 12h4.8M15.6 12h4.8"/></symbol>
     <symbol id="i-hand" viewBox="0 0 24 24"><path class="lift" d="M8.4 12V4.6a1.5 1.5 0 0 1 3 0V11m0-1.4a1.5 1.5 0 0 1 3 0V11m0-.6a1.5 1.5 0 0 1 3 0v4.2c0 3.4-2.4 6-5.8 6-3 0-4.6-1.4-5.8-3.6L4.6 14c-.5-.9.5-2 1.5-1.5z"/></symbol>
+    <symbol id="i-can" viewBox="0 0 24 24"><g class="lift"><rect x="6.4" y="7.6" width="9.6" height="13" rx="1"/><path d="M8.8 7.6V5.2h4.8v2.4"/></g><g class="glow"><circle cx="19.4" cy="4.4" r=".9"/><circle cx="21.2" cy="7.2" r=".7"/><circle cx="18" cy="8" r=".6"/></g></symbol>
+    <symbol id="i-wall" viewBox="0 0 24 24"><path d="M2.6 5.6h18.8v12.8H2.6z"/><path class="draw" d="M2.6 9.9h18.8M2.6 14.1h18.8M9 5.6v4.3M15.6 5.6v4.3M6 9.9v4.2M12.6 9.9v4.2M18.6 9.9v4.2M9 14.1v4.3M15.6 14.1v4.3"/></symbol>
+    <symbol id="i-cap" viewBox="0 0 24 24"><path class="lift" d="M12 3.4 22 8.2 12 13 2 8.2z"/><path d="M6 10.4v5.2c0 1.8 2.7 3.2 6 3.2s6-1.4 6-3.2v-5.2"/><path class="draw" d="M21 9v5.6"/></symbol>
+    <symbol id="i-case" viewBox="0 0 24 24"><rect x="2.6" y="7" width="18.8" height="13.4" rx="1"/><path class="lift" d="M8.6 7V4.8a1.6 1.6 0 0 1 1.6-1.6h3.6a1.6 1.6 0 0 1 1.6 1.6V7"/><path class="draw" d="M2.6 12.6h18.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path class="lift" d="M12 21.4s7-6.2 7-11.2a7 7 0 1 0-14 0c0 5 7 11.2 7 11.2z"/><circle class="glow" cx="12" cy="10" r="2.6"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path class="lift" d="M12 2.8 21.6 8 12 13.2 2.4 8z"/><path d="M2.4 12.4 12 17.6l9.6-5.2"/><path class="draw" d="M2.4 16.4 12 21.6l9.6-5.2"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path class="puls" d="M12 2.6 14.2 9.8 21.4 12l-7.2 2.2L12 21.4 9.8 14.2 2.6 12l7.2-2.2z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1.6 12S5.4 5 12 5s10.4 7 10.4 7-3.8 7-10.4 7S1.6 12 1.6 12z"/><circle class="puls" cx="12" cy="12" r="3.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path class="turn" d="M12 6.6V12l3.6 2.2"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M3.6 15.6v3.4a1.6 1.6 0 0 0 1.6 1.6h13.6a1.6 1.6 0 0 0 1.6-1.6v-3.4"/><g class="drop"><path d="M12 3v11.4"/><path d="M7.4 10.2 12 14.8l4.6-4.6"/></g></symbol>
     <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2.6" y="4.8" width="18.8" height="14.4"/><path class="lift" d="M2.6 6 12 13.4 21.4 6"/></symbol>
     <symbol id="i-phone" viewBox="0 0 24 24"><path class="lift" d="M21.4 16.9v2.9a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1.5 4.1 2 2 0 0 1 3.5 2h2.9a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L7.5 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24"><path class="lift" d="M21 11.6a8.4 8.4 0 0 1-12.4 7.4L3 20.6l1.7-5.4A8.4 8.4 0 1 1 21 11.6z"/><path class="glow" d="M8.6 10.4h.01M12 10.4h.01M15.4 10.4h.01"/></symbol>
     <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M14 2.6H6.4v18.8h11.2V6.2z"/><path class="draw" d="M13.7 2.6v3.9h3.9"/><path d="M9.6 12.4h4.8M9.6 15.7h4.8"/></symbol>
     <symbol id="i-art" viewBox="0 0 24 24"><path class="lift" d="M2.6 17.4H6L12 4.2l6 13.2h3.4"/><path d="M7.6 20.4h11.8M8.4 14.4h7.2"/></symbol>
     <symbol id="i-in" viewBox="0 0 24 24"><rect x="2.8" y="2.8" width="18.4" height="18.4"/><path class="lift" d="M7.4 10.4v6.4M7.4 7.6v.01M11.6 16.8v-6.4m0 2.2c0-1.4 1-2.2 2.3-2.2 1.4 0 2.5.8 2.5 2.6v4"/></symbol>
-    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4.6 12h14.8M13.4 6l6 6-6 6"/></symbol>
-    <symbol id="i-out" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path class="slid" d="M4.6 12h14.8M13.4 6l6 6-6 6"/></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24"><path class="lift" d="M7 17 17 7M9 7h8v8"/></symbol>
     <symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 3.6H3.6V9M15 20.4h5.4V15M3.6 3.6 10 10M20.4 20.4 14 14"/></symbol>
     <symbol id="i-prev" viewBox="0 0 24 24"><path d="M19.4 12H4.6M10.6 6l-6 6 6 6"/></symbol>
-    <symbol id="i-close" viewBox="0 0 24 24"><path d="M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4"/></symbol>
-    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 1.8v2.6M12 19.6v2.6M4.8 4.8l1.9 1.9M17.3 17.3l1.9 1.9M1.8 12h2.6M19.6 12h2.6M4.8 19.2l1.9-1.9M17.3 6.7l1.9-1.9"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><g class="spin"><path d="M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4"/></g></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><g class="turn"><path d="M12 1.8v2.6M12 19.6v2.6M4.8 4.8l1.9 1.9M17.3 17.3l1.9 1.9M1.8 12h2.6M19.6 12h2.6M4.8 19.2l1.9-1.9M17.3 6.7l1.9-1.9"/></g></symbol>
     <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.4 14.6A8.6 8.6 0 0 1 9.4 3.6a8.6 8.6 0 1 0 11 11z"/></symbol>
-    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.4 11.6 12 3.4l8.6 8.2"/><path d="M5.6 10.4v10h12.8v-10"/></symbol>
-    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.4" y="3.4" width="7" height="7"/><rect x="13.6" y="3.4" width="7" height="7"/><rect x="3.4" y="13.6" width="7" height="7"/><rect x="13.6" y="13.6" width="7" height="7"/></symbol>
-    <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.4 20.6v-1a7.6 7.6 0 0 1 15.2 0v1"/></symbol>
-    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8.4 6.4h12M8.4 12h12M8.4 17.6h12M3.6 6.4h.01M3.6 12h.01M3.6 17.6h.01"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path class="lift" d="M3.4 11.6 12 3.4l8.6 8.2"/><path d="M5.6 10.4v10h12.8v-10"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.4" y="3.4" width="7" height="7"/><rect x="13.6" y="3.4" width="7" height="7"/><rect x="3.4" y="13.6" width="7" height="7"/><rect class="puls" x="13.6" y="13.6" width="7" height="7"/></symbol>
+    <symbol id="i-person" viewBox="0 0 24 24"><circle class="lift" cx="12" cy="8" r="4"/><path d="M4.4 20.6v-1a7.6 7.6 0 0 1 15.2 0v1"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8.4 6.4h12M8.4 12h12M8.4 17.6h12"/><path class="glow" d="M3.6 6.4h.01M3.6 12h.01M3.6 17.6h.01"/></symbol>
+
+    <!-- ── the software, drawn by what it does ───────────────────────── -->
+    <symbol id="s-zbrush" viewBox="0 0 24 24"><circle cx="10.2" cy="14.2" r="6.6"/><g class="lift"><path d="M14.6 9.6 21.2 3"/><path d="M18.6 3.2 21 2.8l-.4 2.4"/></g><path class="draw" d="M6.6 12.8c1.8-2 4.6-2.2 6.4-.6"/></symbol>
+    <symbol id="s-max" viewBox="0 0 24 24"><g class="spin"><path d="M12 12V3.8M12 12h8.2M12 12 4.6 17.4"/></g><circle class="glow" cx="12" cy="12" r="2.4"/><path d="M12 3.2 10.4 5.8M12 3.2l1.6 2.6M20.8 12l-2.6-1.6M20.8 12l-2.6 1.6"/></symbol>
+    <symbol id="s-maya" viewBox="0 0 24 24"><g class="spin"><ellipse cx="12" cy="12" rx="8.6" ry="3.8"/><ellipse cx="12" cy="12" rx="3.8" ry="8.6"/></g><circle class="glow" cx="12" cy="12" r="1.8"/></symbol>
+    <symbol id="s-blender" viewBox="0 0 24 24"><circle cx="12.6" cy="13.4" r="6.8"/><circle class="puls" cx="14.6" cy="11.6" r="2"/><path class="draw" d="M3.4 8.6 10.6 5.4"/><path d="M3.4 8.6h5.2"/></symbol>
+    <symbol id="s-painter" viewBox="0 0 24 24"><circle cx="12" cy="15.2" r="5.8"/><path class="drop" d="M12 1.6c1.9 2.5 3.1 4 3.1 5.4a3.1 3.1 0 0 1-6.2 0c0-1.4 1.2-2.9 3.1-5.4z"/><path class="draw" d="M6.4 15.2h11.4"/></symbol>
+    <symbol id="s-marmoset" viewBox="0 0 24 24"><path d="M3.4 8.6h17.2v11.8H3.4z"/><path class="lift" d="M8.4 8.6V6.2a3.6 3.6 0 0 1 7.2 0v2.4"/><circle class="glow" cx="12" cy="14.4" r="2.8"/></symbol>
+    <symbol id="s-unreal" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.4"/><g class="spin"><ellipse cx="12" cy="12" rx="9.6" ry="4.4" transform="rotate(-30 12 12)"/></g><circle class="glow" cx="12" cy="12" r="1.4"/></symbol>
+    <symbol id="s-nomad" viewBox="0 0 24 24"><rect x="2.8" y="3.4" width="13.4" height="17.2" rx="1.2"/><g class="lift"><path d="M20.4 3.2 22.2 5l-7.4 7.4-2.6.8.8-2.6z"/></g><path class="draw" d="M6 17.4h6.4"/></symbol>
+    <symbol id="s-rizom" viewBox="0 0 24 24"><path d="M9.2 3.4h5.6v5.4h5.6v5.6h-5.6v5.6H9.2v-5.6H3.6V8.8h5.6z"/><path class="draw" d="M9.2 8.8h5.6v5.6H9.2z"/></symbol>
+    <symbol id="s-topogun" viewBox="0 0 24 24"><path d="M14.6 2.8c-5 0-8.4 3.8-8.4 8.4 0 2 .6 3.2-1.4 5.2-.7.7-.4 1.6.6 1.8l2.2.4v2.6h7.2"/><path class="draw" d="M6.4 7.6h9.8M5.2 13h11.6M8.6 3.6v16M13 3v18.2"/></symbol>
+    <symbol id="s-photoshop" viewBox="0 0 24 24"><rect x="2.8" y="2.8" width="12.4" height="12.4"/><g class="lift"><rect x="8.8" y="8.8" width="12.4" height="12.4"/></g></symbol>
+    <symbol id="s-after" viewBox="0 0 24 24"><path d="M2.4 12h19.2"/><g class="slid"><path d="M7.4 9.2 10.2 12l-2.8 2.8L4.6 12z"/></g><path class="glow" d="M17 9.2 19.8 12 17 14.8 14.2 12z"/><path d="M2.4 5.6v12.8"/></symbol>
+    <symbol id="s-procreate" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1.4"/><path class="draw" d="M6.6 16.8c1.6-6.2 7.6-9 10.8-9.6"/><circle class="glow" cx="17.4" cy="7" r="1.6"/></symbol>
+    <symbol id="s-quixel" viewBox="0 0 24 24"><path d="M3.4 15 8.4 5.6l6.6 2.4 5.6 6.6-3.6 5H6z"/><path class="draw" d="M8.4 5.6 10 12.2 3.4 15M10 12.2l5-4.2M10 12.2l4.6 7.4"/></symbol>
+    <symbol id="s-zbrush-alt" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path class="draw" d="M7 13.4c2.4-3 7.6-3.4 10 0"/></symbol>
   </defs>
 </svg>
 
@@ -166,11 +202,11 @@
 
 <!-- ══ THE BENCH ═══════════════════════════════════════════════════════ -->
 <section id="hero">
-  <div class="h-lamp" aria-hidden="true"></div>
-  <div class="h-grid" aria-hidden="true"></div>
+  <div class="dots" aria-hidden="true"></div>
+  <div class="h-bar" aria-hidden="true"></div>
   <div class="h-in">
     <div>
-      <p class="h-kicker"><i></i>3D Artist &middot; Marseille, France</p>
+      <p class="h-kicker"><i></i><svg class="ic k-ic"><use href="#i-pin"/></svg>3D Artist &middot; Marseille, France</p>
       <h1 class="h-h1 d1">
         <span><b>I began</b></span>
         <span><b>on <em>walls.</em></b></span>
@@ -208,7 +244,7 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <p class="lbl rv">Selected work</p>
+        <p class="lbl rv"><svg class="ic lbl-ic"><use href="#i-grid"/></svg>Selected work</p>
         <h2 class="d2 rv-cut" style="--d:80ms">Objects, one<br /><em>at a time.</em></h2>
       </div>
       <p class="count rv" style="--d:160ms" id="work-count"></p>
@@ -222,7 +258,7 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <p class="lbl rv">The index</p>
+        <p class="lbl rv"><svg class="ic lbl-ic"><use href="#i-list"/></svg>The index</p>
         <h2 class="d2 rv-cut" style="--d:80ms">Everything<br /><em>on the bench.</em></h2>
       </div>
       <p class="count rv" style="--d:160ms" id="idx-count"></p>
@@ -236,7 +272,7 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <p class="lbl rv">The maker</p>
+        <p class="lbl rv"><svg class="ic lbl-ic"><use href="#i-person"/></svg>The maker</p>
         <h2 class="d2 rv-cut" style="--d:80ms">From Giza,<br /><em>by way of a wall.</em></h2>
       </div>
     </div>
@@ -256,7 +292,7 @@
 
         <div class="ab-cols">
           <div class="rv" style="--d:150ms">
-            <p class="lbl cv-h">Education</p>
+            <p class="lbl cv-h"><svg class="ic lbl-ic"><use href="#i-cap"/></svg>Education</p>
             <div class="cv-item">
               <div class="cv-y">2026</div>
               <div class="cv-t">Master's Degree in Cinema Animation</div>
@@ -270,7 +306,7 @@
             </div>
           </div>
           <div class="rv" style="--d:200ms">
-            <p class="lbl cv-h">Experience</p>
+            <p class="lbl cv-h"><svg class="ic lbl-ic"><use href="#i-case"/></svg>Experience</p>
             <div class="cv-item">
               <div class="cv-y">2025</div>
               <div class="cv-t">3D Artist Intern — Hug Back Studio</div>
@@ -301,7 +337,7 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <p class="lbl rv">What I do</p>
+        <p class="lbl rv"><svg class="ic lbl-ic"><use href="#i-spark"/></svg>What I do</p>
         <h2 class="d2 rv-cut" style="--d:80ms">Eight things,<br /><em>done properly.</em></h2>
       </div>
     </div>
@@ -314,7 +350,7 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <p class="lbl rv">The process</p>
+        <p class="lbl rv"><svg class="ic lbl-ic"><use href="#i-render"/></svg>The process</p>
         <h2 class="d2 rv-cut" style="--d:80ms">Clay first,<br /><em>render last.</em></h2>
       </div>
       <p class="count rv" style="--d:160ms">Nine steps &middot; <b>every piece</b></p>
@@ -328,7 +364,7 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <p class="lbl rv">The sketchbook</p>
+        <p class="lbl rv"><svg class="ic lbl-ic"><use href="#i-pencil"/></svg>The sketchbook</p>
         <h2 class="d2 rv-cut" style="--d:80ms">Paper,<br /><em>then polygons.</em></h2>
       </div>
       <p class="count rv" style="--d:160ms" id="sheet-count"></p>
@@ -342,11 +378,11 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <p class="lbl rv">The rack</p>
+        <p class="lbl rv"><svg class="ic lbl-ic"><use href="#i-layers"/></svg>The rack</p>
         <h2 class="d2 rv-cut" style="--d:80ms">What it is<br /><em>made in.</em></h2>
       </div>
     </div>
-    <div class="tools rv" style="--d:120ms" id="tool-rack"></div>
+    <div class="tools rv-wipe" style="--d:120ms" id="tool-rack"></div>
   </div>
 </section>
 
@@ -354,7 +390,7 @@
 <section id="contact" class="sec">
   <div class="wrap">
     <div class="c-h">
-      <p class="lbl rv">Contact</p>
+      <p class="lbl rv"><svg class="ic lbl-ic"><use href="#i-mail"/></svg>Contact</p>
       <h2 class="d2 rv-cut" style="--d:80ms;margin-top:18px">Bring me something<br /><em>hard to build.</em></h2>
     </div>
     <div class="c-grid">
@@ -385,6 +421,12 @@
           <span class="c-v">+33 7 51 69 72 57</span>
           <svg class="ic c-go" style="width:16px;height:16px"><use href="#i-out"/></svg>
         </a>
+        <a class="c-row" href="https://maps.google.com/?q=Marseille,France" target="_blank" rel="noopener">
+          <svg class="ic"><use href="#i-pin"/></svg>
+          <span class="c-k">Based in</span>
+          <span class="c-v">Marseille, France</span>
+          <svg class="ic c-go" style="width:16px;height:16px"><use href="#i-out"/></svg>
+        </a>
       </div>
       <div class="rv" style="--d:120ms">
         <div class="c-col-h">
@@ -404,7 +446,7 @@
           <svg class="ic c-go" style="width:16px;height:16px"><use href="#i-out"/></svg>
         </a>
         <a class="c-row" href="assets/ahmed-naguib-portfolio-2026.pdf" target="_blank" rel="noopener">
-          <svg class="ic"><use href="#i-pdf"/></svg>
+          <svg class="ic"><use href="#i-download"/></svg>
           <span class="c-k">Portfolio</span>
           <span class="c-v">PDF &middot; 2026</span>
           <svg class="ic c-go" style="width:16px;height:16px"><use href="#i-out"/></svg>

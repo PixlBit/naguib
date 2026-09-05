@@ -15,31 +15,31 @@
 /* ── the bench ─────────────────────────────────────────────────────────── */
 .nf-art{position:relative;aspect-ratio:1;max-width:460px;justify-self:center;width:100%}
 .nf-lamp{position:absolute;inset:-14% -10% 20% -10%;pointer-events:none;
-  background:radial-gradient(ellipse 52% 46% at 46% 30%,rgba(200,121,74,.20),transparent 68%);
-  animation:nfBreathe 9s var(--ease-soft) infinite}
+  background:radial-gradient(ellipse 52% 46% at 46% 30%,rgba(179,18,43,.24),transparent 68%);
+  animation:nfBreathe 9s var(--ease) infinite}
 @keyframes nfBreathe{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
 
 .nf-plinth{position:absolute;left:50%;bottom:14%;translate:-50% 0;
   width:56%;aspect-ratio:2.6/1;
-  background:linear-gradient(175deg,var(--panel-2),var(--ground-2));
+  background:linear-gradient(175deg,var(--panel-2),var(--bg-2));
   border:1px solid var(--line);
   display:grid;place-items:center}
 /* the top face, catching the lamp */
 .nf-plinth::before{content:'';position:absolute;left:-6%;right:-6%;top:-9px;height:10px;
   background:linear-gradient(180deg,var(--line),var(--panel-2));
   border:1px solid var(--line);border-bottom:0}
-.nf-mark{font-family:var(--fd);font-weight:300;font-size:clamp(30px,5vw,54px);
-  letter-spacing:.06em;color:transparent;-webkit-text-stroke:1px var(--clay-deep);
-  animation:nfPulse 5.5s var(--ease-soft) infinite}
-@keyframes nfPulse{0%,100%{-webkit-text-stroke-color:var(--clay-deep);opacity:.75}
-  50%{-webkit-text-stroke-color:var(--clay);opacity:1}}
+.nf-mark{font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(30px,5vw,54px);
+  letter-spacing:.06em;color:transparent;-webkit-text-stroke:1px var(--red-deep);
+  animation:nfPulse 5.5s var(--ease) infinite}
+@keyframes nfPulse{0%,100%{-webkit-text-stroke-color:var(--red-deep);opacity:.75}
+  50%{-webkit-text-stroke-color:var(--red);opacity:1}}
 /* a shadow with nothing to cast it */
 .nf-shadow{position:absolute;left:8%;right:8%;bottom:-16px;height:26px;
   background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(0,0,0,.66),transparent 72%);
   filter:blur(6px)}
 
 /* four motes, still turning in a light nobody is using */
-.nf-dust{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--clay-lit);
+.nf-dust{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--red-lit);
   opacity:.5;animation:nfFloat 14s linear infinite}
 .nf-dust.d1{left:26%;top:34%;animation-duration:13s}
 .nf-dust.d2{left:64%;top:22%;animation-duration:17s;animation-delay:-4s;opacity:.35}
@@ -57,12 +57,12 @@
 .nf-copy .lbl{margin-bottom:20px}
 .nf-h{margin-bottom:22px}
 .nf-p{font-size:clamp(15px,1.2vw,17.5px);max-width:46ch;margin-bottom:32px}
-.nf-facts{border-top:1px solid var(--line-soft);margin-bottom:34px;max-width:520px}
+.nf-facts{border-top:1px solid var(--line-2);margin-bottom:34px;max-width:520px}
 .nf-facts>div{display:grid;grid-template-columns:38% 1fr;gap:16px;padding:13px 0;
-  border-bottom:1px solid var(--line-soft)}
-.nf-facts dt{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-4)}
-.nf-facts dd{font-size:13.5px;color:var(--ink-2);overflow-wrap:anywhere}
-.nf-path{color:var(--clay-lit)}
+  border-bottom:1px solid var(--line-2)}
+.nf-facts dt{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.nf-facts dd{font-size:13.5px;color:var(--ash);overflow-wrap:anywhere}
+.nf-path{color:var(--red-lit)}
 .nf-acts{display:flex;gap:12px;flex-wrap:wrap}
 
 @media(max-width:900px){

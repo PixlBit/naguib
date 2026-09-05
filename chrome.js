@@ -21,7 +21,8 @@
   window.CALM  = CALM;
 
   /* ══ THE REVEAL ════════════════════════════════════════════════════════
-     One observer for the whole site. Anything with .rv, .rv-cut or .rv-w
+     One observer for the whole site. Anything with .rv, .rv-cut, .rv-w or
+     .rv-wipe
      gets .in when it arrives, and keeps it — a section that re-animates
      every time you scroll back past it is a section that never settles.
 
@@ -55,7 +56,7 @@
     list.push(el);
   }
   const watch = root => (root || document)
-    .querySelectorAll('.rv,.rv-cut,.rv-w,.plate,.step')
+    .querySelectorAll('.rv,.rv-cut,.rv-w,.rv-wipe,.plate,.step')
     .forEach(add);
   window.reveal = watch;
   watch();
